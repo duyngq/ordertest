@@ -1,18 +1,14 @@
-/*
-	 CSS-Tricks Example
-	 by Chris Coyier
-	 http://css-tricks.com
-*/
-
 * { margin: 0; padding: 0; }
 body { font: 14px/1.4 Georgia, serif; }
 #page-wrap { width: 800px; margin: 0 auto; }
+
+p.solid {border-style: solid;}
 
 textarea { border: 0; font: 14px Georgia, Serif; overflow: hidden; resize: none; }
 table { border-collapse: collapse; }
 table td, table th { border: 1px solid black; padding: 5px; }
 
-#header { height: 15px; width: 100%; margin: 20px 0; background: #222; text-align: center; color: white; font: bold 15px Helvetica, Sans-Serif; text-decoration: uppercase; letter-spacing: 20px; padding: 8px 0px; }
+#header { height: 60px; width: 100%; margin: 20px 0; text-align: center; font: bold 60px Helvetica, Sans-Serif; text-decoration: underline; padding: 8px 0px; }
 
 #address { width: 250px; height: 150px; float: left; }
 #customer { overflow: hidden; }
@@ -28,8 +24,8 @@ table td, table th { border: 1px solid black; padding: 5px; }
 .edit #image, #save-logo, #cancel-logo, .edit #change-logo, .edit #delete-logo { display: none; }
 #customer-title { font-size: 20px; font-weight: bold; float: left; }
 
-#meta { margin-top: 1px; width: 300px; float: right; }
-#meta td { text-align: right;  }
+#meta { margin-top: 1px; width: 60%; float: center; }
+#meta td { text-align: left;  }
 #meta td.meta-head { text-align: left; background: #eee; }
 #meta td textarea { width: 100%; height: 20px; text-align: right; }
 
@@ -50,7 +46,15 @@ table td, table th { border: 1px solid black; padding: 5px; }
 #terms h5 { text-transform: uppercase; font: 13px Helvetica, Sans-Serif; letter-spacing: 10px; border-bottom: 1px solid black; padding: 0 0 8px 0; margin: 0 0 8px 0; }
 #terms textarea { width: 100%; text-align: center;}
 
+#underline { text-decoration: underline}
+
 textarea:hover, textarea:focus, #items td.total-value textarea:hover, #items td.total-value textarea:focus, .delete:hover { background-color:#EEFF88; }
 
 .delete-wpr { position: relative; }
 .delete { display: block; color: #000; text-decoration: none; position: absolute; background: #EEEEEE; font-weight: bold; padding: 0px 3px; border: 1px solid; top: -6px; left: -22px; font-family: Verdana; font-size: 12px; }
+
+#tablenoborder { border-collapse:collapse; margin-top: 1px; width: 60%; float: center; }
+#tablenoborder td { text-align: left;  }
+.nothing{   border-collapse:collapse;} 
+.nothing td{   border:none;   outline:none;}
+.underline {     display: inline-block;     border-bottom: 1px #CCCCCC solid;}

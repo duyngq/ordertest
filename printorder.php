@@ -25,8 +25,7 @@ p.hidden {
 </style>
 <script type="text/javascript" src="js/validate.js"></script>
 <script type="text/javascript" src="js/util.js"></script>
-<link rel="stylesheet"
-	href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
 <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <link rel='stylesheet' type='text/css' href='css/style.css' />
@@ -47,135 +46,91 @@ p.hidden {
 
 		<div id="identity">
 
-            <p align="center">1229 Jacklin Rd, Milpitas, Ca, 95036</br>
-            <strong>Tell</strong>: <a href="#">408-781-8812</a></p>
+            <p align="center" id="underline">1229 Jacklin Rd, Milpitas, Ca, 95036</br></p>
+            <p  align="center"><strong>Tell</strong>: <a href="#">408-781-8812</a></p>
 			</br></br>
 
-            <p align="center">160 Đường D2, Phường 25, Quận Bình Thạnh</br>MR.Khoa: <a href="#">0934-934-952</a>
-            <strong>Tell</strong>: <a href="#">408-781-8812</a></p>
+            <p align="center" id="underline">160 Ä�Æ°á»�ng D2, PhÆ°á»�ng 25, Quáº­n BÃ¬nh Tháº¡nh</br></p>
+            <p align="center"><strong>MR.Khoa: </strong><a href="#">0934-934-952</a></p>
+		    </br></br>
+		    <p align="center">RECEIPT</br>SP: <?php echo "&ltTheNumberOfOrderHere&gt";?></p>
+		    
+		    
 
-            <div id="logo">
+        <div style="clear:both"></div>
 
-              <div id="logoctr">
-                <a href="javascript:;" id="change-logo" title="Change logo">Change Logo</a>
-                <a href="javascript:;" id="save-logo" title="Save changes">Save</a>
-                |
-                <a href="javascript:;" id="delete-logo" title="Delete logo">Delete Logo</a>
-                <a href="javascript:;" id="cancel-logo" title="Cancel changes">Cancel</a>
-              </div>
-
-              <div id="logohelp">
-                <input id="imageloc" type="text" size="50" value="" /><br />
-                (max width: 540px, max height: 100px)
-              </div>
-              <img id="image" src="images/logo.png" alt="logo" />
-            </div>
-
-		</div>
-
-		<div style="clear:both"></div>
-
-		<div id="customer">
-
-            <textarea id="customer-title">Widget Corp.
-c/o Steve Widget</textarea>
+        <div id="customer" align="center">
 
             <table id="meta">
                 <tr>
-                    <td class="meta-head">Invoice #</td>
-                    <td><textarea>000123</textarea></td>
-                </tr>
-                <tr>
-
-                    <td class="meta-head">Date</td>
-                    <td><textarea id="date">December 15, 2009</textarea></td>
-                </tr>
-                <tr>
-                    <td class="meta-head">Amount Due</td>
-                    <td><div class="due">$875.00</div></td>
+                    <td class="meta-head">
+	                    <p id="underline">Sender (Người gửi)</br>Name:</p> <?php echo "&ltSenderName&gt";?></br>
+	                    <p id="underline">Address: <?php echo "&ltSenderAddress&gt 164D Nguyễn Đình Chính Phường 8, Quận Phú Nhuận";?></p> </br>
+	                    <p id="underline">Phone: <?php echo "&ltSenderPhone&gt";?></p>
+	                </td>
+                    <td class="meta-head">
+	                    <p id="underline">Receiver (Người nhận)</br>Name:</p> <?php echo "&ltReceiverName&gt";?></br>
+	                    <p id="underline">Address: <?php echo "&ltSenderAddress&gt 164D Nguyễn Đình Chính Phường 8, Quận Phú Nhuận";?></p> </br>
+	                    <p id="underline">Phone: <?php echo "&ltSenderPhone&gt";?></p>
+	                </td>
                 </tr>
 
             </table>
 
+        </div>
 		</div>
+		
+		<div align="center">
+            <table id="meta">
+                <tr>
+                    <td> <p id="underline"><strong>DESCRIPTION OF CONTENTS: (TÊN HÀNG HÓA):</strong></p>
+                    <?php
+                        //For loop here over product list to show:
+                        // + <quantity> <unit> <productName>
 
-		<table id="items">
+                        // hien phu thu
+                        // PHU THU: <quantity> <unit> <productName> X <price> = <total>
+                        
+                        // TOTAL: <weight> X <pricePerWeight> = total1 + <total> = <final total>
+                    ?>
+                    </td>
+                </tr>
 
-		  <tr>
-		      <th>Item</th>
-		      <th>Description</th>
-		      <th>Unit Cost</th>
-		      <th>Quantity</th>
-		      <th>Price</th>
-		  </tr>
+            </table>
+            <table id="tablenoborder" class="nothing">
+                <tr>
+                    <td><strong>Weight:(lbs)</strong></td>
+                    <td></td>
+                    <td><strong>Date:</strong></td>
+                    <td></td>
+                    <td><strong>No.oBox:</strong></td>
+                    <td contenteditable='true'>1</td>
+                </tr>
+            </table>
+            <table id="tablenoborder" class="nothing">
+                <tr>
+                    <td><strong>TOTAL:</strong></td>
+                    <td><p class="solid">$89</p></td>
+                </tr>
+            </table>
+        </div>
+        <div align="center">
+            <table id="meta" class="nothing">
+                <tr>
+                    <td>
+                    <ul>
+			            <li>
+			                Chúng tôi không chịu trách nhiệm của hàng hóa bị vỡ trong quá trình vận chuyển trên chuyến bay.
+			            </li>
+			            <li>
+			                Chúng tôi chỉ hoàn trả lại tổng giá trị hàng hóa 100% nếu như quý khách hàng mua bảo hiểm của công ty chúng tôi.
+			            </li>
+			            </ul>
+                    </td>
+                </tr>
+            </table>
+        </div>
 
-		  <tr class="item-row">
-		      <td class="item-name"><div class="delete-wpr"><textarea>Web Updates</textarea><a class="delete" href="javascript:;" title="Remove row">X</a></div></td>
-		      <td class="description"><textarea>Monthly web updates for http://widgetcorp.com (Nov. 1 - Nov. 30, 2009)</textarea></td>
-		      <td><textarea class="cost">$650.00</textarea></td>
-		      <td><textarea class="qty">1</textarea></td>
-		      <td><span class="price">$650.00</span></td>
-		  </tr>
-
-		  <tr class="item-row">
-		      <td class="item-name"><div class="delete-wpr"><textarea>SSL Renewals</textarea><a class="delete" href="javascript:;" title="Remove row">X</a></div></td>
-
-		      <td class="description"><textarea>Yearly renewals of SSL certificates on main domain and several subdomains</textarea></td>
-		      <td><textarea class="cost">$75.00</textarea></td>
-		      <td><textarea class="qty">3</textarea></td>
-		      <td><span class="price">$225.00</span></td>
-		  </tr>
-
-		  <tr id="hiderow">
-		    <td colspan="5"><a id="addrow" href="javascript:;" title="Add a row">Add a row</a></td>
-		  </tr>
-
-		  <tr>
-		      <td colspan="2" class="blank"> </td>
-		      <td colspan="2" class="total-line">Subtotal</td>
-		      <td class="total-value"><div id="subtotal">$875.00</div></td>
-		  </tr>
-		  <tr>
-
-		      <td colspan="2" class="blank"> </td>
-		      <td colspan="2" class="total-line">Total</td>
-		      <td class="total-value"><div id="total">$875.00</div></td>
-		  </tr>
-		  <tr>
-		      <td colspan="2" class="blank"> </td>
-		      <td colspan="2" class="total-line">Amount Paid</td>
-
-		      <td class="total-value"><textarea id="paid">$0.00</textarea></td>
-		  </tr>
-		  <tr>
-		      <td colspan="2" class="blank"> </td>
-		      <td colspan="2" class="total-line balance">Balance Due</td>
-		      <td class="total-value balance"><div class="due">$875.00</div></td>
-		  </tr>
-
-		</table>
-
-		<div id="terms">
-		  <h5>Terms</h5>
-		  <textarea>NET 30 Days. Finance Charge of 1.5% will be made on unpaid balances after 30 days.</textarea>
-		</div>
-
-	</div>
-
-<form name="addComment" onsubmit="return validateCustomer()"
-	method="post">
-<center>
-<table width="1024px" border="1">
-	<tr>
-		<td>
-		<div align="right">
-		<p>Welcome, <?php echo $_SESSION['username']; ?>! <a href="index.php">Home</a>
-		<a href="logout.php">Log out</a></p>
-		</div>
-		<p align="left"><strong>ORDER DETAILS</strong></p>
-		<p align="left">Today's Date: <?php date_default_timezone_set('Australia/Melbourne'); echo date('d/m/Y');?>
-		- Time: <?php echo date('H:i'); ?></p>
-		<table width="100%" border="0" bordercolor="#F0F0F0">
 		<?php
 		$orderId = $_GET['tr'];
 		$_SESSION['orderId'] = $orderId;
@@ -204,51 +159,6 @@ c/o Steve Widget</textarea>
 		while ($cust = mysql_fetch_array($custResult)) {
 			$oldCustArray = array("custId" => $cust['id'], "custName" => $cust['cust_name'], "address" => $cust['address'], "phone" => $cust['phone']);
             $_SESSION['oldCustArray'] = $oldCustArray;
-			?>
-			<tr>
-				<td>- Customer Name:</td>
-				<td><input type="text" name="custName" id="custName"
-					value="<?php echo $cust['cust_name'];?>" size="60" /></td>
-			</tr>
-			<tr>
-				<td>- Customer Phone:</td>
-				<td><input type="text" name="custPhone" id="custPhone"
-					value="<?php echo $cust['phone'];?>" size="60" /></td>
-			</tr>
-			<tr>
-				<td>- Customer Address:</td>
-				<td><input type="text" name="custAddr" id="custAddr"
-					value="<?php echo $cust['address'];?>" size="60" /></td>
-			</tr>
-			<tr>
-				<td>- Date:</td>
-				<td><input name="orderDate" type="date" id="datepicker"
-					value="<?php echo $oldOrderArray['date'];?>" size="60" /></td>
-			</tr>
-			<?php } ?>
-			<tr style="border-bottom: 1px solid">
-				<td colspan="6" style="border-bottom: 1px solid">- <strong>Status</strong>:
-				<select name="status"
-				<?php if ($_SESSION['role_id'] != '1') { echo 'disabled';} ?>>
-					<option value="1"
-					<?php if ($_SESSION['orderStatus'] == 1) { echo "selected='selected'";}?>>Shipped</option>
-					<option value="0"
-					<?php if ($_SESSION['orderStatus'] == 0) { echo "selected='selected'";}?>>Shipping</option>
-				</select></td>
-			</tr>
-			<tr>
-				<td>- Products:</td>
-			</tr>
-			<tr>
-				<td colspan="2">
-				<table width="1024px" border="0" id='productTbl'>
-					<tr>
-						<th>Product Name</th>
-						<th>Quantity</th>
-						<th>Price</th>
-						<th>Amount</th>
-					</tr>
-					<?php
 					//Get product details
 					$getOrderDetailsQuery = "SELECT * FROM orderdetails where order_id = $orderId ";
 					$orderDetailsResult = mysql_query($getOrderDetailsQuery) or die(mysql_error() . "Can not retrieve information from database");
@@ -264,158 +174,10 @@ c/o Steve Widget</textarea>
 				        $product [3] = $orderDetails['product_quantity'];
 				        $product [4] = $orderDetails['product_price'];
 				        $oldProducts [$noOfProduct] = $product;
-						?>
-					<tr>
-						<td><input name="product<?php echo $noOfProduct; ?>name"
-							type="text" id="product<?php echo $noOfProduct; ?>name" size="30"
-							value="<?php echo $orderDetails['product_name'];?>" /></td>
-						<td><input name="product<?php echo $noOfProduct; ?>quantity"
-							type="number" id="product<?php echo $noOfProduct; ?>quantity"
-							value="<?php echo $orderDetails['product_quantity'];?>" size="30"
-							onchange="calProductAmount('product<?php echo $noOfProduct; ?>quantity', 'product<?php echo $noOfProduct; ?>price', 'product<?php echo $noOfProduct; ?>amount')" /></td>
-						<td><input name="product<?php echo $noOfProduct; ?>price"
-							type="text" id="product<?php echo $noOfProduct; ?>price"
-							value="<?php echo $orderDetails['product_price'];?>" size="30"
-							onchange="calProductAmount('product<?php echo $noOfProduct; ?>quantity', 'product<?php echo $noOfProduct; ?>price', 'product<?php echo $noOfProduct; ?>amount')" /></td>
-						<td><input name="product<?php echo $noOfProduct; ?>amount"
-							type="text" id="product<?php echo $noOfProduct; ?>amount"
-							value="<?php echo $orderDetails['product_price']*$orderDetails['product_quantity'];?>"
-							size="30" readonly="true" /></td>
-					</tr>
-					<?php
-					$noOfProduct++;
-					}
-					$_SESSION['oldOrderDetailsArray'] = $oldProducts;
-					?>
-					<input name="noOfProducts" id="noOfProducts" type="hidden" border=0
-						value="<?php echo $noOfProduct - 1; ?>" />
-				</table>
-				</td>
-			</tr>
-			<tr>
-				<td>- Product details:</td>
-			</tr>
-			<tr>
-				<td>
-				<blockquote>
-				<p>Total weight:</p>
-				</blockquote>
-				</td>
-				<td><input name="total_weight" type="text" id="total_weight"
-					value="<?php echo $oldOrderArray['totalWeight'];?>" size="60"
-					onchange="calTotalPricePackage(); updateTotal('productTbl')" /></td>
-			</tr>
-			<tr>
-				<td>
-				<blockquote>
-				<p>Price (USD/kg):</p>
-				</blockquote>
-				</td>
-				<td><input name="price_per_weight" type="text" id="price_per_weight"
-					value="<?php echo $oldOrderArray['pricePerWeight'];?>" size="60"
-					onchange="calTotalPricePackage(); updateTotal('productTbl')" /></td>
-			</tr>
-			<tr>
-				<td>
-				<blockquote>
-				<p>Total price:</p>
-				</blockquote>
-				</td>
-				<td><input name="total_package_price" type="text"
-					id="total_package_price"
-					value="<?php echo $oldOrderArray['pricePerWeight']*$oldOrderArray['totalWeight'];?>"
-					size="60" readonly="true" /></td>
-			</tr>
-			<tr>
-				<td>
-				<p>Total (*)</p>
-				</td>
-				<td><input name="prm_sum" type="text" id="prm_sum"
-					value="<?php echo $oldOrderArray['total'];?>" size="60"
-					readonly="true" /></td>
-			</tr>
-			<tr>
-				<td colspan=2>
-				<p>- Comment:</p>
-				<p><textarea name="comment" cols="150" rows="10"
-					style="border: 2px solid #ff0000"></textarea></p>
-				</td>
-			</tr>
-		</table>
-		<div align="center">
-			<form id="frmUpdateInfo" name="frmUpdateInfo" method="post" style="text-align: center">
-			     <p><input type="submit" name="sbmUpdateInfo" value="Update Information" onclick="return confirm('Are you sure you want to change ?')" /></p>
-			</form>
-
-	           <p><input type="submit" name="print" value="Print order" onclick="PrintPreview()"/></p>
-		</div>
-		<script>
-		 function PrintPreview() {
-		        var popupWin = window.open('', '_blank', 'width=350,height=150,location=no,left=200px');
-		        popupWin.document.open();
-		        popupWin.document.write('<html><title>::Print Preview::</title></head><body">')//<link rel="stylesheet" type="text/css" href="Print.css" media="screen"/>
-		        popupWin.document.write('Testing printing all things');
-		        popupWin.document.write('</html>');
-		        popupWin.document.close();
-
-		    }
-		</script>
-		<table width="100%" border="0">
-
-		</table>
-		<p><strong>Previous Comments:</strong></p>
-		<table width="100%" border="1" bordercolor="#000000">
-			<tr>
-				<!--          <td width="2%"><strong>Cmt No.</strong></td>-->
-				<td width="5%"><strong>Date</strong></td>
-				<td width="4%"><strong>Time</strong></td>
-				<td width="4%"><strong>User</strong></td>
-				<td width="auto"><strong>Comment</strong></td>
-			</tr>
-			<?php
-			$getCommentsQuery = "SELECT * FROM comments WHERE cust_id=$custId ORDER BY id DESC";
-			$commentsQuery=mysql_query($getCommentsQuery) or die(mysql_error() . "Can not retrieve Comments data");
-			while ($comment = mysql_fetch_array($commentsQuery)) {
-				?>
-			<tr>
-				<!--<td><?php echo $comment['id']; ?></td>-->
-				<td><?php $date = $comment['date']; $date_time = explode(" ", $date); echo trim($date_time[0]); ?></td>
-				<td><?php echo trim($date_time[1]); ?></td>
-				<td><?php echo $comment['user_name'] ?></td>
-				<td><?php $comments = explode(". ", $comment['comment']);
-				$lastCmt = $comments[sizeof ($comments) - 2];
-				foreach ($comments as $value) {
-					if ($value == $lastCmt) {
-						echo $value;
-					} else {
-						echo $value."</br>";
-					}
-				}
-				?></td>
-			</tr>
-			<?php }
+						
+			}
+		}
 			mysql_close($connection);
 			ob_end_flush();?>
-			<tr>
-				<td colspan="5" style="border: hidden"></td>
-			</tr>
-			<!--<tr>
-		<td colspan="5" style="border:hidden">
-				</br></br></br>
-		New Comment:
-		</td>
-      	</tr>
-		<tr>
-		<td colspan="5">
-        <textarea name="comment" id="commnet" cols="150" style="max-width:inherit"></textarea>
-		</td>
-      	</tr>-->
-		</table>
-		<p align="left">&nbsp;</p>
-		</td>
-	</tr>
-</table>
-</center>
-</form>
 </body>
 </html>

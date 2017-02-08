@@ -393,7 +393,7 @@ p.hidden {
 				</blockquote>
 				</td>
 				<td><input name="total_weight" type="text" id="total_weight"
-					value="<?php echo $oldOrderArray['totalWeight'];?>" size="60"
+					value="<?php echo $oldOrderArray['total_weight'];?>" size="60"
 					onchange="calTotalPricePackage(); updateTotal('productTbl')" /></td>
 			</tr>
 			<tr>
@@ -403,7 +403,7 @@ p.hidden {
 				</blockquote>
 				</td>
 				<td><input name="price_per_weight" type="text" id="price_per_weight"
-					value="<?php echo $oldOrderArray['pricePerWeight'];?>" size="60"
+					value="<?php echo $oldOrderArray['price_per_weight'];?>" size="60"
 					onchange="calTotalPricePackage(); updateTotal('productTbl')" /></td>
 			</tr>
 			<tr>
@@ -414,7 +414,7 @@ p.hidden {
 				</td>
 				<td><input name="total_package_price" type="text"
 					id="total_package_price"
-					value="<?php echo $oldOrderArray['pricePerWeight']*$oldOrderArray['totalWeight'];?>"
+					value="<?php echo $oldOrderArray['price_per_weight']*$oldOrderArray['total_weight'];?>"
 					size="60" readonly="true" /></td>
 			</tr>
 			<tr>
@@ -434,7 +434,7 @@ p.hidden {
 			</tr>
 		</table>
 		<div align="center">
-			<form id="frmUpdateInfo" name="frmUpdateInfo" method="post" style="text-align: center">
+			<form id="frmUpdateInfo" name="frmUpdateInfo" method="post" style="text-align: center" >
 			     <p><input type="submit" name="sbmUpdateInfo" value="Update Information" onclick="return confirm('Are you sure you want to change ?')" /></p>
 			</form>
 

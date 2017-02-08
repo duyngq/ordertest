@@ -32,19 +32,6 @@ if (isset ( $submit )) {
 	/**
 	 * get all products details from product table
 	 */
-	/*
-	 * $DOM = new DOMDocument();
-	 * $DOM->loadHTMLFile(addorder.php);
-	 * $xpath = new DOMXPath( $DOM);
-	 * $rows= $xpath->query('//table/tr');
-	 *
-	 * foreach( $rows as $row) {
-	 * $cols = $xpath->query( 'td', $row); // Get the <td> elements that are children of this <tr>
-	 * foreach( $cols as $col) {
-	 * echo $col->textContent;
-	 * }
-	 * }
-	 */
 
 	$noOfProducts = $_POST ["noOfProducts"];
 	if (! is_numeric ( $noOfProducts )) {
@@ -73,31 +60,60 @@ if (isset ( $submit )) {
 	$userId = $_SESSION ['user_id'];
 	$username = $_SESSION ['username'];
 
-	// Check existing customer first
 	begin();
-	$checkCustomerQuery = "select id, cust_name from customers where phone='" . $custPhone . "'";
+	// Check existing send customer first
+	$checkCustomerQuery = "select id, cust_name from sendcustomers where phone='" . $custPhone . "'";
 	$checkCustomerResult = mysql_query ( $checkCustomerQuery, $connection ) or die ( mysql_error () . "Can not retrieve database" );
+	
+	$checkReceiverQuery = "select id, cust_name from recvcustomers where phone='" . $custPhone . "'";
+    $checkReceiverResult = mysql_query ( $checkReceiverQuery, $connection ) or die ( mysql_error () . "Can not retrieve database" );
+    
 	$custId;
-	if ($checkCustomerResult) {
+	$recvCustId;
+	if ($checkCustomerResult && $checkReceiverResult) {
 		if (mysql_num_rows ( $checkCustomerResult ) == 0) {
 			// Need to add this as new customer
-			$addCustomerQuery = "insert into customers (cust_name, phone, address) values ('$custName', '$custPhone', '$custAddress')";
+			$addCustomerQuery = "insert into sendcustomers (cust_name, phone, address) values ('$custName', '$custPhone', '$custAddress')";
 			$addCustomerResult = mysql_query ( $addCustomerQuery, $connection ) or die ( mysql_error () . "Can not retrieve to database" );
 			$custId = mysql_insert_id ();
-			if ($addCustomerResult) {
-				addNewOrder ();
-			} else {
-				echo "<script>alert('Add customer failed');</script>";
+			if (!$addCustomerResult) {
+//				addNewOrder ();
+//			} else {
+				echo "<script>alert('Add send customer failed');</script>";
 				clearAll ( $connection, $submit );
 				exit ();
 			}
-		} else { // This is an existing customer, add new order
-			while ( $customer = mysql_fetch_array ( $checkCustomerResult ) ) {
-				$custId = $customer ["id"];
-			}
-			$orderId = addNewOrder ( $custId, $userId, $orderDate, $totalWeight, $totalPackagePrice, $connection, $submit );
+		} 
+		
+		if (mysql_num_rows ( $checkReceiverResult ) == 0) {
+            // Need to add this as new receiver customer
+            $addReceiverQuery = "insert into recvcustomers (cust_name, phone, address) values ('$custName', '$custPhone', '$custAddress')";
+            $addReceiverResult = mysql_query ( $addReceiverQuery, $connection ) or die ( mysql_error () . "Can not retrieve to database" );
+            $recvCustId = mysql_insert_id ();
+            if (!$addReceiverResult) {
+//                addNewOrder ();
+//            } else {
+                echo "<script>alert('Add send customer failed');</script>";
+                clearAll ( $connection, $submit );
+                exit ();
+            }
+        } 
+        
+//       else { // Then we have all customers (existing and non-existing), add new order
+            if (is_null($custId)) {
+				while ( $customer = mysql_fetch_array ( $checkCustomerResult ) ) {
+					$custId = $customer ["id"];
+				}
+            }
+            
+            if (is_null($recvCustId)) {
+                while ( $customer = mysql_fetch_array ( $checkReceiverResult ) ) {
+                    $recvCustId = $customer ["id"];
+                }
+            }
+			$orderId = addNewOrder ( $custId, $recvCustId, $userId, $orderDate, $totalWeight, $totalPackagePrice, $connection, $submit );
 			addOrderDetails($orderId, $products, $connection, $submit);
-		}
+//		}
 	} else {
 		rollback();
 		echo "<script>alert('Unable to add new order');</script>";
@@ -109,8 +125,8 @@ if (isset ( $submit )) {
 	unset ( $submit );
 }
 
-function addNewOrder($custId, $userId, $orderDate, $totalWeight, $totalPackagePrice, $connection, $submit) {
-	$addNewOrder = "insert into orders(cust_id, user_id, status, date, total_weight, price_per_weight) values ($custId, $userId, 0, '$orderDate', $totalWeight, $totalPackagePrice)";
+function addNewOrder($custId, $recvCustId, $userId, $orderDate, $totalWeight, $totalPackagePrice, $connection, $submit) {
+	$addNewOrder = "insert into orders(send_cust_id, recv_cust_id, user_id, status, date, total_weight, price_per_weight) values ($custId, $recvCustId, $userId, 0, '$orderDate', $totalWeight, $totalPackagePrice)";
 	$addNewOrderResult = mysql_query ( $addNewOrder, $connection ) or die ( mysql_error () . "Can not retrieve to database" );
 	$orderId = mysql_insert_id ();
 	if (!$addNewOrderResult) {
@@ -199,13 +215,15 @@ p.hidden {
 							</p>
 							<p align="left">Today's Date: <?php date_default_timezone_set('Asia/Bangkok'); echo date('d/m/Y');?> - Time: <?php echo date('H:i'); ?> </p>
 							<table width="100%" border="0" bordercolor="#F0F0F0">
+							    <tr>
+                                    <td>- Sender</td>
+                                </tr>
 								<tr>
-								<td>- Customer Phone Number:</td>
-								<td><input name="custPhone" type="text" id="custPhone" size="60"
-									required /></td>
+								<td><blockquote>Sender Phone Number:</blockquote></td>
+								<td><input name="custPhone" type="text" id="custPhone" size="60" required /></td>
 								</tr>
 								<tr>
-									<td>- Customer Name:</td>
+									<td><blockquote>Sender Name:</blockquote></td>
 									<td>
 										<!-- drop down list that can be search/add new text -->
 
@@ -243,10 +261,27 @@ p.hidden {
 
 									</td>
 								</tr>
-								<td>- Customer Address:</td>
-								<td><input name="custAddr" type="text" id="custAddr" size="60"
-									required /></td>
+								<td><blockquote>Sender Address:</blockquote></td>
+								<td><input name="custAddr" type="text" id="custAddr" size="60" required /></td>
 								</tr>
+								<!-- TODO: create sender and receiver customer instead of customer as generic -->
+								<tr>
+                                    <td>- Receiver</td>
+                                </tr>
+								<tr>
+                                <td><blockquote>Receiver Phone Number:</blockquote></td>
+                                <td><input name="recvPhone" type="text" id="recvPhone" size="60" required /></td>
+                                </tr>
+                                <tr>
+                                    <td><blockquote>Receiver Name:</blockquote></td>
+                                    <td>
+	                                    <input list="recvName" name="recvName" id="recvName" size="60" />
+	                                    <datalist id="recvName">
+                                    </td>
+                                </tr>
+                                <td><blockquote>Receiver Address:</blockquote></td>
+                                <td><input name="recvAddr" type="text" id="recvAddr" size="60" required /></td>
+                                </tr>
 								<tr>
 									<td>- Date:</td>
 									<td><input name="orderDate" type="date" id="datepicker"
@@ -280,8 +315,7 @@ p.hidden {
 													style='cursor: hand' value="+" /></td>
 												<td></td>
 											</tr>
-											<input name="noOfProducts" id="noOfProducts" type="hidden"
-												border=0 value="1" />
+											<input name="noOfProducts" id="noOfProducts" type="hidden" border=0 value="1" />
 										</table>
 									</td>
 								</tr>

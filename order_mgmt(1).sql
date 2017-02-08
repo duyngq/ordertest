@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 23, 2017 at 06:58 PM
+-- Generation Time: Feb 08, 2017 at 08:03 PM
 -- Server version: 5.6.17
 -- PHP Version: 5.5.12
 
@@ -41,28 +41,6 @@ CREATE TABLE IF NOT EXISTS `comments` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `customers`
---
-
-CREATE TABLE IF NOT EXISTS `customers` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `cust_name` varchar(100) COLLATE utf8_bin NOT NULL,
-  `phone` varchar(20) COLLATE utf8_bin NOT NULL,
-  `address` varchar(100) COLLATE utf8_bin NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `phone` (`phone`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=2 ;
-
---
--- Dumping data for table `customers`
---
-
-INSERT INTO `customers` (`id`, `cust_name`, `phone`, `address`) VALUES
-(1, 'duy', '0989621756', '297/24D bui dinh tuy');
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `orderdetails`
 --
 
@@ -74,7 +52,7 @@ CREATE TABLE IF NOT EXISTS `orderdetails` (
   `product_quantity` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `order_id` (`order_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=9 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=11 ;
 
 --
 -- Dumping data for table `orderdetails`
@@ -92,24 +70,48 @@ INSERT INTO `orderdetails` (`id`, `order_id`, `product_name`, `product_price`, `
 
 CREATE TABLE IF NOT EXISTS `orders` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `cust_id` int(10) unsigned NOT NULL,
+  `send_cust_id` int(10) unsigned NOT NULL,
   `user_id` int(10) unsigned NOT NULL,
   `status` tinyint(1) NOT NULL,
   `date` varchar(16) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `total_weight` double NOT NULL,
   `price_per_weight` double NOT NULL,
   `total` double DEFAULT NULL,
+  `recv_cust_id` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `FK_orders_userId` (`user_id`),
-  KEY `FK_orders_custid` (`cust_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=12 ;
+  KEY `FK_orders_custid` (`send_cust_id`),
+  KEY `recv_cust_id` (`recv_cust_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=13 ;
 
 --
 -- Dumping data for table `orders`
 --
 
-INSERT INTO `orders` (`id`, `cust_id`, `user_id`, `status`, `date`, `total_weight`, `price_per_weight`, `total`) VALUES
-(11, 1, 1, 0, '23/01/2017', 15, 480, 1000);
+INSERT INTO `orders` (`id`, `send_cust_id`, `user_id`, `status`, `date`, `total_weight`, `price_per_weight`, `total`, `recv_cust_id`) VALUES
+(11, 1, 1, 0, '23/01/2017', 15, 480, 1000, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `recvcustomers`
+--
+
+CREATE TABLE IF NOT EXISTS `recvcustomers` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `cust_name` varchar(100) COLLATE utf8_bin NOT NULL,
+  `phone` varchar(20) COLLATE utf8_bin NOT NULL,
+  `address` varchar(100) COLLATE utf8_bin NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `phone` (`phone`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=2 ;
+
+--
+-- Dumping data for table `recvcustomers`
+--
+
+INSERT INTO `recvcustomers` (`id`, `cust_name`, `phone`, `address`) VALUES
+(1, 'duy', '0989621756', '297/24D bui dinh tuy');
 
 -- --------------------------------------------------------
 
@@ -131,6 +133,28 @@ CREATE TABLE IF NOT EXISTS `roles` (
 INSERT INTO `roles` (`id`, `role_name`, `description`) VALUES
 (1, 'admin', 'the highest privilege'),
 (2, 'user', 'just able to see the data');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `sendcustomers`
+--
+
+CREATE TABLE IF NOT EXISTS `sendcustomers` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `cust_name` varchar(100) COLLATE utf8_bin NOT NULL,
+  `phone` varchar(20) COLLATE utf8_bin NOT NULL,
+  `address` varchar(100) COLLATE utf8_bin NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `phone` (`phone`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=2 ;
+
+--
+-- Dumping data for table `sendcustomers`
+--
+
+INSERT INTO `sendcustomers` (`id`, `cust_name`, `phone`, `address`) VALUES
+(1, 'duy', '0989621756', '297/24D bui dinh tuy');
 
 -- --------------------------------------------------------
 
@@ -188,8 +212,8 @@ INSERT INTO `users` (`id`, `username`, `password`, `enabled`, `date_last_entered
 -- Constraints for table `comments`
 --
 ALTER TABLE `comments`
-  ADD CONSTRAINT `FK_cust_comment` FOREIGN KEY (`cust_id`) REFERENCES `customers` (`id`),
-  ADD CONSTRAINT `FK_comments_custId` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`);
+  ADD CONSTRAINT `FK_comments_custId` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`),
+  ADD CONSTRAINT `FK_cust_comment` FOREIGN KEY (`cust_id`) REFERENCES `sendcustomers` (`id`);
 
 --
 -- Constraints for table `orderdetails`
@@ -201,7 +225,8 @@ ALTER TABLE `orderdetails`
 -- Constraints for table `orders`
 --
 ALTER TABLE `orders`
-  ADD CONSTRAINT `FK_cust` FOREIGN KEY (`cust_id`) REFERENCES `customers` (`id`),
+  ADD CONSTRAINT `FK_recvCust` FOREIGN KEY (`recv_cust_id`) REFERENCES `recvcustomers` (`id`),
+  ADD CONSTRAINT `FK_cust` FOREIGN KEY (`send_cust_id`) REFERENCES `sendcustomers` (`id`),
   ADD CONSTRAINT `FK_customers_userId` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 
 --
