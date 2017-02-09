@@ -51,6 +51,9 @@ if (isset ( $submit )) {
 	for($i = 1; $i <= $noOfProducts; $i ++) {
 		$product = array ();
 		$product [0] = $_POST ["product" . $i . "name"];
+		if (is_null($product[0]) || $product[0] == null || $product[0] == '') {
+			continue;
+		}
 		$product [1] = $_POST ["product" . $i . "quantity"];
 		validateNumber ( $_POST ["product" . $i . "quantity"], "Product quantity of " . $_POST ["product" . $i . "name"] );
 		$product [2] = $_POST ["product" . $i . "price"];
@@ -320,7 +323,7 @@ p.hidden {
 													style='cursor: hand' value="+" /></td>
 												<td></td>
 											</tr>
-											<input name="noOfProducts" id="noOfProducts" type="hidden" border=0 value="1" />
+											<input name="noOfProducts" id="noOfProducts" type="hidden" border=0 value="1" readonly/>
 										</table>
 									</td>
 								</tr>

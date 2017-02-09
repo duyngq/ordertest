@@ -80,7 +80,8 @@ function addRow(tableId) {
 
 function addProductRow(tableId) {
     var table = document.getElementById(tableId);
-    var e = table.rows.length;
+    var e = parseInt(document.getElementById('noOfProducts').value);
+//    var e = table.rows.length;
     var x = table.insertRow(e);
     var l = table.rows[e-1].cells.length;
     // insert single column with default data
@@ -102,7 +103,8 @@ function addProductRow(tableId) {
     table.rows[e].insertCell(5);            
     table.rows[e].cells[5].innerHTML="<td><input type=\"button\" onclick=\"removeProductRow('productTbl', this)\" border=0 style='cursor:hand' value=\"-\"/></td>";
     
-    document.getElementById('noOfProducts').value = e;
+    document.getElementById('noOfProducts').value = e+1;
+//    document.getElementById('noOfProducts').value = e;
 //    for ( var c = 0, m = l; c < m; c++) {
 //        table.rows[e].insertCell(c);
 //        table.rows[e].cells[c].innerHTML = "&nbsp;&nbsp;";
@@ -115,5 +117,5 @@ function removeProductRow(tableId, selectedRow) {
 //    table.deleteRow(selectedRow.rowIndex)
 	var row = selectedRow.parentNode.parentNode;
 	document.getElementById(tableId).deleteRow(row.rowIndex);
-	document.getElementById('noOfProducts').value = document.getElementById(tableId).rows.length - 1;
+	//document.getElementById('noOfProducts').value = document.getElementById(tableId).rows.length - 1;
 }
