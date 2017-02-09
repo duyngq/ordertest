@@ -50,7 +50,7 @@ p.hidden {
             <p  align="center"><strong>Tell</strong>: <a href="#">408-781-8812</a></p>
 			</br></br>
 
-            <p align="center" id="underline">160 Ä�Æ°á»�ng D2, PhÆ°á»�ng 25, Quáº­n BÃ¬nh Tháº¡nh</br></p>
+            <p align="center" id="underline">160 Đường D2, Phường 25, Quận Bình Thạnh</br></p>
             <p align="center"><strong>MR.Khoa: </strong><a href="#">0934-934-952</a></p>
 		    </br></br>
 		    <p align="center">RECEIPT</br>SP: <?php echo "&ltTheNumberOfOrderHere&gt";?></p>

@@ -22,6 +22,11 @@ if (isset($sbmUpdateInfo) ) {
     // TODO: need to validate phone format here.
     $custPhone = $_POST ["custPhone"];
 
+    $recvName = $_POST ["recvName"];
+    $recvAddr = $_POST ["recvAddr"];
+    // TODO: need to validate phone format here.
+    $recvPhone = $_POST ["recvPhone"];
+
     $orderDate = $_POST ["orderDate"];
     //get current date
     $currentDate = date('d/m/Y H:i');
@@ -49,8 +54,8 @@ if (isset($sbmUpdateInfo) ) {
     $products = array ();
     for($i = 1; $i <= $noOfProducts; $i ++) {
         $product = array ();
-        $product [0] = $oldProducts[$i][0];
-        $product [1] = $oldProducts[$i][1];
+        $product [0] = $oldProducts[$i][0]; //order details id
+        $product [1] = $oldProducts[$i][1]; //oder id
         $product [2] = $_POST ["product" . $i . "name"];
         $product [3] = $_POST ["product" . $i . "quantity"];
         validateNumber ( $_POST ["product" . $i . "quantity"], "Product quantity of " . $_POST ["product" . $i . "name"] );
@@ -66,6 +71,7 @@ if (isset($sbmUpdateInfo) ) {
     $userId = $_SESSION ['user_id'];
     $username = $_SESSION ['username'];
     $custId = $_SESSION['custId'];
+    $recvId = $_SESSION['recvId'];
 	$status = $_POST['status'];
 	if ( is_null($status) || $status == null || $status == '') {
 		$status = $_SESSION['status'];
@@ -75,7 +81,7 @@ if (isset($sbmUpdateInfo) ) {
 	$newCustArray = array("id" => $custId, "cust_name" => $custName, "address" => $custAddr, "phone" => $custPhone);
 	$oldCustArray = $_SESSION['oldCustArray'];
 	$compareNewCustAndOldCust = array_diff_assoc($newCustArray, $oldCustArray);
-	$updateCustomerQuery = "UPDATE customers SET ";
+	$updateCustomerQuery = "UPDATE sendcustomers SET ";
 	$whereClauseForUpdateCustomerQuery = " WHERE id=$custId";
 	$setClauseForUpdateCustomerQuery="";
 
@@ -94,11 +100,34 @@ if (isset($sbmUpdateInfo) ) {
 		}
 	}
 
+	//generate update query for receiver
+	$newRecvArray = array("id" => $recvId, "cust_name" => $recvName, "address" => $recvAddr, "phone" => $recvPhone);
+	$oldRecvArray = $_SESSION['oldRecvArray'];
+	$compareNewCustAndOldRecv = array_diff_assoc($newRecvArray, $oldRecvArray);
+	$updateRecvQuery = "UPDATE recvcustomers SET ";
+	$whereClauseForUpdateRecvQuery = " WHERE id=$recvId";
+	$setClauseForUpdateRecvQuery="";
+
+	$systemLog="";
+	$recvInfoArray = array("custId" => "Customer id", "custName" => "Customer Name", "address" => "Address", "phone" => "Customer Phone");
+	foreach ($compareNewCustAndOldRecv as $key => $value) {
+		$newValue = $newRecvArray[$key];
+		if (!is_null($newValue) || !empty($newValue) || isset($newValue)) {
+			if (is_numeric($newValue)) {
+				$setClauseForUpdateRecvQuery = $setClauseForUpdateRecvQuery.$key."=".$newValue.", ";
+			} else {
+				$setClauseForUpdateRecvQuery = $setClauseForUpdateRecvQuery.$key.'="'.$newValue.'", ';
+			}
+
+			$systemLog = $systemLog."<em><span style='color:#FF0000'>*System comment:</span> <strong>".$recvInfoArray[$key]."</strong> changed from <strong>".$oldRecvArray[$key]."</strong> to <strong>".$newValue."</strong>.. </em>";
+		}
+	}
+
 	//Generate update query for order
-	$orderId = $_SESSION['orderId]'];
-    $newOrderArray = array("id" => $orderId, "cust_id" => $custId,
+	$orderId = $_SESSION['orderId'];
+    $newOrderArray = array("id" => $orderId, "send_cust_id" => $custId,
                   "user_id" => $userId, "status" => $status, "date" => $orderDate, "total_weight" => $totalWeight,
-                  "price_per_weight" => $pricePerWeight, "total" =>$totalPackagePrice);
+                  "price_per_weight" => $pricePerWeight, "total" =>$total, "recv_cust_id" => $recvId,);
     $oldOrderArray = $_SESSION['oldOrderArray'];
     $compareNewOrderAndOldOrder= array_diff_assoc($newOrderArray, $oldOrderArray);
     $updateOrderQuery = "UPDATE orders SET ";
@@ -106,8 +135,8 @@ if (isset($sbmUpdateInfo) ) {
     $setClauseForUpdateOrderQuery="";
 
     //define friendly name to show on message
-    $orderInfoArray = array("orderId" => "Order id", "custId" => "Customer Id", "userId" => "User Id", "status" => "Ship status", "date" => "Order date", "totalWeight" => "Total weight",
-                  "pricePerWeight" => "Price per weight", "total" =>"Total package price");
+    $orderInfoArray = array("orderId" => "Order id", "sendCustId" => "Sender Id", "userId" => "User Id", "status" => "Ship status", "date" => "Order date", "totalWeight" => "Total weight",
+                  "pricePerWeight" => "Price per weight", "total" =>"Total", "recvId" => "Receiver Id");
     foreach ($compareNewOrderAndOldOrder as $key => $value) {
         $newValue = $newOrderArray[$key];
         if (!is_null($newValue) || !empty($newValue) || isset($newValue)) {
@@ -124,7 +153,7 @@ if (isset($sbmUpdateInfo) ) {
     // Generate update query for order details
     $updateOrderDetailsQuery = " ";
     foreach ($products as $product) {
-        $updateOrderDetailsQuery.="UPDATE orderdetails SET id=$product[0],cust_id=$product[1],product_name='$product[2]',product_quantity=$product[3], product_price=$product[4];";
+        $updateOrderDetailsQuery.="UPDATE orderdetails SET product_name='$product[2]',product_quantity=$product[3], product_price=$product[4];";
         $systemLog = $systemLog."<em><span style='color:#FF0000'>*System comment:</span> <strong>Order details:</strong> changed to <strong>product_name='".$product[2]."',product_quantity=".$product[3].", product_price=".$product[4]."</strong>.. </em>";
     }
 
@@ -142,11 +171,24 @@ if (isset($sbmUpdateInfo) ) {
 		}
 	}
 
+	//update receiver
+	if ($setClauseForUpdateRecvQuery != null || $setClauseForUpdateRecvQuery != '') {
+		$updateCustomerQuery = $updateCustomerQuery.substr($setClauseForUpdateCustomerQuery,0,-2).$whereClauseForUpdateCustomerQuery;
+
+		$updateRecvResult = mysql_query($updateRecvQuery, $connection) or die(mysql_error() . "Can not store data to database");
+		if (!$updateRecvResult) {
+			rollback();
+			clearAll ( $connection, $sbmUpdateInfo );
+			echo "<script>alert('Update receiver failed');</script>";
+			exit;
+		}
+	}
+
 	//update order
     if ($setClauseForUpdateOrderQuery != null || $setClauseForUpdateOrderQuery != '') {
-        $updateOrderQuery = $updateOrderQuery.substr($setClauseForUpdateOrderQuery,0,-2).$whereClauseForUpdateCustomerQuery;
+        $updateOrderQuery = $updateOrderQuery.substr($setClauseForUpdateOrderQuery,0,-2).$whereClauseForUpdateOrderQuery;
 
-        $$updateOrderResult = mysql_query($updateOrderQuery, $connection) or die(mysql_error() . "Can not store data to database");
+        $updateOrderResult = mysql_query($updateOrderQuery, $connection) or die(mysql_error() . "Can not store data to database");
         if (!$updateOrderResult) {
             rollback();
             clearAll ( $connection, $sbmUpdateInfo );
@@ -157,7 +199,7 @@ if (isset($sbmUpdateInfo) ) {
 
     //update order details
     if ($updateOrderDetailsQuery != null || $updateOrderDetailsQuery != '') {
-        $$updateOrderDetailsResult = mysql_query($updateOrderDetailsQuery, $connection) or die(mysql_error() . "Can not store data to database");
+        $updateOrderDetailsResult = mysql_query($updateOrderDetailsQuery, $connection) or die(mysql_error() . "Can not store data to database");
         if (!$updateOrderDetailsResult) {
             rollback();
             echo "<script>alert('Update order details failed');</script>";
@@ -165,11 +207,11 @@ if (isset($sbmUpdateInfo) ) {
             exit;
         }
     }
-    $addSysLogCommentQuery = "INSERT INTO comments(date, comment, cust_id, user_name) VALUES";
+    $addSysLogCommentQuery = "INSERT INTO comments(date, comment, order_id, user_name) VALUES";
     if ($systemLog != "") {
-    	$addSysLogCommentQuery = $addSysLogCommentQuery.'("'.$currentDate.'", "'.$systemLog.'", '.$custId.', "'.$username.'")';
+    	$addSysLogCommentQuery = $addSysLogCommentQuery.'("'.$currentDate.'", "'.$systemLog.'", '.$orderId.', "'.$username.'")';
     }
-    if ($addSysLogCommentQuery != "INSERT INTO comments(date, comment, cust_id, user_name) VALUES") {
+    if ($addSysLogCommentQuery != "INSERT INTO comments(date, comment, order_id, user_name) VALUES") {
     	$addSysLogCommentResult = mysql_query($addSysLogCommentQuery, $connection) or die(mysql_error() . "Can not store comment to database");
     	if ($addSysLogCommentResult) {
     		echo "<script>alert('Add new infomation succeed');</script>";
@@ -183,12 +225,12 @@ if (isset($sbmUpdateInfo) ) {
 
 	//add comment{
 	$comment = $_POST['comment'];
-	$addCommentQuery = "INSERT INTO comments(date, comment, cust_id, user_name) VALUES";
+	$addCommentQuery = "INSERT INTO comments(date, comment, order_id, user_name) VALUES";
 	if ($comment != null || $commens != '') {
-		$addCommentQuery = $addCommentQuery.'("'.$currentDate.'", "'.$comment.'", '.$custId.', "'.$username.'")';
+		$addCommentQuery = $addCommentQuery.'("'.$currentDate.'", "'.$comment.'", '.$orderId.', "'.$username.'")';
 	}
 
-	if ($addCommentQuery != "INSERT INTO comments(date, comment, cust_id, user_name) VALUES") {
+	if ($addCommentQuery != "INSERT INTO comments(date, comment, order_id, user_name) VALUES") {
 		$addCommentResult = mysql_query($addCommentQuery, $connection) or die(mysql_error() . "Can not store comment to database");
 		if ($addCommentResult) {
 			echo "<script>alert('Add comment succeed');</script>";
@@ -277,46 +319,79 @@ p.hidden {
 		$getOrdersQuery = "SELECT * FROM orders where id = $orderId ";
 		$ordersResult = mysql_query($getOrdersQuery) or die(mysql_error() . "Can not retrieve information from database");
 		$custId;
+		$recvId;
 		while ($order = mysql_fetch_array($ordersResult)) {
 			$userId = $_SESSION['user_id'];
-			$custId = $order['cust_id'];
+			$custId = $order['send_cust_id'];
+			$recvId = $order['recv_cust_id'];
 			$_SESSION['custId'] = $custId;
+			$_SESSION['recvId'] = $recvId;
 			$_SESSION['orderStatus'] = $order['status'];
 			$_SESSION['orderId'] = $order['id'];
-			$oldOrderArray = array("id" => $order['id'], "cust_id" => $order['cust_id'],
+			$oldOrderArray = array("id" => $order['id'], "send_cust_id" => $order['send_cust_id'],
                   "user_id" => $order['user_id'], "status" => $order['status'], "date" => $order['date'], "total_weight" => $order['total_weight'],
-                  "price_per_weight" => $order['price_per_weight'], "total" => $order['total']);
+                  "price_per_weight" => $order['price_per_weight'], "total" => $order['total'], "recv_cust_id" => $order['recv_cust_id'],);
 			$_SESSION['oldOrderArray'] = $oldOrderArray;
 		}
 
 		//Get customer info
-		$getCustQuery = "SELECT * FROM customers where id = $custId ";
+		$getCustQuery = "SELECT * FROM sendcustomers where id = $custId ";
 		$custResult = mysql_query($getCustQuery) or die(mysql_error() . "Can not retrieve information from database");
 		while ($cust = mysql_fetch_array($custResult)) {
 			$oldCustArray = array("id" => $cust['id'], "cust_name" => $cust['cust_name'], "address" => $cust['address'], "phone" => $cust['phone']);
             $_SESSION['oldCustArray'] = $oldCustArray;
 			?>
 			<tr>
-				<td>- Customer Name:</td>
+				<td>- Sender:</td>
+			</tr>
+			<tr>
+				<td><blockquote>Name:</blockquote></td>
 				<td><input type="text" name="custName" id="custName"
 					value="<?php echo $cust['cust_name'];?>" size="60" /></td>
 			</tr>
 			<tr>
-				<td>- Customer Phone:</td>
+				<td><blockquote>Phone:</blockquote></td>
 				<td><input type="text" name="custPhone" id="custPhone"
 					value="<?php echo $cust['phone'];?>" size="60" /></td>
 			</tr>
 			<tr>
-				<td>- Customer Address:</td>
+				<td><blockquote>Address:</blockquote></td>
 				<td><input type="text" name="custAddr" id="custAddr"
 					value="<?php echo $cust['address'];?>" size="60" /></td>
 			</tr>
+
+			<?php }
+			//Get receiver info
+			$getRecvQuery = "SELECT * FROM recvcustomers where id = $recvId ";
+			$recvResult = mysql_query($getRecvQuery) or die(mysql_error() . "Can not retrieve information from database");
+			while ($recv = mysql_fetch_array($recvResult)) {
+				$oldRecvArray = array("id" => $recv['id'], "cust_name" => $recv['cust_name'], "address" => $recv['address'], "phone" => $recv['phone']);
+				$_SESSION['oldRecvArray'] = $oldRecvArray;
+			?>
+			<tr>
+				<td>- Receiver:</td>
+			</tr>
+			<tr>
+				<td><blockquote>Name:</blockquote></td>
+				<td><input type="text" name="recvName" id="recvName"
+					value="<?php echo $recv['cust_name'];?>" size="60" /></td>
+			</tr>
+			<tr>
+				<td><blockquote>Phone:</blockquote></td>
+				<td><input type="text" name="recvPhone" id="recvPhone"
+					value="<?php echo $recv['phone'];?>" size="60" /></td>
+			</tr>
+			<tr>
+				<td><blockquote>Address:</blockquote></td>
+				<td><input type="text" name="recvAddr" id="recvAddr"
+					value="<?php echo $recv['address'];?>" size="60" /></td>
+			</tr>
+			<?php } ?>
 			<tr>
 				<td>- Date:</td>
 				<td><input name="orderDate" type="date" id="datepicker"
 					value="<?php echo $oldOrderArray['date'];?>" size="60" /></td>
 			</tr>
-			<?php } ?>
 			<tr style="border-bottom: 1px solid">
 				<td colspan="6" style="border-bottom: 1px solid">- <strong>Status</strong>:
 				<select name="status"
@@ -464,7 +539,7 @@ p.hidden {
 				<td width="auto"><strong>Comment</strong></td>
 			</tr>
 			<?php
-			$getCommentsQuery = "SELECT * FROM comments WHERE cust_id=$custId ORDER BY id DESC";
+			$getCommentsQuery = "SELECT * FROM comments WHERE order_id=$orderId ORDER BY id DESC";
 			$commentsQuery=mysql_query($getCommentsQuery) or die(mysql_error() . "Can not retrieve Comments data");
 			while ($comment = mysql_fetch_array($commentsQuery)) {
 				?>

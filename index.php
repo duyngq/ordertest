@@ -261,40 +261,63 @@ echo date('d/m/Y'); ?> - Time: <?php echo date('H:i'); ?> </p>
                         <table width="100%" border="1" align="right"  class="table">
                             <tr>
                                 <td><strong>Order date </strong></td>
-                                <td><strong>Customer Name </strong></td>
-                                <td><strong>Phone</strong></td>
-                                <td><strong>Address</strong></td>
+                                <td><strong>Sender Name </strong></td>
+                                <td><strong>Sender Phone</strong></td>
+                                <td><strong>Sender Address</strong></td>
+                                <td><strong>Receiver Name </strong></td>
+                                <td><strong>Receiver Phone</strong></td>
+                                <td><strong>Receiver Address</strong></td>
                                 <td><strong>Total Amount</strong></td>
                             </tr>
                             <?php
                             include_once 'dbconn.php';
                             ob_start();
                             //show all customers and their info
-                            $getAllOrdersQuery = "SELECT o.*, cust_name, phone, address FROM orders o join customers c";// ORDER BY date DESC";
-                            $allOrdersResult = mysql_query($getAllOrdersQuery) or die(mysql_error() . "Can not retrieve Customers data");
+                            $getAllOrdersQuery = "SELECT * FROM orders";// ORDER BY date DESC";
+                            $allOrdersResult = mysql_query($getAllOrdersQuery) or die(mysql_error() . "Can not retrieve Orders data");
                             $shippedList = array();
                             $shippingList = array();
                             while ($order = mysql_fetch_array($allOrdersResult)) {
+                            	$getSendCustomerQuery = "SELECT * FROM sendcustomers WHERE id=" . $order["send_cust_id"];
+                            	$sendCustomerResult = mysql_query($getSendCustomerQuery) or die(mysql_error() . "Can not retrieve Send Customers data");
+
+                            	$getReceiverCustomerQuery = "SELECT * FROM recvcustomers WHERE id=" . $order["recv_cust_id"];
+                            	$receiverCustomerResult = mysql_query($getReceiverCustomerQuery) or die(mysql_error() . "Can not retrieve Receiver Customers data");
+
                                 if ($order['status'] == 1) {
                                     array_push($shippedList, $order['date']);
                                     array_push($shippedList, $order['user_id']); // temp move to user id.it should be user name
                                     array_push($shippedList, $order['id']);
-                                    array_push($shippedList, $order['cust_name']);
-                                    array_push($shippedList, $order['phone']);
-                                    array_push($shippedList, $order['address']);
+                                    while ($sender = mysql_fetch_array($sendCustomerResult)) {
+	                                    array_push($shippedList, $sender['cust_name']);
+	                                    array_push($shippedList, $sender['phone']);
+	                                    array_push($shippedList, $sender['address']);
+                                    }
+                                    while ($receiver = mysql_fetch_array($receiverCustomerResult)) {
+                                    	array_push($shippedList, $receiver['cust_name']);
+                                    	array_push($shippedList, $receiver['phone']);
+                                    	array_push($shippedList, $receiver['address']);
+                                    }
                                     array_push($shippedList, $order['total']);
                                 } else {
                                     array_push($shippingList, $order['date']);
                                     array_push($shippingList, $order['user_id']);
                                     array_push($shippingList, $order['id']);
-                                    array_push($shippingList, $order['cust_name']);
-                                    array_push($shippingList, $order['phone']);
-                                    array_push($shippingList, $order['address']);
+                                	while ($sender = mysql_fetch_array($sendCustomerResult)) {
+	                                    array_push($shippingList, $sender['cust_name']);
+	                                    array_push($shippingList, $sender['phone']);
+	                                    array_push($shippingList, $sender['address']);
+                                    }
+                                    while ($receiver = mysql_fetch_array($receiverCustomerResult)) {
+                                    	array_push($shippingList, $receiver['cust_name']);
+                                    	array_push($shippingList, $receiver['phone']);
+                                    	array_push($shippingList, $receiver['address']);
+                                    }
                                     array_push($shippingList, $order['total']);
                                 }
                             }
-                            for ($index = 0; $index < (count($shippingList) / 7); $index++) {
-                                $shippingIndex = $index * 7;
+                            for ($index = 0; $index < (count($shippingList) / 10); $index++) {
+                                $shippingIndex = $index * 10;
                                 ?>
                                 <tr onMouseOver="ChangeColor(this, true);" onMouseOut="ChangeColor(this, false);" onClick="DoNav('orderdetails.php?tr=<?php
                             $custId = base64_encode($shippingList[$shippingIndex + 2]);
@@ -311,10 +334,15 @@ echo date('d/m/Y'); ?> - Time: <?php echo date('H:i'); ?> </p>
 //                                     $date_time = explode(" ", $date_last_entered);
 //                                     echo trim($date_time[0]);
                                     ?></td>
-                                    <td><?php echo $shippingList[$shippingIndex + 3]?></td>
+                                    <td><?php //print sender
+                                     echo $shippingList[$shippingIndex + 3]?></td>
                                     <td><?php echo $shippingList[$shippingIndex + 4] ?></td>
                                     <td><?php echo $shippingList[$shippingIndex + 5] ?></td>
-                                    <td><?php echo $shippingList[$shippingIndex + 6] ?>
+                                    <td><?php //print receiver
+                                      echo $shippingList[$shippingIndex + 6]?></td>
+                                    <td><?php echo $shippingList[$shippingIndex + 7] ?></td>
+                                    <td><?php echo $shippingList[$shippingIndex + 8] ?></td>
+                                    <td><?php echo $shippingList[$shippingIndex + 9] ?>
                                         <span class="link"><a href="#" class="href-right table-action-hide">
                                                 <i class="fa fa-pencil"></i>
                                             </a>
@@ -332,14 +360,17 @@ echo date('d/m/Y'); ?> - Time: <?php echo date('H:i'); ?> </p>
                         <table width="100%" border="1" align="right">
                             <tr>
                                 <td><strong>Order date </strong></td>
-                                <td><strong>Customer Name </strong></td>
-                                <td><strong>Phone</strong></td>
-                                <td><strong>Address</strong></td>
+                                <td><strong>Sender Name </strong></td>
+                                <td><strong>Sender Phone</strong></td>
+                                <td><strong>Sender Address</strong></td>
+                                <td><strong>Receiver Name </strong></td>
+                                <td><strong>Receiver Phone</strong></td>
+                                <td><strong>Receiver Address</strong></td>
                                 <td><strong>Total Amount</strong></td>
                             </tr>
                             <?php
-                            for ($index = 0; $index < (count($shippedList) / 7); $index++) {
-                                $shippedIndex = $index * 7;
+                            for ($index = 0; $index < (count($shippedList) / 10); $index++) {
+                                $shippedIndex = $index * 10;
                                 ?>
                                 <tr onMouseOver="ChangeColor(this, true);" onMouseOut="ChangeColor(this, false);" onClick="DoNav('orderdetails.php?tr=<?php
                             $custId = base64_encode($shippedList[$shippedIndex + 2]);
@@ -359,7 +390,10 @@ echo date('d/m/Y'); ?> - Time: <?php echo date('H:i'); ?> </p>
                                     <td><?php echo $shippedList[$shippedIndex + 3] ?></td>
                                     <td><?php echo $shippedList[$shippedIndex + 4] ?></td>
                                     <td><?php echo $shippedList[$shippedIndex + 5] ?></td>
-                                    <td><?php echo $shippedList[$shippedIndex + 6] ?>
+                                    <td><?php echo $shippedList[$shippedIndex + 6] ?></td>
+                                    <td><?php echo $shippedList[$shippedIndex + 7] ?></td>
+                                    <td><?php echo $shippedList[$shippedIndex + 8] ?></td>
+                                    <td><?php echo $shippedList[$shippedIndex + 9] ?>
                                         <span class="link"><a href="#" class="href-right table-action-hide">
                                                 <i class="fa fa-pencil"></i>
                                             </a>

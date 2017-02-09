@@ -43,9 +43,9 @@ function checknumber(value) {
 }
 
 function validation() {
-	if (document.getElementById("custName").value.length == 0) {
+	if (document.getElementById("custsName").value.length == 0) {
 		alert("Please enter customer name.")
-		document.getElementById("custName").focus();
+		document.getElementById("custsName").focus();
 		return false;
 	} else if (document.getElementById("custPhone").value.length == 0) {
 		alert("Please enter customer phone.")
@@ -54,6 +54,18 @@ function validation() {
 	} else if (document.getElementById("custAddr").value.length == 0) {
 		alert("Please enter customer address.")
 		document.getElementById("custAddr").focus();
+		return false;
+	} else if (document.getElementById("recvName").value.length == 0) {
+		alert("Please enter receiver name.")
+		document.getElementById("recvName").focus();
+		return false;
+	} else if (document.getElementById("recvPhone").value.length == 0) {
+		alert("Please enter receiver phone.")
+		document.getElementById("recvPhone").focus();
+		return false;
+	} else if (document.getElementById("recvAddr").value.length == 0) {
+		alert("Please enter receiver address.")
+		document.getElementById("recvAddr").focus();
 		return false;
 	} else if (document.getElementById("orderDate").value.length == 0) {
 		alert("Please enter the date.")

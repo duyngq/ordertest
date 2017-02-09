@@ -17,6 +17,11 @@ if (isset ( $submit )) {
 	// TODO: need to validate phone format here.
 	$custPhone = $_POST ["custPhone"];
 
+	$recvName = $_POST ["recvName"];
+	$recvAddr = $_POST ["recvAddr"];
+	// TODO: need to validate phone format here.
+	$recvPhone = $_POST ["recvPhone"];
+
 	$orderDate = $_POST ["orderDate"];
 
 	// Validate param for product details
@@ -64,16 +69,16 @@ if (isset ( $submit )) {
 	// Check existing send customer first
 	$checkCustomerQuery = "select id, cust_name from sendcustomers where phone='" . $custPhone . "'";
 	$checkCustomerResult = mysql_query ( $checkCustomerQuery, $connection ) or die ( mysql_error () . "Can not retrieve database" );
-	
-	$checkReceiverQuery = "select id, cust_name from recvcustomers where phone='" . $custPhone . "'";
+
+	$checkReceiverQuery = "select id, cust_name from recvcustomers where phone='" . $recvPhone . "'";
     $checkReceiverResult = mysql_query ( $checkReceiverQuery, $connection ) or die ( mysql_error () . "Can not retrieve database" );
-    
+
 	$custId;
 	$recvCustId;
 	if ($checkCustomerResult && $checkReceiverResult) {
 		if (mysql_num_rows ( $checkCustomerResult ) == 0) {
 			// Need to add this as new customer
-			$addCustomerQuery = "insert into sendcustomers (cust_name, phone, address) values ('$custName', '$custPhone', '$custAddress')";
+			$addCustomerQuery = "insert into sendcustomers (cust_name, phone, address) values ('$custName', '$custPhone', '$custAddr')";
 			$addCustomerResult = mysql_query ( $addCustomerQuery, $connection ) or die ( mysql_error () . "Can not retrieve to database" );
 			$custId = mysql_insert_id ();
 			if (!$addCustomerResult) {
@@ -83,11 +88,11 @@ if (isset ( $submit )) {
 				clearAll ( $connection, $submit );
 				exit ();
 			}
-		} 
-		
+		}
+
 		if (mysql_num_rows ( $checkReceiverResult ) == 0) {
             // Need to add this as new receiver customer
-            $addReceiverQuery = "insert into recvcustomers (cust_name, phone, address) values ('$custName', '$custPhone', '$custAddress')";
+            $addReceiverQuery = "insert into recvcustomers (cust_name, phone, address) values ('$recvName', '$recvPhone', '$recvAddr')";
             $addReceiverResult = mysql_query ( $addReceiverQuery, $connection ) or die ( mysql_error () . "Can not retrieve to database" );
             $recvCustId = mysql_insert_id ();
             if (!$addReceiverResult) {
@@ -97,21 +102,21 @@ if (isset ( $submit )) {
                 clearAll ( $connection, $submit );
                 exit ();
             }
-        } 
-        
+        }
+
 //       else { // Then we have all customers (existing and non-existing), add new order
             if (is_null($custId)) {
 				while ( $customer = mysql_fetch_array ( $checkCustomerResult ) ) {
 					$custId = $customer ["id"];
 				}
             }
-            
+
             if (is_null($recvCustId)) {
                 while ( $customer = mysql_fetch_array ( $checkReceiverResult ) ) {
                     $recvCustId = $customer ["id"];
                 }
             }
-			$orderId = addNewOrder ( $custId, $recvCustId, $userId, $orderDate, $totalWeight, $totalPackagePrice, $connection, $submit );
+			$orderId = addNewOrder ( $custId, $recvCustId, $userId, $orderDate, $totalWeight, $totalPackagePrice, $total, $connection, $submit );
 			addOrderDetails($orderId, $products, $connection, $submit);
 //		}
 	} else {
@@ -125,8 +130,8 @@ if (isset ( $submit )) {
 	unset ( $submit );
 }
 
-function addNewOrder($custId, $recvCustId, $userId, $orderDate, $totalWeight, $totalPackagePrice, $connection, $submit) {
-	$addNewOrder = "insert into orders(send_cust_id, recv_cust_id, user_id, status, date, total_weight, price_per_weight) values ($custId, $recvCustId, $userId, 0, '$orderDate', $totalWeight, $totalPackagePrice)";
+function addNewOrder($custId, $recvCustId, $userId, $orderDate, $totalWeight, $totalPackagePrice, $total, $connection, $submit) {
+	$addNewOrder = "insert into orders(send_cust_id, recv_cust_id, user_id, status, date, total_weight, price_per_weight, total) values ($custId, $recvCustId, $userId, 0, '$orderDate', $totalWeight, $totalPackagePrice, $total)";
 	$addNewOrderResult = mysql_query ( $addNewOrder, $connection ) or die ( mysql_error () . "Can not retrieve to database" );
 	$orderId = mysql_insert_id ();
 	if (!$addNewOrderResult) {

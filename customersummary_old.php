@@ -155,8 +155,8 @@ if (isset($submit)) {
                   "lender_name" => $lender, "lender_loan_amount" => $lenderLoanAmount, "lender_lvr" => $lenderLVR,
                   "prm_financial_broker" => $prmFinancialBroker, "prm_legals" => $prmLegals, "prm_builders" => $prmBuilders, "prm_financial_planner" => $prmFinancialPlanner, "prm_total" => $prmTotal,
                   "status" => $status);
-    $oldCustArray = $_SESSION['oldCustomerArray'];
-    $compareNewCustAndOldCust = array_diff_assoc($newCustomerArray, $oldCustArray);
+    $oldCustomerArray = $_SESSION['oldCustomerArray'];
+    $compareNewCustAndOldCust = array_diff_assoc($newCustomerArray, $oldCustomerArray);
     $updateCustomerQuery = "UPDATE customers SET ";
     $whereClauseForUpdateCustomerQuery = " WHERE id=$custId";
     $setClauseForUpdateCustomerQuery="";
@@ -175,7 +175,7 @@ if (isset($submit)) {
             } else {
                 $setClauseForUpdateCustomerQuery = $setClauseForUpdateCustomerQuery.$key.'="'.$newValue.'", ';
             }
-            $systemLog = $systemLog."<em><span style='color:#FF0000'>*System comment:</span> <strong>".$customerInfoArray[$key]."</strong> changed from <strong>".$oldCustArray[$key]."</strong> to <strong>".$newValue."</strong>.. </em>";
+            $systemLog = $systemLog."<em><span style='color:#FF0000'>*System comment:</span> <strong>".$customerInfoArray[$key]."</strong> changed from <strong>".$oldCustomerArray[$key]."</strong> to <strong>".$newValue."</strong>.. </em>";
         }
     }
     
@@ -302,12 +302,12 @@ if (isset($submit)) {
                   $status = 0;
               }
               $_SESSION['status'] = $status;
-              $oldCustArray = array("referrer_name" => $customer['referrer_name'], "referrer_fee" => $customer['referrer_fee'],
+              $oldCustomerArray = array("referrer_name" => $customer['referrer_name'], "referrer_fee" => $customer['referrer_fee'],
                   "builder_name" => $customer['builder_name'], "builder_package_amount" => $customer['builder_package_amount'], "builder_land_amount" => $customer['builder_land_amount'], "builder_construction_amount" => $customer['builder_construction_amount'],
                   "lender_name" => $customer['lender_name'], "lender_loan_amount" => $customer['lender_loan_amount'], "lender_lvr" => $customer['lender_lvr'],
                   "prm_financial_broker" => $customer['prm_financial_broker'], "prm_legals" => $customer['prm_legals'], "prm_builders" => $customer['prm_builders'], "prm_financial_planner" => $customer['prm_financial_planner'], "prm_total" => $customer['prm_total'],
                   "status" => $status);
-              $_SESSION['oldCustomerArray'] = $oldCustArray;
+              $_SESSION['oldCustomerArray'] = $oldCustomerArray;
               $status = 1;
           ?>
         <tr>
