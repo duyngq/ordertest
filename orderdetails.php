@@ -79,8 +79,8 @@ if (isset($sbmUpdateInfo) ) {
 
 	//generate update query for customer
 	$newCustArray = array("id" => $custId, "cust_name" => $custName, "address" => $custAddr, "phone" => $custPhone);
-	$oldCustArray = $_SESSION['oldCustArray'];
-	$compareNewCustAndOldCust = array_diff_assoc($newCustArray, $oldCustArray);
+	$senderArray = $_SESSION['oldCustArray'];
+	$compareNewCustAndOldCust = array_diff_assoc($newCustArray, $senderArray);
 	$updateCustomerQuery = "UPDATE sendcustomers SET ";
 	$whereClauseForUpdateCustomerQuery = " WHERE id=$custId";
 	$setClauseForUpdateCustomerQuery="";
@@ -96,14 +96,14 @@ if (isset($sbmUpdateInfo) ) {
 				$setClauseForUpdateCustomerQuery = $setClauseForUpdateCustomerQuery.$key.'="'.$newValue.'", ';
 			}
 
-			$systemLog = $systemLog."<em><span style='color:#FF0000'>*System comment:</span> <strong>".$customerInfoArray[$key]."</strong> changed from <strong>".$oldCustArray[$key]."</strong> to <strong>".$newValue."</strong>.. </em>";
+			$systemLog = $systemLog."<em><span style='color:#FF0000'>*System comment:</span> <strong>".$customerInfoArray[$key]."</strong> changed from <strong>".$senderArray[$key]."</strong> to <strong>".$newValue."</strong>.. </em>";
 		}
 	}
 
 	//generate update query for receiver
 	$newRecvArray = array("id" => $recvId, "cust_name" => $recvName, "address" => $recvAddr, "phone" => $recvPhone);
-	$oldRecvArray = $_SESSION['oldRecvArray'];
-	$compareNewCustAndOldRecv = array_diff_assoc($newRecvArray, $oldRecvArray);
+	$recvArray = $_SESSION['oldRecvArray'];
+	$compareNewCustAndOldRecv = array_diff_assoc($newRecvArray, $recvArray);
 	$updateRecvQuery = "UPDATE recvcustomers SET ";
 	$whereClauseForUpdateRecvQuery = " WHERE id=$recvId";
 	$setClauseForUpdateRecvQuery="";
@@ -119,7 +119,7 @@ if (isset($sbmUpdateInfo) ) {
 				$setClauseForUpdateRecvQuery = $setClauseForUpdateRecvQuery.$key.'="'.$newValue.'", ';
 			}
 
-			$systemLog = $systemLog."<em><span style='color:#FF0000'>*System comment:</span> <strong>".$recvInfoArray[$key]."</strong> changed from <strong>".$oldRecvArray[$key]."</strong> to <strong>".$newValue."</strong>.. </em>";
+			$systemLog = $systemLog."<em><span style='color:#FF0000'>*System comment:</span> <strong>".$recvInfoArray[$key]."</strong> changed from <strong>".$recvArray[$key]."</strong> to <strong>".$newValue."</strong>.. </em>";
 		}
 	}
 
@@ -128,8 +128,8 @@ if (isset($sbmUpdateInfo) ) {
     $newOrderArray = array("id" => $orderId, "send_cust_id" => $custId,
                   "user_id" => $userId, "status" => $status, "date" => $orderDate, "total_weight" => $totalWeight,
                   "price_per_weight" => $pricePerWeight, "total" =>$total, "recv_cust_id" => $recvId,);
-    $oldOrderArray = $_SESSION['oldOrderArray'];
-    $compareNewOrderAndOldOrder= array_diff_assoc($newOrderArray, $oldOrderArray);
+    $orderArray = $_SESSION['oldOrderArray'];
+    $compareNewOrderAndOldOrder= array_diff_assoc($newOrderArray, $orderArray);
     $updateOrderQuery = "UPDATE orders SET ";
     $whereClauseForUpdateOrderQuery = " WHERE id=$orderId";
     $setClauseForUpdateOrderQuery="";
@@ -146,7 +146,7 @@ if (isset($sbmUpdateInfo) ) {
                 $setClauseForUpdateOrderQuery = $setClauseForUpdateOrderQuery.$key.'="'.$newValue.'", ';
             }
 
-            $systemLog = $systemLog."<em><span style='color:#FF0000'>*System comment:</span> <strong>".$orderInfoArray[$key]."</strong> changed from <strong>".$oldOrderArray[$key]."</strong> to <strong>".$newValue."</strong>.. </em>";
+            $systemLog = $systemLog."<em><span style='color:#FF0000'>*System comment:</span> <strong>".$orderInfoArray[$key]."</strong> changed from <strong>".$orderArray[$key]."</strong> to <strong>".$newValue."</strong>.. </em>";
         }
     }
 
@@ -328,18 +328,18 @@ p.hidden {
 			$_SESSION['recvId'] = $recvId;
 			$_SESSION['orderStatus'] = $order['status'];
 			$_SESSION['orderId'] = $order['id'];
-			$oldOrderArray = array("id" => $order['id'], "send_cust_id" => $order['send_cust_id'],
+			$orderArray = array("id" => $order['id'], "send_cust_id" => $order['send_cust_id'],
                   "user_id" => $order['user_id'], "status" => $order['status'], "date" => $order['date'], "total_weight" => $order['total_weight'],
                   "price_per_weight" => $order['price_per_weight'], "total" => $order['total'], "recv_cust_id" => $order['recv_cust_id'],);
-			$_SESSION['oldOrderArray'] = $oldOrderArray;
+			$_SESSION['oldOrderArray'] = $orderArray;
 		}
 
 		//Get customer info
 		$getCustQuery = "SELECT * FROM sendcustomers where id = $custId ";
 		$custResult = mysql_query($getCustQuery) or die(mysql_error() . "Can not retrieve information from database");
 		while ($cust = mysql_fetch_array($custResult)) {
-			$oldCustArray = array("id" => $cust['id'], "cust_name" => $cust['cust_name'], "address" => $cust['address'], "phone" => $cust['phone']);
-            $_SESSION['oldCustArray'] = $oldCustArray;
+			$senderArray = array("id" => $cust['id'], "cust_name" => $cust['cust_name'], "address" => $cust['address'], "phone" => $cust['phone']);
+            $_SESSION['oldCustArray'] = $senderArray;
 			?>
 			<tr>
 				<td>- Sender:</td>
@@ -365,8 +365,8 @@ p.hidden {
 			$getRecvQuery = "SELECT * FROM recvcustomers where id = $recvId ";
 			$recvResult = mysql_query($getRecvQuery) or die(mysql_error() . "Can not retrieve information from database");
 			while ($recv = mysql_fetch_array($recvResult)) {
-				$oldRecvArray = array("id" => $recv['id'], "cust_name" => $recv['cust_name'], "address" => $recv['address'], "phone" => $recv['phone']);
-				$_SESSION['oldRecvArray'] = $oldRecvArray;
+				$recvArray = array("id" => $recv['id'], "cust_name" => $recv['cust_name'], "address" => $recv['address'], "phone" => $recv['phone']);
+				$_SESSION['oldRecvArray'] = $recvArray;
 			?>
 			<tr>
 				<td>- Receiver:</td>
@@ -390,7 +390,7 @@ p.hidden {
 			<tr>
 				<td>- Date:</td>
 				<td><input name="orderDate" type="date" id="datepicker"
-					value="<?php echo $oldOrderArray['date'];?>" size="60" /></td>
+					value="<?php echo $orderArray['date'];?>" size="60" /></td>
 			</tr>
 			<tr style="border-bottom: 1px solid">
 				<td colspan="6" style="border-bottom: 1px solid">- <strong>Status</strong>:
@@ -468,7 +468,7 @@ p.hidden {
 				</blockquote>
 				</td>
 				<td><input name="total_weight" type="text" id="total_weight"
-					value="<?php echo $oldOrderArray['total_weight'];?>" size="60"
+					value="<?php echo $orderArray['total_weight'];?>" size="60"
 					onchange="calTotalPricePackage(); updateTotal('productTbl')" /></td>
 			</tr>
 			<tr>
@@ -478,7 +478,7 @@ p.hidden {
 				</blockquote>
 				</td>
 				<td><input name="price_per_weight" type="text" id="price_per_weight"
-					value="<?php echo $oldOrderArray['price_per_weight'];?>" size="60"
+					value="<?php echo $orderArray['price_per_weight'];?>" size="60"
 					onchange="calTotalPricePackage(); updateTotal('productTbl')" /></td>
 			</tr>
 			<tr>
@@ -489,7 +489,7 @@ p.hidden {
 				</td>
 				<td><input name="total_package_price" type="text"
 					id="total_package_price"
-					value="<?php echo $oldOrderArray['price_per_weight']*$oldOrderArray['total_weight'];?>"
+					value="<?php echo $orderArray['price_per_weight']*$orderArray['total_weight'];?>"
 					size="60" readonly="true" /></td>
 			</tr>
 			<tr>
@@ -497,7 +497,7 @@ p.hidden {
 				<p>Total (*)</p>
 				</td>
 				<td><input name="prm_sum" type="text" id="prm_sum"
-					value="<?php echo $oldOrderArray['total'];?>" size="60"
+					value="<?php echo $orderArray['total'];?>" size="60"
 					readonly="true" /></td>
 			</tr>
 			<tr>
@@ -513,11 +513,11 @@ p.hidden {
 			     <p><input type="submit" name="sbmUpdateInfo" value="Update Information" onclick="return confirm('Are you sure you want to change ?')" /></p>
 			</form>
 
-	           <p><input type="submit" name="print" value="Print order" onclick="PrintPreview()"/></p>
+	           <p><input type="button" name="print" value="Print order" onclick="PrintPreview()"/></p>
 		</div>
 		<script>
 		 function PrintPreview() {
-		        var popupWin = window.open('', '_blank', 'width=350,height=150,location=no,left=200px');
+		        var popupWin = window.open('printorder.php?tr=<?php echo $_GET['tr'];?>', '_blank', 'width=350,height=150,location=no,left=200px');
 		        popupWin.document.open();
 		        popupWin.document.write('<html><title>::Print Preview::</title></head><body">')//<link rel="stylesheet" type="text/css" href="Print.css" media="screen"/>
 		        popupWin.document.write('Testing printing all things');

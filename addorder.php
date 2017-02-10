@@ -47,7 +47,7 @@ if (isset ( $submit )) {
 		exit ();
 	}
 
-	$products = array ();
+	$products = array (); //store product details with order as: name, quantity, price
 	for($i = 1; $i <= $noOfProducts; $i ++) {
 		$product = array ();
 		$product [0] = $_POST ["product" . $i . "name"];
@@ -148,7 +148,7 @@ function addNewOrder($custId, $recvCustId, $userId, $orderDate, $totalWeight, $t
 function addOrderDetails($orderId, $products, $connection, $submit) {
 	$addOrderDetails="insert into orderdetails (order_id, product_name, product_price, product_quantity) values";
 	foreach ($products as $product) {
-		$addOrderDetails.="($orderId, '$product[0]',$product[1], $product[2]),";
+		$addOrderDetails.="($orderId, '$product[0]', $product[2], $product[1]),";
 	}
 	$addOrderDetailsResult = mysql_query ( substr($addOrderDetails,0,-1), $connection ) or die ( mysql_error () . "Can not retrieve to database" );
 	if ($addOrderDetailsResult) {

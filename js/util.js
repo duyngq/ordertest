@@ -80,31 +80,30 @@ function addRow(tableId) {
 
 function addProductRow(tableId) {
     var table = document.getElementById(tableId);
-    var e = parseInt(document.getElementById('noOfProducts').value);
-//    var e = table.rows.length;
-    var x = table.insertRow(e);
-    var l = table.rows[e-1].cells.length;
+    var tableRows = table.rows.length; // number of rows of tbale
+    var e = parseInt(document.getElementById('noOfProducts').value)+1; // the index to create id for each row/cell
+    var x = table.insertRow(tableRows); // add new rows to table
+    var l = table.rows[tableRows-1].cells.length;
     // insert single column with default data
-    table.rows[e].insertCell(0);
-    table.rows[e].cells[0].innerHTML="<td><input name=\"product"+e+"name\" type=\"text\" id=\"product"+e+"name\" size=\"30\" placeholder=\"Product name\" /></td>";
+    table.rows[tableRows].insertCell(0);
+    table.rows[tableRows].cells[0].innerHTML="<td><input name=\"product"+e+"name\" type=\"text\" id=\"product"+e+"name\" size=\"30\" placeholder=\"Product name\" /></td>";
 
-    table.rows[e].insertCell(1);
-    table.rows[e].cells[1].innerHTML="<td><input name=\"product"+e+"quantity\" type=\"number\" id=\"product"+e+"quantity\" value=\"0\" size=\"30\" onchange=\"calProductAmount('product"+e+"quantity', 'product"+e+"price', 'product"+e+"amount')\"/></td>";
+    table.rows[tableRows].insertCell(1);
+    table.rows[tableRows].cells[1].innerHTML="<td><input name=\"product"+e+"quantity\" type=\"number\" id=\"product"+e+"quantity\" value=\"0\" size=\"30\" onchange=\"calProductAmount('product"+e+"quantity', 'product"+e+"price', 'product"+e+"amount')\"/></td>";
     
-    table.rows[e].insertCell(2);
-    table.rows[e].cells[2].innerHTML="<td><input name=\"product"+e+"price\" type=\"text\" id=\"product"+e+"price\" value=\"0\" size=\"30\" onchange=\"calProductAmount('product"+e+"quantity', 'product"+e+"price', 'product"+e+"amount')\"/></td>";
+    table.rows[tableRows].insertCell(2);
+    table.rows[tableRows].cells[2].innerHTML="<td><input name=\"product"+e+"price\" type=\"text\" id=\"product"+e+"price\" value=\"0\" size=\"30\" onchange=\"calProductAmount('product"+e+"quantity', 'product"+e+"price', 'product"+e+"amount')\"/></td>";
     
-    table.rows[e].insertCell(3);
-    table.rows[e].cells[3].innerHTML="<td><input name=\"product"+e+"amount\" type=\"text\" id=\"product"+e+"amount\" value=\"0\" size=\"30\" readonly=\"true\"/></td>";
+    table.rows[tableRows].insertCell(3);
+    table.rows[tableRows].cells[3].innerHTML="<td><input name=\"product"+e+"amount\" type=\"text\" id=\"product"+e+"amount\" value=\"0\" size=\"30\" readonly=\"true\"/></td>";
 	    
-    table.rows[e].insertCell(4);
-    table.rows[e].cells[4].innerHTML="<td><input type=\"button\" onclick=\"addProductRow('productTbl')\" border=0 style='cursor:hand' value=\"+\"/></td>";
+    table.rows[tableRows].insertCell(4);
+    table.rows[tableRows].cells[4].innerHTML="<td><input type=\"button\" onclick=\"addProductRow('productTbl')\" border=0 style='cursor:hand' value=\"+\"/></td>";
 	    
-    table.rows[e].insertCell(5);            
-    table.rows[e].cells[5].innerHTML="<td><input type=\"button\" onclick=\"removeProductRow('productTbl', this)\" border=0 style='cursor:hand' value=\"-\"/></td>";
+    table.rows[tableRows].insertCell(5);            
+    table.rows[tableRows].cells[5].innerHTML="<td><input type=\"button\" onclick=\"removeProductRow('productTbl', this)\" border=0 style='cursor:hand' value=\"-\"/></td>";
     
-    document.getElementById('noOfProducts').value = e+1;
-//    document.getElementById('noOfProducts').value = e;
+    document.getElementById('noOfProducts').value = e;
 //    for ( var c = 0, m = l; c < m; c++) {
 //        table.rows[e].insertCell(c);
 //        table.rows[e].cells[c].innerHTML = "&nbsp;&nbsp;";
