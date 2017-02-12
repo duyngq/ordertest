@@ -163,7 +163,7 @@ if (isset($sbmUpdateInfo) ) {
     // Generate update query for order details
     $updateOrderDetailsQuery = " ";
     foreach ($products as $product) {
-        $updateOrderDetailsQuery.="UPDATE orderdetails SET product_name='$product[2]',product_quantity=$product[3], product_price=$product[4];";
+        $updateOrderDetailsQuery.="UPDATE orderdetails SET product_name='$product[2]',product_quantity=$product[3], product_price=$product[4] where id=$product[0];";
         $systemLog = $systemLog."<em><span style='color:#FF0000'>*System comment:</span> <strong>Order details:</strong> changed to <strong>product_name='".$product[2]."',product_quantity=".$product[3].", product_price=".$product[4]."</strong>.. </em>";
     }
 
@@ -236,7 +236,7 @@ if (isset($sbmUpdateInfo) ) {
 	//add comment{
 	$comment = $_POST['comment'];
 	$addCommentQuery = "INSERT INTO comments(date, comment, order_id, user_name) VALUES";
-	if ($comment != null || $commens != '') {
+	if (!empty($comment) &&( $comment != null || $commens != '')) {
 		$addCommentQuery = $addCommentQuery.'("'.$currentDate.'", "'.$comment.'", '.$orderId.', "'.$username.'")';
 	}
 

@@ -87,8 +87,8 @@ if (isset ( $submit )) {
 	$checkReceiverQuery = "select id, cust_name from recvcustomers where phone='" . $recvPhone . "'";
     $checkReceiverResult = mysql_query ( $checkReceiverQuery, $connection ) or die ( mysql_error () . "Can not retrieve database" );
 
-	$custId;
-	$recvCustId;
+	$custId = null;
+	$recvCustId = null;
 	if ($checkCustomerResult && $checkReceiverResult) {
 		if (mysql_num_rows ( $checkCustomerResult ) == 0) {
 			// Need to add this as new customer
