@@ -1,6 +1,21 @@
 <?php
 error_reporting(E_ALL ^ E_DEPRECATED);
+//if (!isset($_SESSION['expire'])) {
+//    header ( "location:login.php" );
+//}
+//
+//$now = time(); // Checking the time now when home page starts.
+//if ($now > $_SESSION['expire']) {
+//    session_destroy();
+//    header ( "location:login.php" );
+//}
+//$_SESSION['expire'] = $now + (30 * 60);
 session_start();
+
+if (! isset ( $_SESSION ['loggedIn'] ) || (isset ( $_SESSION ['loggedIn'] ) && ! $_SESSION ['loggedIn'])) {
+    header ( "location:login.php" );
+}
+
 include_once 'dbconn.php';
 
 function changePass() {    

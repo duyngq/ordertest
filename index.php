@@ -1,5 +1,16 @@
 <?php
 error_reporting(E_ALL ^ E_DEPRECATED);
+//if (!isset($_SESSION['expire'])) {
+//    header ( "location:login.php" );
+//}
+//
+//$now = time(); // Checking the time now when home page starts.
+//if ($now > $_SESSION['expire']) {
+//    session_destroy();
+//    header ( "location:login.php" );
+//}
+//$_SESSION['expire'] = $now + (30 * 60);
+
 session_start(); /// initialize session
 if (!isset($_SESSION['loggedIn']) || (isset($_SESSION['loggedIn']) && !$_SESSION['loggedIn'])) {
     header("location:login.php");
@@ -219,13 +230,18 @@ if (!isset($_SESSION['loggedIn']) || (isset($_SESSION['loggedIn']) && !$_SESSION
                                     <a href="logout.php">Log out</a>
                                   </div>
                                 </div--><?php $user_name = $_SESSION['username'];
-echo $user_name; ?>!  <a href="logout.php">Log out</a><a href="edituser.php">Change pass</a><a href="adduser.php">Add user</a></p>
+echo $user_name; ?>!  <a href="logout.php">Log out</a>
+                <?php 
+                    if ( isset($_SESSION['role_id']) && $_SESSION['role_id'] == 1) {
+                    	echo "<a href=\"edituser.php\">Change pass</a><a href=\"adduser.php\">Add user</a></p>";
+                    }
+                ?>
                         <p align="left"><strong>ORDER</strong></p>
                         <p align="left">Today's Date: <?php date_default_timezone_set('Asia/Bangkok');
 echo date('d/m/Y'); ?> - Time: <?php echo date('H:i'); ?> </p>
                         <p align="left">
                             <label>
-                                <input type="submit" name="Submit" value="Add New Order" onClick="window.location.href='addorder.php'"/>
+                                <input type="submit" name="Submit" value="Add New Order" onClick="window.location.href='addorder'"/>
                             </label>
                         </p>
                         <p align="left">&nbsp;</p>
@@ -373,13 +389,14 @@ echo date('d/m/Y'); ?> - Time: <?php echo date('H:i'); ?> </p>
                                 $shippedIndex = $index * 10;
                                 ?>
                                 <tr onMouseOver="ChangeColor(this, true);" onMouseOut="ChangeColor(this, false);" onClick="DoNav('orderdetails.php?tr=<?php
-                            $custId = base64_encode($shippedList[$shippedIndex + 2]);
+                            $oderId = base64_encode($shippedList[$shippedIndex + 2]);
                             $pos1 = rand(0, 25);
                             $pos2 = rand(26, 51);
                             $a_z = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
                             $randomLetter1 = $a_z[$pos1];
                             $randomLetter2 = $a_z[$pos2];
-                            echo substr_replace($custId, $randomLetter1 . $randomLetter2, 1, 0);
+                            $orderIdEncrypted = substr_replace($custId, $randomLetter1 . $randomLetter2, 1, 0);
+                            echo $orderIdEncrypted;
                                 ?>')">
                                     <td><?php
                                     	echo $shippedList[$shippedIndex];
@@ -397,7 +414,7 @@ echo date('d/m/Y'); ?> - Time: <?php echo date('H:i'); ?> </p>
                                         <span class="link"><a href="#" class="href-right table-action-hide">
                                                 <i class="fa fa-pencil"></i>
                                             </a>
-                                            <a href="#" class="href-right delete-row table-action-hide">
+                                            <a href="orderdetails.php?tr=<?php echo $orderIdEncrypted;?>" class="href-right delete-row table-action-hide">
                                                 <i class="fa fa-trash-o href-right"></i>
                                             </a></span>
                                     </td>

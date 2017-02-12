@@ -1,5 +1,15 @@
 <?php
 error_reporting(E_ALL ^ E_DEPRECATED);
+//if (!isset($_SESSION['expire'])) {
+//    header ( "location:login.php" );
+//}
+//
+//$now = time(); // Checking the time now when home page starts.
+//if ($now > $_SESSION['expire']) {
+//    session_destroy();
+//    header ( "location:login.php" );
+//}
+//$_SESSION['expire'] = $now + (30 * 60);
 session_start(); /// initialize session
 if (!isset($_SESSION['loggedIn']) || (isset($_SESSION['loggedIn']) && !$_SESSION['loggedIn'])) {
 	header("location:login.php");
@@ -318,6 +328,9 @@ p.hidden {
 		//get all order info
 		$getOrdersQuery = "SELECT * FROM orders where id = $orderId ";
 		$ordersResult = mysql_query($getOrdersQuery) or die(mysql_error() . "Can not retrieve information from database");
+		if (mysql_num_rows($ordersResult) < 1) {
+			header("location:index.php");
+		}
 		$custId;
 		$recvId;
 		while ($order = mysql_fetch_array($ordersResult)) {
@@ -335,6 +348,9 @@ p.hidden {
 		}
 
 		//Get customer info
+		if (is_null($custId) || $custId == null || empty($custId)) {
+            header("location:index.php");
+		}
 		$getCustQuery = "SELECT * FROM sendcustomers where id = $custId ";
 		$custResult = mysql_query($getCustQuery) or die(mysql_error() . "Can not retrieve information from database");
 		while ($cust = mysql_fetch_array($custResult)) {
@@ -362,6 +378,9 @@ p.hidden {
 
 			<?php }
 			//Get receiver info
+			if (is_null($recvId) || $recvId == null || empty($recvId)) {
+	            header("location:index.php");
+	        }
 			$getRecvQuery = "SELECT * FROM recvcustomers where id = $recvId ";
 			$recvResult = mysql_query($getRecvQuery) or die(mysql_error() . "Can not retrieve information from database");
 			while ($recv = mysql_fetch_array($recvResult)) {
@@ -395,7 +414,7 @@ p.hidden {
 			<tr style="border-bottom: 1px solid">
 				<td colspan="6" style="border-bottom: 1px solid">- <strong>Status</strong>:
 				<select name="status"
-				<?php if ($_SESSION['role_id'] != '1') { echo 'disabled';} ?>>
+				<?php //if ($_SESSION['role_id'] != '1') { echo 'disabled';} ?>>
 					<option value="1"
 					<?php if ($_SESSION['orderStatus'] == 1) { echo "selected='selected'";}?>>Shipped</option>
 					<option value="0"
@@ -503,8 +522,8 @@ p.hidden {
 			<tr>
 				<td colspan=2>
 				<p>- Comment:</p>
-				<p><textarea name="comment" cols="150" rows="10"
-					style="border: 2px solid #ff0000"></textarea></p>
+				<p><textarea name="comment" cols="150" rows="4"
+					style="border: 1px solid #ff0000"></textarea></p>
 				</td>
 			</tr>
 		</table>
@@ -512,27 +531,17 @@ p.hidden {
 			<form id="frmUpdateInfo" name="frmUpdateInfo" method="post" style="text-align: center" >
 			     <p><input type="submit" name="sbmUpdateInfo" value="Update Information" onclick="return confirm('Are you sure you want to change ?')" /></p>
 			</form>
-
-	           <p><input type="button" name="print" value="Print order" onclick="PrintPreview()"/></p>
+	           <p><input type="button" name="print" value="Print order" onclick="PrintPreview(this)"/></p>
 		</div>
 		<script>
-		 function PrintPreview() {
-		        var popupWin = window.open('printorder.php?tr=<?php echo $_GET['tr'];?>', '_blank', 'width=350,height=150,location=no,left=200px');
-		        popupWin.document.open();
-		        popupWin.document.write('<html><title>::Print Preview::</title></head><body">')//<link rel="stylesheet" type="text/css" href="Print.css" media="screen"/>
-		        popupWin.document.write('Testing printing all things');
-		        popupWin.document.write('</html>');
-		        popupWin.document.close();
-
+		    function PrintPreview() {
+                window.open('printorder.php?tr=<?php echo $_GET['tr'];?>','win2','status=no,toolbar=no,scrollbars=yes,titlebar=no,menubar=no,resizable=yes,width=1076,height=768,directories=no,location=no');
 		    }
 		</script>
-		<table width="100%" border="0">
-
-		</table>
-		<p><strong>Previous Comments:</strong></p>
+		
+		<!-- p><strong>Previous Comments:</strong></p>
 		<table width="100%" border="1" bordercolor="#000000">
 			<tr>
-				<!--          <td width="2%"><strong>Cmt No.</strong></td>-->
 				<td width="5%"><strong>Date</strong></td>
 				<td width="4%"><strong>Time</strong></td>
 				<td width="4%"><strong>User</strong></td>
@@ -544,7 +553,6 @@ p.hidden {
 			while ($comment = mysql_fetch_array($commentsQuery)) {
 				?>
 			<tr>
-				<!--<td><?php echo $comment['id']; ?></td>-->
 				<td><?php $date = $comment['date']; $date_time = explode(" ", $date); echo trim($date_time[0]); ?></td>
 				<td><?php echo trim($date_time[1]); ?></td>
 				<td><?php echo $comment['user_name'] ?></td>
@@ -565,19 +573,7 @@ p.hidden {
 			<tr>
 				<td colspan="5" style="border: hidden"></td>
 			</tr>
-			<!--<tr>
-		<td colspan="5" style="border:hidden">
-				</br></br></br>
-		New Comment:
-		</td>
-      	</tr>
-		<tr>
-		<td colspan="5">
-        <textarea name="comment" id="commnet" cols="150" style="max-width:inherit"></textarea>
-		</td>
-      	</tr>-->
-		</table>
-		<p align="left">&nbsp;</p>
+		</table-->
 		</td>
 	</tr>
 </table>

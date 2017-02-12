@@ -1,6 +1,10 @@
 <?php
 error_reporting(E_ALL ^ E_DEPRECATED);
-session_start();
+session_start ();
+// If already logged in, refer to index page
+//if (isset ( $_SESSION ['loggedIn'] ) &&  $_SESSION ['loggedIn']) {
+//    header ( "location:index.php" );
+//}
 ?>
 <html>
 <style>

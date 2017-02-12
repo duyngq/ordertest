@@ -1,9 +1,20 @@
 <?php
 error_reporting ( E_ALL ^ E_DEPRECATED );
+//if (!isset($_SESSION['expire'])) {
+//	header ( "location:login.php" );
+//}
+//
+//$now = time(); // Checking the time now when home page starts.
+//if ($now > $_SESSION['expire']) {
+//	session_destroy();
+//	header ( "location:login.php" );
+//}
+//$_SESSION['expire'] = $now + (30 * 60);
 session_start ();
 if (! isset ( $_SESSION ['loggedIn'] ) || (isset ( $_SESSION ['loggedIn'] ) && ! $_SESSION ['loggedIn'])) {
 	header ( "location:login.php" );
 }
+
 include_once 'dbconn.php';
 // add customer to DB and redirect to index.php
 if (isset ( $_POST ["submit"] )) {
@@ -119,7 +130,7 @@ if (isset ( $submit )) {
                     $recvCustId = $customer ["id"];
                 }
             }
-			$orderId = addNewOrder ( $custId, $recvCustId, $userId, $orderDate, $totalWeight, $totalPackagePrice, $total, $connection, $submit );
+			$orderId = addNewOrder ( $custId, $recvCustId, $userId, $orderDate, $totalWeight, $pricePerWeight, $total, $connection, $submit );
 			addOrderDetails($orderId, $products, $connection, $submit);
 //		}
 	} else {
@@ -133,8 +144,8 @@ if (isset ( $submit )) {
 	unset ( $submit );
 }
 
-function addNewOrder($custId, $recvCustId, $userId, $orderDate, $totalWeight, $totalPackagePrice, $total, $connection, $submit) {
-	$addNewOrder = "insert into orders(send_cust_id, recv_cust_id, user_id, status, date, total_weight, price_per_weight, total) values ($custId, $recvCustId, $userId, 0, '$orderDate', $totalWeight, $totalPackagePrice, $total)";
+function addNewOrder($custId, $recvCustId, $userId, $orderDate, $totalWeight, $pricePerWeight, $total, $connection, $submit) {
+	$addNewOrder = "insert into orders(send_cust_id, recv_cust_id, user_id, status, date, total_weight, price_per_weight, total) values ($custId, $recvCustId, $userId, 0, '$orderDate', $totalWeight, $pricePerWeight, $total)";
 	$addNewOrderResult = mysql_query ( $addNewOrder, $connection ) or die ( mysql_error () . "Can not retrieve to database" );
 	$orderId = mysql_insert_id ();
 	if (!$addNewOrderResult) {
