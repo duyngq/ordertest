@@ -1,8 +1,8 @@
 <?php
-error_reporting(E_ALL ^ E_DEPRECATED);
-session_start(); /// initialize session
-if (!isset($_SESSION['loggedIn']) || (isset($_SESSION['loggedIn']) && !$_SESSION['loggedIn'])) {
-	header("location:login.php");
+error_reporting ( E_ALL ^ E_DEPRECATED );
+session_start (); // / initialize session
+if (! isset ( $_SESSION ['loggedIn'] ) || (isset ( $_SESSION ['loggedIn'] ) && ! $_SESSION ['loggedIn'])) {
+	header ( "location:login.php" );
 }
 include_once 'dbconn.php';
 ?>
@@ -146,9 +146,13 @@ p.hidden {
                     }
                     echo "</ul>";
                     echo "PHU THU:</br>";
+                    $productPricetotal;
 					foreach ($products as $product){
                     	echo $product[3]." ".$product[2]." x ".$product[4]." = ".($product[3]*$product[4]);
+                    	$productPriceTotal = $productPriceTotal + ($product[3]*$product[4]);
                     }
+					echo "</br>";
+                    echo "TOTAL : ".$orderArray["total_weight"]." X ".$orderArray["price_per_weight"]." = ".($orderArray["total_weight"]*$orderArray["price_per_weight"])." + ".$productPriceTotal." = ".$orderArray["total"];
 																				// For loop here over product list to show:
 																				// + <quantity> <unit> <productName>
 
