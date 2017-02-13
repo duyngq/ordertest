@@ -111,7 +111,7 @@ if (!isset($_SESSION['loggedIn']) || (isset($_SESSION['loggedIn']) && !$_SESSION
                 text-align: center;
             }
             .table-action-hide {
-                opacity: 0;
+                opacity: 1;
             }
             .table-action a, .table-action-hide a {
                 display: inline-block;
@@ -209,11 +209,11 @@ if (!isset($_SESSION['loggedIn']) || (isset($_SESSION['loggedIn']) && !$_SESSION
                 });
 
                 // Show aciton upon row hover
-                jQuery('.table tr').hover(function(){
-                  jQuery(this).find('.table-action-hide').animate({opacity: 1});
-                },function(){
-                  jQuery(this).find('.table-action-hide').animate({opacity: 0});
-                });
+//                jQuery('.table tr').hover(function(){
+//                  jQuery(this).find('.table-action-hide').animate({opacity: 1});
+//                },function(){
+//                  jQuery(this).find('.table-action-hide').animate({opacity: 0});
+//                });
             });
         </script>
     </head>
@@ -362,7 +362,7 @@ echo date('d/m/Y'); ?> - Time: <?php echo date('H:i'); ?> </p>
                                         <span class="link"><a href="#" class="href-right table-action-hide">
                                                 <i class="fa fa-pencil"></i>
                                             </a>
-                                            <a href="#" class="href-right delete-row table-action-hide">
+                                            <a href="orderdetails.php?tr=<?php echo substr_replace($custId, $randomLetter1 . $randomLetter2, 1, 0);?>" class="href-right delete-row table-action-hide">
                                                 <i class="fa fa-trash-o href-right"></i>
                                             </a></span>
                                     </td>

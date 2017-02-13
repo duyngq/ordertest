@@ -14,7 +14,7 @@ function check_pass() {
     $password = stripslashes($password);
     $username = mysql_real_escape_string($username);
 //    $inputPassword = password_hash(mysql_real_escape_string($password), PASSWORD_DEFAULT);
-    $password = mysql_real_escape_string($password);
+    $password = mysql_real_escape_string($password); // validate with plain text input user
 
     $sql = "SELECT * FROM users WHERE username='$username'";// and password='$password'";
     $result = mysql_query($sql);
@@ -31,7 +31,7 @@ function check_pass() {
         $id;
         while ($user=mysql_fetch_array($result)) {
         	$dbPW = $user['password'];
-        	if (password_verify($password, $dbPW)) {
+        	if (password_verify($password, $dbPW)) { // check hashed coded password with input one if match or not
 	            $id = $user['id'];
 	            $_SESSION['user_id'] = $id;
 	            $_SESSION['date_last_entered'] = $user['date_last_entered'];
