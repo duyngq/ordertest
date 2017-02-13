@@ -330,6 +330,7 @@ p.hidden {
 		$ordersResult = mysql_query($getOrdersQuery) or die(mysql_error() . "Can not retrieve information from database");
 		if (mysql_num_rows($ordersResult) < 1) {
 			header("location:index.php");
+            exit;
 		}
 		$custId;
 		$recvId;
@@ -350,6 +351,7 @@ p.hidden {
 		//Get customer info
 		if (is_null($custId) || $custId == null || empty($custId)) {
             header("location:index.php");
+            exit;
 		}
 		$getCustQuery = "SELECT * FROM sendcustomers where id = $custId ";
 		$custResult = mysql_query($getCustQuery) or die(mysql_error() . "Can not retrieve information from database");
@@ -380,6 +382,7 @@ p.hidden {
 			//Get receiver info
 			if (is_null($recvId) || $recvId == null || empty($recvId)) {
 	            header("location:index.php");
+                exit;
 	        }
 			$getRecvQuery = "SELECT * FROM recvcustomers where id = $recvId ";
 			$recvResult = mysql_query($getRecvQuery) or die(mysql_error() . "Can not retrieve information from database");
