@@ -86,9 +86,10 @@ p.hidden {
 					$custId = $order['send_cust_id'];
 					$recvId = $order['recv_cust_id'];
 					$orderArray = array("id" => $order['id'], "send_cust_id" => $order['send_cust_id'],
-							"user_id" => $order['user_id'], "status" => $order['status'], "date" => $order['date'], "total_weight" => $order['total_weight'],
-							"price_per_weight" => $order['price_per_weight'], "total" => $order['total'], "recv_cust_id" => $order['recv_cust_id'],);
-					$_SESSION['oldOrderArray'] = $orderArray;
+			                  "user_id" => $order['user_id'], "status" => $order['status'], "date" => $order['date'], "total_weight" => $order['total_weight'],
+			                  "price_per_weight" => $order['price_per_weight'], "total_weight_1" => $order['total_weight_1'],
+			                  "price_per_weight_1" => $order['price_per_weight_1'], "total" => $order['total'], "recv_cust_id" => $order['recv_cust_id'],
+			                  "product_desc" => $order['product_desc'], "additional_fee" => $order['additional_fee']);
 				}
 
 				//Get customer info
@@ -121,7 +122,7 @@ p.hidden {
 						<td class="meta-head">
 							<p id="underline"> <strong>
 								Receiver (Người nhận)</strong></br>
-							</p> Name:<?php echo $recvArray['cust_name'];?></br>
+							</p> Name: <?php echo $recvArray['cust_name'];?></br>
 							<p id="underline">Address: <?php echo $recvArray['address'];?></p>
 							<p id="underline">Phone: <?php echo $recvArray['phone'];?></p>
 						</td>
@@ -135,49 +136,37 @@ p.hidden {
 		<div align="center">
 			<table id="meta">
 				<tr>
-					<td>
+					<td contenteditable='true'>
 						<p id="underline"><strong>DESCRIPTION OF CONTENTS: (TÊN HÀNG HÓA):</strong></p>
-							<?php
-                    $getOrderDetailsQuery = "SELECT * FROM orderdetails where order_id = $orderId ";
-                    $orderDetailsResult = mysql_query($getOrderDetailsQuery) or die(mysql_error() . "Can not retrieve information from database");
-                    $noOfProduct = 1;
-                    $orderDetalsArray;
-					$products = array ();
-                    while ($orderDetails = mysql_fetch_array($orderDetailsResult)) {
-                    	$product = array ();
-				        $product [0] = $orderDetails['id'];
-				        $product [1] = $orderDetails['order_id'];
-				        $product [2] = $orderDetails['product_name'];
-				        $product [3] = $orderDetails['product_quantity'];
-				        $product [4] = $orderDetails['product_price'];
-				        $products [$noOfProduct] = $product;
-				        $noOfProduct++;
-                    	echo "&nbsp;&nbsp;&nbsp;+ ".$orderDetails['product_quantity']." ".$orderDetails['product_name']."<br>";
-                    }
-                    echo "PHU THU:<br>";
-                    $productPriceTotal = 0;
-					foreach ($products as $product){
-                    	echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$product[3]." ".$product[2]." x ".$product[4]." = ".($product[3]*$product[4])."</br>";
-                    	$productPriceTotal = $productPriceTotal + ($product[3]*$product[4]);
-                    }
-					echo "<br><br>";
-                    echo "<strong>TOTAL : ".$orderArray["total_weight"]." X ".$orderArray["price_per_weight"]." = ".($orderArray["total_weight"]*$orderArray["price_per_weight"])." + ".$productPriceTotal." = ".$orderArray["total"]."</strong>";
-																				// For loop here over product list to show:
-																				// + <quantity> <unit> <productName>
-
-																				// hien phu thu
-																				// PHU THU: <quantity> <unit> <productName> X <price> = <total>
-
-																				// TOTAL: <weight> X <pricePerWeight> = total1 + <total> = <final total>
-																				?>
-						
+						<?php 
+    						// For loop here over product list to show:
+    						// + <quantity> <unit> <productName>
+    						
+    						// hien phu thu
+    						// PHU THU: <quantity> <unit> <productName> X <price> = <total>
+    						// TOTAL: <weight> X <pricePerWeight> = total1 + <total> = <final total>
+    						$order   = array("\r\n", "\n", "\r");
+                            $replace = '<br />';
+                            
+							echo str_replace($order, $replace, $orderArray['product_desc']);
+							echo "<br>PHU THU:<br>";
+							echo str_replace($order, $replace, $orderArray['additional_fee']);
+							echo "<br><br>";
+							$details2="";
+							$total2="";
+							if ((!is_null($orderArray["total_weight_1"]) && !empty($orderArray["total_weight_1"])) && (!is_null($orderArray["price_per_weight_1"]) && !empty($orderArray["price_per_weight_1"]))) {
+								$details2 = $details2." + ".$orderArray["total_weight_1"]." X ".$orderArray["price_per_weight_1"];
+								$total2 = $total2." + ".$orderArray["total_weight_1"]*$orderArray["price_per_weight_1"];
+							}
+	                        echo "<strong>TOTAL : ".$orderArray["total_weight"]." X ".$orderArray["price_per_weight"].$details2." = ".($orderArray["total_weight"]*$orderArray["price_per_weight"]).$total2." = ".$orderArray["total"]."</strong>";
+						?>
                     </td>
 				</tr>
 
 			</table>
 			<table id="tablenoborder" class="nothing">
 				<tr>
-					<td><strong>Weight:(lbs)</strong></td>
+					<td contenteditable='true'><strong>Weight:(lbs)</strong></td>
 					<td><?php echo $orderArray["total_weight"];?></td>
 					<td><strong>Date:</strong></td>
 					<td><?php echo $orderArray["date"];?></td>
@@ -188,7 +177,7 @@ p.hidden {
 			<table id="tablenoborder" class="nothing">
 				<tr>
 					<td><strong>TOTAL:</strong></td>
-					<td><p class="solid"><?php echo "$".$orderArray["total"];?></p></td>
+					<td contenteditable='true'><p class="solid"><?php echo "$".$orderArray["total"];?></p></td>
 				</tr>
 			</table>
 		</div>

@@ -34,6 +34,9 @@ if (isset ( $submit )) {
 	$recvPhone = $_POST ["recvPhone"];
 
 	$orderDate = $_POST ["orderDate"];
+	
+	$productDesc = $_POST ["product_desc"];
+	$additionalFee = $_POST ["product_additional"];
 
 	// Validate param for product details
 	$totalWeight = $_POST ["total_weight"];
@@ -42,35 +45,40 @@ if (isset ( $submit )) {
 	$pricePerWeight = $_POST ["price_per_weight"];
 	validateNumber ( $pricePerWeight, "Price per package weight" );
 
+	$totalWeight1 = $_POST ["total_weight_1"];
+    validateNumber ( $totalWeight, "Package weight 1" );
+
+    $pricePerWeight1 = $_POST ["price_per_weight_1"];
+    validateNumber ( $pricePerWeight, "Price per package weight 1" );
+    
 	$totalPackagePrice = $_POST ["total_package_price"];
 	validateNumber ( $totalPackagePrice, "Package price amount" );
 
 	/**
 	 * get all products details from product table
 	 */
-
-	$noOfProducts = $_POST ["noOfProducts"];
-	if (! is_numeric ( $noOfProducts )) {
-		echo "<script>alert('Number of products should be a number!!!!')</script>";
-		exit ();
-	} else if ($noOfProducts < 0) {
-		echo "<script>alert('Number of products should be greater or equal 0!!!!')</script>";
-		exit ();
-	}
-
-	$products = array (); //store product details with order as: name, quantity, price
-	for($i = 1; $i <= $noOfProducts; $i ++) {
-		$product = array ();
-		$product [0] = $_POST ["product" . $i . "name"];
-		if (is_null($product[0]) || $product[0] == null || $product[0] == '') {
-			continue;
-		}
-		$product [1] = $_POST ["product" . $i . "quantity"];
-		validateNumber ( $_POST ["product" . $i . "quantity"], "Product quantity of " . $_POST ["product" . $i . "name"] );
-		$product [2] = $_POST ["product" . $i . "price"];
-		validateNumber ( $_POST ["product" . $i . "price"], "Product price of " . $_POST ["product" . $i . "name"] );
-		$products [$i] = $product;
-	}
+//	$noOfProducts = $_POST ["noOfProducts"];
+//	if (! is_numeric ( $noOfProducts )) {
+//		echo "<script>alert('Number of products should be a number!!!!')</script>";
+//		exit ();
+//	} else if ($noOfProducts < 0) {
+//		echo "<script>alert('Number of products should be greater or equal 0!!!!')</script>";
+//		exit ();
+//	}
+//
+//	$products = array (); //store product details with order as: name, quantity, price
+//	for($i = 1; $i <= $noOfProducts; $i ++) {
+//		$product = array ();
+//		$product [0] = $_POST ["product" . $i . "name"];
+//		if (is_null($product[0]) || $product[0] == null || $product[0] == '') {
+//			continue;
+//		}
+//		$product [1] = $_POST ["product" . $i . "quantity"];
+//		validateNumber ( $_POST ["product" . $i . "quantity"], "Product quantity of " . $_POST ["product" . $i . "name"] );
+//		$product [2] = $_POST ["product" . $i . "price"];
+//		validateNumber ( $_POST ["product" . $i . "price"], "Product price of " . $_POST ["product" . $i . "name"] );
+//		$products [$i] = $product;
+//	}
 
 	$total = $_POST ["prm_sum"];
 	validateNumber ( $total, "Total amount of all products" );
@@ -96,8 +104,6 @@ if (isset ( $submit )) {
 			$addCustomerResult = mysql_query ( $addCustomerQuery, $connection ) or die ( mysql_error () . "Can not retrieve to database" );
 			$custId = mysql_insert_id ();
 			if (!$addCustomerResult) {
-//				addNewOrder ();
-//			} else {
 				echo "<script>alert('Add send customer failed');</script>";
 				clearAll ( $connection, $submit );
 				exit ();
@@ -110,8 +116,6 @@ if (isset ( $submit )) {
             $addReceiverResult = mysql_query ( $addReceiverQuery, $connection ) or die ( mysql_error () . "Can not retrieve to database" );
             $recvCustId = mysql_insert_id ();
             if (!$addReceiverResult) {
-//                addNewOrder ();
-//            } else {
                 echo "<script>alert('Add send customer failed');</script>";
                 clearAll ( $connection, $submit );
                 exit ();
@@ -130,9 +134,8 @@ if (isset ( $submit )) {
                     $recvCustId = $customer ["id"];
                 }
             }
-			$orderId = addNewOrder ( $custId, $recvCustId, $userId, $orderDate, $totalWeight, $pricePerWeight, $total, $connection, $submit );
-			addOrderDetails($orderId, $products, $connection, $submit);
-//		}
+			$orderId = addNewOrder ( $custId, $recvCustId, $userId, $orderDate, $totalWeight, $pricePerWeight, $totalWeight1, $pricePerWeight1, $productDesc, $additionalFee, $total, $connection, $submit );
+//			addOrderDetails($orderId, $products, $connection, $submit);
 	} else {
 		rollback();
 		echo "<script>alert('Unable to add new order');</script>";
@@ -144,8 +147,8 @@ if (isset ( $submit )) {
 	unset ( $submit );
 }
 
-function addNewOrder($custId, $recvCustId, $userId, $orderDate, $totalWeight, $pricePerWeight, $total, $connection, $submit) {
-	$addNewOrder = "insert into orders(send_cust_id, recv_cust_id, user_id, status, date, total_weight, price_per_weight, total) values ($custId, $recvCustId, $userId, 0, '$orderDate', $totalWeight, $pricePerWeight, $total)";
+function addNewOrder($custId, $recvCustId, $userId, $orderDate, $totalWeight, $pricePerWeight, $totalWeight1, $pricePerWeight1, $productDesc, $additionalFee, $total, $connection, $submit) {
+	$addNewOrder = "insert into orders(send_cust_id, recv_cust_id, user_id, status, date, total_weight, price_per_weight, total_weight_1, price_per_weight_1, product_desc, additional_fee, total) values ($custId, $recvCustId, $userId, 0, '$orderDate', $totalWeight, $pricePerWeight, $totalWeight1, $pricePerWeight1, '$productDesc', '$additionalFee', $total)";
 	$addNewOrderResult = mysql_query ( $addNewOrder, $connection ) or die ( mysql_error () . "Can not retrieve to database" );
 	$orderId = mysql_insert_id ();
 	if (!$addNewOrderResult) {
@@ -318,9 +321,9 @@ p.hidden {
 											</tr>
 											<tr>
 												<td><p><textarea name="product_desc" cols="65" rows="4"
-										style="border: 1px solid black"></textarea></p></td>
+										style="border: 1px solid black" placeholder="Click and write product description"></textarea></p></td>
 												<td><p><textarea name="product_additional" cols="65" rows="4"
-										style="border: 1px solid black"></textarea></p></td>
+										style="border: 1px solid black" placeholder="Click and write additional fee description"></textarea></p></td>
 											</tr>
 										</table>
 									</td>
@@ -375,8 +378,8 @@ p.hidden {
 									<td><blockquote>
 											<p>Total price:</p>
 										</blockquote></td>
-									<td><input name="total_package_price_1" type="text"
-										id="total_package_price_1" value="0" size="60" readonly="true" /></td>
+									<td><input name="total_package_price" type="text"
+										id="total_package_price" value="0" size="60" readonly="true" /></td>
 								</tr>
 								<tr>
 									<td>- Product details:</td>
@@ -391,7 +394,7 @@ p.hidden {
 								</tr>
 								<tr>
 									<td><blockquote>
-											<p>Price (USD/kg):</p>
+											<p>Price (USD/lb):</p>
 										</blockquote></td>
 									<td><input name="price_per_weight_1" type="text"
 										id="price_per_weight_1" value="0" size="60"
@@ -407,7 +410,7 @@ p.hidden {
 								<tr>
 									<td><p>Total (*)</p></td>
 									<td><input name="prm_sum" type="text" id="prm_sum" value="0"
-										size="60" readonly="true" /></td>
+										size="60" /></td>
 								</tr>
 							</table>
 							<p>&nbsp;</p>

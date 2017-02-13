@@ -1,39 +1,15 @@
-function calLVR() {
-	var loanAmount = document.getElementById("lender_loanAmount").value;// addClient.lender_loanAmount.value;
-	var packageAmount = document.getElementById("builder_packageAmount").value;// addClient.builder_packageAmount.value;
-	var lvr;
-	if (packageAmount == 0) {
-		lvr = '';
-	} else {
-		lvr = (loanAmount / packageAmount) * 100;
-	}
-	document.getElementById("lender_lvr").value = (Math.round(lvr * 100) / 100);
-}
-
-function calTotalPRM() {
-	var financialBroker = document.getElementById("prm_financialBroker").value;// addClient.lender_loanAmount.value;
-	var legals = document.getElementById("prm_legals").value;// addClient.builder_packageAmount.value;
-	var builders = document.getElementById("prm_builders").value;
-	var financialPlanner = document.getElementById("prm_financialPlanner").value;
-	var prmSum = parseFloat(financialBroker) + parseFloat(legals)
-			+ parseFloat(builders) + parseFloat(financialPlanner);
-	document.getElementById("prm_sum").value = prmSum;
-}
-
-function calPackageAmount() {
-	var landAmount = document.getElementById("builder_landAmount").value;// addClient.lender_loanAmount.value;
-	var constructionAmount = document
-			.getElementById("builder_constructionAmount").value;// addClient.builder_packageAmount.value;
-	var packageAmountSum = parseFloat(landAmount)
-			+ parseFloat(constructionAmount);
-	document.getElementById("builder_packageAmount").value = packageAmountSum;
-}
-
 function calTotalPricePackage() {
 	var weight = document.getElementById("total_weight").value;// addClient.lender_loanAmount.value;
 	var pricePerWeight = document.getElementById("price_per_weight").value;// addClient.builder_packageAmount.value;
 	var totalPricePackage = parseFloat(weight)* parseFloat(pricePerWeight);
 	document.getElementById("total_package_price").value = totalPricePackage;
+}
+
+function calTotalPricePackage_1() {
+	var weight = document.getElementById("total_weight_1").value;// addClient.lender_loanAmount.value;
+	var pricePerWeight = document.getElementById("price_per_weight_1").value;// addClient.builder_packageAmount.value;
+	var totalPricePackage = parseFloat(weight)* parseFloat(pricePerWeight);
+	document.getElementById("total_package_price_1").value = totalPricePackage;
 }
 
 function calProductAmount(productquantity, productprice, productamount) {
@@ -48,22 +24,13 @@ function updateTotal(tableId) {
 	var table = document.getElementById(tableId);
 	var total = 0;
 	for (var r = 1, n = table.rows.length; r < n; r++) {
-		total = parseFloat(total) + parseFloat(table.rows[r].cells[3].children[0].value)
+		total = parseFloat(total) + parseFloat(table.rows[r].cells[3].children[0].value);
 	}
 	document.getElementById("prm_sum").value = parseFloat(total) + parseFloat(document.getElementById("total_package_price").value);
 }
 
-function addLvrListener() {
-	listen = {}
-	loanAmount = document.getElementById("lender_loanAmount");
-	listen.onChanged = function(loanAmount) {
-		calLVR();
-	}
-	packageAmount = document.getElementById("builder_packageAmount");
-	listen.onChanged = function(packageAmount) {
-		calLVR();
-	}
-	document.getElementById("lender_lvr").addListener(listen);
+function updateTotal() {
+	document.getElementById("prm_sum").value = parseFloat(document.getElementById("total_package_price").value) + parseFloat(document.getElementById("total_package_price_1").value);
 }
 
 function addRow(tableId) {
@@ -104,16 +71,9 @@ function addProductRow(tableId) {
     table.rows[tableRows].cells[5].innerHTML="<td><input type=\"button\" onclick=\"removeProductRow('productTbl', this)\" border=0 style='cursor:hand' value=\"-\"/></td>";
     
     document.getElementById('noOfProducts').value = e;
-//    for ( var c = 0, m = l; c < m; c++) {
-//        table.rows[e].insertCell(c);
-//        table.rows[e].cells[c].innerHTML = "&nbsp;&nbsp;";
-//    }
 }
 
 function removeProductRow(tableId, selectedRow) {
-//    alert("Row index is: " + selectedRow.rowIndex);
-//    var table = document.getElementById(tableId);
-//    table.deleteRow(selectedRow.rowIndex)
 	var row = selectedRow.parentNode.parentNode;
 	document.getElementById(tableId).deleteRow(row.rowIndex);
 	//document.getElementById('noOfProducts').value = document.getElementById(tableId).rows.length - 1;

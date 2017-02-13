@@ -40,6 +40,9 @@ if (isset($sbmUpdateInfo) ) {
     $orderDate = $_POST ["orderDate"];
     //get current date
     $currentDate = date('d/m/Y H:i');
+    $productDesc = $_POST ["product_desc"];
+    $additionalFee = $_POST ["product_additional"];
+    
     // Validate param for product details
     $totalWeight = $_POST ["total_weight"];
     validateNumber ( $totalWeight, "Package weight" );
@@ -49,30 +52,12 @@ if (isset($sbmUpdateInfo) ) {
 
     $totalPackagePrice = $_POST ["total_package_price"];
     validateNumber ( $totalPackagePrice, "Package price amount" );
+    
+    $totalWeight1 = $_POST ["total_weight_1"];
+    validateNumber ( $totalWeight, "Package weight 1" );
 
-
-	$noOfProducts = $_POST ["noOfProducts"];
-    if (! is_numeric ( $noOfProducts )) {
-        echo "<script>alert('Number of products should be a number!!!!')</script>";
-        exit ();
-    } else if ($noOfProducts < 0) {
-        echo "<script>alert('Number of products should be greater or equal 0!!!!')</script>";
-        exit ();
-    }
-
-    $oldProducts = $_SESSION['oldOrderDetailsArray'];
-    $products = array ();
-    for($i = 1; $i <= $noOfProducts; $i ++) {
-        $product = array ();
-        $product [0] = $oldProducts[$i][0]; //order details id
-        $product [1] = $oldProducts[$i][1]; //oder id
-        $product [2] = $_POST ["product" . $i . "name"];
-        $product [3] = $_POST ["product" . $i . "quantity"];
-        validateNumber ( $_POST ["product" . $i . "quantity"], "Product quantity of " . $_POST ["product" . $i . "name"] );
-        $product [4] = $_POST ["product" . $i . "price"];
-        validateNumber ( $_POST ["product" . $i . "price"], "Product price of " . $_POST ["product" . $i . "name"] );
-        $products [$i] = $product;
-    }
+    $pricePerWeight1 = $_POST ["price_per_weight_1"];
+    validateNumber ( $pricePerWeight, "Price per package weight 1" );
 
     $total = $_POST ["prm_sum"];
     validateNumber ( $total, "Total amount of all products" );
@@ -137,7 +122,9 @@ if (isset($sbmUpdateInfo) ) {
 	$orderId = $_SESSION['orderId'];
     $newOrderArray = array("id" => $orderId, "send_cust_id" => $custId,
                   "user_id" => $userId, "status" => $status, "date" => $orderDate, "total_weight" => $totalWeight,
-                  "price_per_weight" => $pricePerWeight, "total" =>$total, "recv_cust_id" => $recvId,);
+                  "price_per_weight" => $pricePerWeight, "total_weight_1" => $totalWeight1,
+                  "price_per_weight_1" => $pricePerWeight1, "total" =>$total, "recv_cust_id" => $recvId,
+                  "product_desc" => $productDesc, "additional_fee" => $additionalFee);
     $orderArray = $_SESSION['oldOrderArray'];
     $compareNewOrderAndOldOrder= array_diff_assoc($newOrderArray, $orderArray);
     $updateOrderQuery = "UPDATE orders SET ";
@@ -145,8 +132,9 @@ if (isset($sbmUpdateInfo) ) {
     $setClauseForUpdateOrderQuery="";
 
     //define friendly name to show on message
-    $orderInfoArray = array("orderId" => "Order id", "sendCustId" => "Sender Id", "userId" => "User Id", "status" => "Ship status", "date" => "Order date", "totalWeight" => "Total weight",
-                  "pricePerWeight" => "Price per weight", "total" =>"Total", "recvId" => "Receiver Id");
+    $orderInfoArray = array("id" => "Order id", "send_cust_id" => "Sender Id", "user_id" => "User Id", "status" => "Ship status", "date" => "Order date", "total_weight" => "Total weight",
+                  "price_per_weight" => "Price per weight", "total_weight_1" => "Total weight 1",
+                  "price_per_weight_1" => "Price per weight 1", "total" =>"Total", "recv_cust_id" => "Receiver Id");
     foreach ($compareNewOrderAndOldOrder as $key => $value) {
         $newValue = $newOrderArray[$key];
         if (!is_null($newValue) || !empty($newValue) || isset($newValue)) {
@@ -158,13 +146,6 @@ if (isset($sbmUpdateInfo) ) {
 
             $systemLog = $systemLog."<em><span style='color:#FF0000'>*System comment:</span> <strong>".$orderInfoArray[$key]."</strong> changed from <strong>".$orderArray[$key]."</strong> to <strong>".$newValue."</strong>.. </em>";
         }
-    }
-
-    // Generate update query for order details
-    $updateOrderDetailsQuery = " ";
-    foreach ($products as $product) {
-        $updateOrderDetailsQuery.="UPDATE orderdetails SET product_name='$product[2]',product_quantity=$product[3], product_price=$product[4] where id=$product[0];";
-        $systemLog = $systemLog."<em><span style='color:#FF0000'>*System comment:</span> <strong>Order details:</strong> changed to <strong>product_name='".$product[2]."',product_quantity=".$product[3].", product_price=".$product[4]."</strong>.. </em>";
     }
 
 	begin();
@@ -207,16 +188,6 @@ if (isset($sbmUpdateInfo) ) {
         }
     }
 
-    //update order details
-    if ($updateOrderDetailsQuery != null || $updateOrderDetailsQuery != '') {
-        $updateOrderDetailsResult = mysql_query($updateOrderDetailsQuery, $connection) or die(mysql_error() . "Can not store data to database");
-        if (!$updateOrderDetailsResult) {
-            rollback();
-            echo "<script>alert('Update order details failed');</script>";
-            clearAll ( $connection, $sbmUpdateInfo );
-            exit;
-        }
-    }
     $addSysLogCommentQuery = "INSERT INTO comments(date, comment, order_id, user_name) VALUES";
     if ($systemLog != "") {
     	$addSysLogCommentQuery = $addSysLogCommentQuery.'("'.$currentDate.'", "'.$systemLog.'", '.$orderId.', "'.$username.'")';
@@ -344,7 +315,9 @@ p.hidden {
 			$_SESSION['orderId'] = $order['id'];
 			$orderArray = array("id" => $order['id'], "send_cust_id" => $order['send_cust_id'],
                   "user_id" => $order['user_id'], "status" => $order['status'], "date" => $order['date'], "total_weight" => $order['total_weight'],
-                  "price_per_weight" => $order['price_per_weight'], "total" => $order['total'], "recv_cust_id" => $order['recv_cust_id'],);
+                  "price_per_weight" => $order['price_per_weight'], "total_weight_1" => $order['total_weight_1'],
+                  "price_per_weight_1" => $order['price_per_weight_1'], "total" => $order['total'], "recv_cust_id" => $order['recv_cust_id'],
+			      "product_desc" => $order['product_desc'], "additional_fee" => $order['additional_fee']);
 			$_SESSION['oldOrderArray'] = $orderArray;
 		}
 
@@ -431,52 +404,13 @@ p.hidden {
 				<td colspan="2">
 				<table width="1024px" border="0" id='productTbl'>
 					<tr>
-						<th>Product Name</th>
-						<th>Quantity</th>
-						<th>Price</th>
-						<th>Amount</th>
-					</tr>
-					<?php
-					//Get product details
-					$getOrderDetailsQuery = "SELECT * FROM orderdetails where order_id = $orderId ";
-					$orderDetailsResult = mysql_query($getOrderDetailsQuery) or die(mysql_error() . "Can not retrieve information from database");
-					$noOfProduct = 1;
-					$oldProducts = array ();
-					while ($orderDetails = mysql_fetch_array($orderDetailsResult)) {
-//						$oldOrderDetalsArray = array("orderDetailsId" => $orderDetails['id'], "orderId" => $orderDetails['order_id'],
-//			                  "productName" => $orderDetails['product_name'], "productQuantity" => $orderDetails['product_quantity'], "productPrice" => $orderDetails['product_price']);
-				        $product = array ();
-				        $product [0] = $orderDetails['id'];
-				        $product [1] = $orderDetails['order_id'];
-				        $product [2] = $orderDetails['product_name'];
-				        $product [3] = $orderDetails['product_quantity'];
-				        $product [4] = $orderDetails['product_price'];
-				        $oldProducts [$noOfProduct] = $product;
-						?>
-					<tr>
-						<td><input name="product<?php echo $noOfProduct; ?>name"
-							type="text" id="product<?php echo $noOfProduct; ?>name" size="30"
-							value="<?php echo $orderDetails['product_name'];?>" /></td>
-						<td><input name="product<?php echo $noOfProduct; ?>quantity"
-							type="number" id="product<?php echo $noOfProduct; ?>quantity"
-							value="<?php echo $orderDetails['product_quantity'];?>" size="30"
-							onchange="calProductAmount('product<?php echo $noOfProduct; ?>quantity', 'product<?php echo $noOfProduct; ?>price', 'product<?php echo $noOfProduct; ?>amount')" /></td>
-						<td><input name="product<?php echo $noOfProduct; ?>price"
-							type="text" id="product<?php echo $noOfProduct; ?>price"
-							value="<?php echo $orderDetails['product_price'];?>" size="30"
-							onchange="calProductAmount('product<?php echo $noOfProduct; ?>quantity', 'product<?php echo $noOfProduct; ?>price', 'product<?php echo $noOfProduct; ?>amount')" /></td>
-						<td><input name="product<?php echo $noOfProduct; ?>amount"
-							type="text" id="product<?php echo $noOfProduct; ?>amount"
-							value="<?php echo $orderDetails['product_price']*$orderDetails['product_quantity'];?>"
-							size="30" readonly="true" /></td>
-					</tr>
-					<?php
-					$noOfProduct++;
-					}
-					$_SESSION['oldOrderDetailsArray'] = $oldProducts;
-					?>
-					<input name="noOfProducts" id="noOfProducts" type="hidden" border=0
-						value="<?php echo $noOfProduct - 1; ?>" />
+                        <th>Description</th>
+                        <th>Additional Fee</th>
+                    </tr>
+                    <tr>
+                        <td><p><textarea name="product_desc" cols="65" rows="4" style="border: 1px solid black"><?php echo $orderArray['product_desc'];?></textarea></p></td>
+                        <td><p><textarea name="product_additional" cols="65" rows="4" style="border: 1px solid black" ><?php echo $orderArray['additional_fee'];?></textarea></p></td>
+                    </tr>
 				</table>
 				</td>
 			</tr>
@@ -491,20 +425,20 @@ p.hidden {
 				</td>
 				<td><input name="total_weight" type="text" id="total_weight"
 					value="<?php echo $orderArray['total_weight'];?>" size="60"
-					onchange="calTotalPricePackage(); updateTotal('productTbl')" /></td>
+					onchange="calTotalPricePackage(); updateTotal()" /></td>
 			</tr>
 			<tr>
 				<td>
 				<blockquote>
-				<p>Price (USD/kg):</p>
+				<p>Price (USD/lb):</p>
 				</blockquote>
 				</td>
 				<td><input name="price_per_weight" type="text" id="price_per_weight"
 					value="<?php echo $orderArray['price_per_weight'];?>" size="60"
-					onchange="calTotalPricePackage(); updateTotal('productTbl')" /></td>
+					onchange="calTotalPricePackage(); updateTotal()" /></td>
 			</tr>
-			<tr>
-				<td>
+			<tr style="border-bottom: 1px solid">
+				<td style="border-bottom: 1px solid">
 				<blockquote>
 				<p>Total price:</p>
 				</blockquote>
@@ -514,6 +448,37 @@ p.hidden {
 					value="<?php echo $orderArray['price_per_weight']*$orderArray['total_weight'];?>"
 					size="60" readonly="true" /></td>
 			</tr>
+			<tr>
+                <td>
+                <blockquote>
+                <p>Total weight:</p>
+                </blockquote>
+                </td>
+                <td><input name="total_weight_1" type="text" id="total_weight_1"
+                    value="<?php echo $orderArray['total_weight_1'];?>" size="60"
+                    onchange="calTotalPricePackage_1(); updateTotal()" /></td>
+            </tr>
+            <tr>
+                <td>
+                <blockquote>
+                <p>Price (USD/lb):</p>
+                </blockquote>
+                </td>
+                <td><input name="price_per_weight_1" type="text" id="price_per_weight_1"
+                    value="<?php echo $orderArray['price_per_weight_1'];?>" size="60"
+                    onchange="calTotalPricePackage_1(); updateTotal()" /></td>
+            </tr>
+            <tr>
+                <td>
+                <blockquote>
+                <p>Total price:</p>
+                </blockquote>
+                </td>
+                <td><input name="total_package_price_1" type="text"
+                    id="total_package_price_1"
+                    value="<?php echo $orderArray['price_per_weight_1']*$orderArray['total_weight_1'];?>"
+                    size="60" readonly="true" /></td>
+            </tr>
 			<tr>
 				<td>
 				<p>Total (*)</p>
