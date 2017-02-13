@@ -313,6 +313,20 @@ p.hidden {
 									<td colspan="2">
 										<table width="1024px" border="0" id='productTbl'>
 											<tr>
+												<th>Description</th>
+												<th>Additional Fee</th>
+											</tr>
+											<tr>
+												<td><p><textarea name="product_desc" cols="65" rows="4"
+										style="border: 1px solid black"></textarea></p></td>
+												<td><p><textarea name="product_additional" cols="65" rows="4"
+										style="border: 1px solid black"></textarea></p></td>
+											</tr>
+										</table>
+									</td>
+									<!-- td colspan="2">
+										<table width="1024px" border="0" id='productTbl'>
+											<tr>
 												<th>Product Name</th>
 												<th>Quantity</th>
 												<th>Price</th>
@@ -336,7 +350,7 @@ p.hidden {
 											</tr>
 											<input name="noOfProducts" id="noOfProducts" type="hidden" border=0 value="1" readonly/>
 										</table>
-									</td>
+									</td-->
 								</tr>
 								<tr>
 									<td>- Product details:</td>
@@ -347,22 +361,48 @@ p.hidden {
 										</blockquote></td>
 									<td><input name="total_weight" type="text" id="total_weight"
 										value="0" size="60"
-										onchange="calTotalPricePackage(); updateTotal('productTbl')" /></td>
+										onchange="calTotalPricePackage(); updateTotal()" /></td>
 								</tr>
 								<tr>
 									<td><blockquote>
-											<p>Price (USD/kg):</p>
+											<p>Price (USD/lb):</p>
 										</blockquote></td>
 									<td><input name="price_per_weight" type="text"
 										id="price_per_weight" value="0" size="60"
-										onchange="calTotalPricePackage(); updateTotal('productTbl')" /></td>
+										onchange="calTotalPricePackage(); updateTotal()" /></td>
 								</tr>
 								<tr>
 									<td><blockquote>
 											<p>Total price:</p>
 										</blockquote></td>
-									<td><input name="total_package_price" type="text"
-										id="total_package_price" value="0" size="60" readonly="true" /></td>
+									<td><input name="total_package_price_1" type="text"
+										id="total_package_price_1" value="0" size="60" readonly="true" /></td>
+								</tr>
+								<tr>
+									<td>- Product details:</td>
+								</tr>
+								<tr>
+									<td><blockquote>
+											<p>Total weight:</p>
+										</blockquote></td>
+									<td><input name="total_weight_1" type="text" id="total_weight_1"
+										value="0" size="60"
+										onchange="calTotalPricePackage(); updateTotal()" /></td>
+								</tr>
+								<tr>
+									<td><blockquote>
+											<p>Price (USD/kg):</p>
+										</blockquote></td>
+									<td><input name="price_per_weight_1" type="text"
+										id="price_per_weight_1" value="0" size="60"
+										onchange="calTotalPricePackage_1(); updateTotal()" /></td>
+								</tr>
+								<tr>
+									<td><blockquote>
+											<p>Total price:</p>
+										</blockquote></td>
+									<td><input name="total_package_price_1" type="text"
+										id="total_package_price_1" value="0" size="60" readonly="true" /></td>
 								</tr>
 								<tr>
 									<td><p>Total (*)</p></td>

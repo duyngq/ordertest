@@ -28,6 +28,9 @@ function check_pass() {
 
     session_regenerate_id();
     if ($count == 1) {
+        
+        //move to the page user wants later
+        //get ID to update last date access
         $id;
         while ($user=mysql_fetch_array($result)) {
         	$dbPW = $user['password'];
@@ -42,9 +45,6 @@ function check_pass() {
         // Register $myusername, $mypassword and redirect to file "login_success.php"
         $_SESSION["username"] = $username;
         $_SESSION["loggedIn"] = true;
-        
-        //move to the page user wants later
-        //get ID to update last date access
         
         $roleQuery = "select id from roles where id=(SELECT ur.role_id FROM users u join userroles ur on u.id=ur.id where u.id=$id)";
         $roleResult = mysql_query($roleQuery);
