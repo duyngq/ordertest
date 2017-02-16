@@ -12,6 +12,13 @@ function calTotalPricePackage_1() {
 	document.getElementById("total_package_price_1").value = totalPricePackage;
 }
 
+function calTotalPricePackage_2() {
+	var weight = document.getElementById("total_weight_2").value;// addClient.lender_loanAmount.value;
+	var pricePerWeight = document.getElementById("price_per_weight_2").value;// addClient.builder_packageAmount.value;
+	var totalPricePackage = parseFloat(weight)* parseFloat(pricePerWeight);
+	document.getElementById("total_package_price_2").value = totalPricePackage;
+}
+
 function calProductAmount(productquantity, productprice, productamount) {
 	var quantity = document.getElementById(productquantity).value;// addClient.lender_loanAmount.value;
 	var productPrice = document.getElementById(productprice).value;// addClient.builder_packageAmount.value;
@@ -30,7 +37,7 @@ function updateTotal(tableId) {
 }
 
 function updateTotal() {
-	document.getElementById("prm_sum").value = parseFloat(document.getElementById("total_package_price").value) + parseFloat(document.getElementById("total_package_price_1").value);
+	document.getElementById("prm_sum").value = parseFloat(document.getElementById("total_package_price").value) + parseFloat(document.getElementById("total_package_price_1").value) + parseFloat(document.getElementById("total_package_price_2").value) + parseFloat(document.getElementById("add_fee").value);
 }
 
 function addRow(tableId) {

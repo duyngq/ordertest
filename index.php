@@ -209,11 +209,11 @@ if (!isset($_SESSION['loggedIn']) || (isset($_SESSION['loggedIn']) && !$_SESSION
                 });
 
                 // Show aciton upon row hover
-//                jQuery('.table tr').hover(function(){
-//                  jQuery(this).find('.table-action-hide').animate({opacity: 1});
-//                },function(){
-//                  jQuery(this).find('.table-action-hide').animate({opacity: 0});
-//                });
+                jQuery('.table tr').hover(function(){
+                  jQuery(this).find('.table-action-hide').animate({opacity: 1});
+                },function(){
+                  jQuery(this).find('.table-action-hide').animate({opacity: 0});
+                });
             });
         </script>
     </head>
@@ -231,7 +231,7 @@ if (!isset($_SESSION['loggedIn']) || (isset($_SESSION['loggedIn']) && !$_SESSION
                                   </div>
                                 </div--><?php $user_name = $_SESSION['username'];
 echo $user_name; ?>!  <a href="logout.php">Log out</a>
-                <?php 
+                <?php
                     if ( isset($_SESSION['role_id']) && $_SESSION['role_id'] == 1) {
                     	echo "<a href=\"edituser.php\">Change pass</a><a href=\"adduser.php\">Add user</a></p>";
                     }
@@ -276,6 +276,7 @@ echo date('d/m/Y'); ?> - Time: <?php echo date('H:i'); ?> </p>
                     <div id="content1" class="tabcontent" style="display:block;">
                         <table width="100%" border="1" align="right"  class="table">
                             <tr>
+                            	<td><strong>Order ID </strong></td>
                                 <td><strong>Order date </strong></td>
                                 <td><strong>Sender Name </strong></td>
                                 <td><strong>Sender Phone</strong></td>
@@ -344,6 +345,8 @@ echo date('d/m/Y'); ?> - Time: <?php echo date('H:i'); ?> </p>
                             $randomLetter2 = $a_z[$pos2];
                             echo substr_replace($custId, $randomLetter1 . $randomLetter2, 1, 0);
                                 ?>')">
+                                	<td><?php //print sender
+                                     echo $shippingList[$shippingIndex + 2]?></td>
                                     <td><?php
                                     echo $shippingList[$shippingIndex];
 //                                     $date_last_entered = $shippedList[$shippedIndex];
@@ -375,6 +378,7 @@ echo date('d/m/Y'); ?> - Time: <?php echo date('H:i'); ?> </p>
                     <div id="content2" class="tabcontent" style="display:none;">
                         <table width="100%" border="1" align="right">
                             <tr>
+                            	<td><strong>Order ID </strong></td>
                                 <td><strong>Order date </strong></td>
                                 <td><strong>Sender Name </strong></td>
                                 <td><strong>Sender Phone</strong></td>
@@ -389,15 +393,17 @@ echo date('d/m/Y'); ?> - Time: <?php echo date('H:i'); ?> </p>
                                 $shippedIndex = $index * 10;
                                 ?>
                                 <tr onMouseOver="ChangeColor(this, true);" onMouseOut="ChangeColor(this, false);" onClick="DoNav('orderdetails.php?tr=<?php
-                            $oderId = base64_encode($shippedList[$shippedIndex + 2]);
+                            $orderId = base64_encode($shippedList[$shippedIndex + 2]);
                             $pos1 = rand(0, 25);
                             $pos2 = rand(26, 51);
                             $a_z = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
                             $randomLetter1 = $a_z[$pos1];
                             $randomLetter2 = $a_z[$pos2];
-                            $orderIdEncrypted = substr_replace($custId, $randomLetter1 . $randomLetter2, 1, 0);
-                            echo $orderIdEncrypted;
+                            echo substr_replace($orderId, $randomLetter1 . $randomLetter2, 1, 0);
+                            //echo $orderIdEncrypted;
                                 ?>')">
+                                	<td><?php //print sender
+                                     echo $shippedList[$shippedIndex + 2]?></td>
                                     <td><?php
                                     	echo $shippedList[$shippedIndex];
 //                                     $date_last_entered = $shippedList[$shippedIndex];
@@ -414,7 +420,7 @@ echo date('d/m/Y'); ?> - Time: <?php echo date('H:i'); ?> </p>
                                         <span class="link"><a href="#" class="href-right table-action-hide">
                                                 <i class="fa fa-pencil"></i>
                                             </a>
-                                            <a href="orderdetails.php?tr=<?php echo $orderIdEncrypted;?>" class="href-right delete-row table-action-hide">
+                                            <a href="orderdetails.php?tr=<?php echo substr_replace($orderId, $randomLetter1 . $randomLetter2, 1, 0);?>" class="href-right delete-row table-action-hide">
                                                 <i class="fa fa-trash-o href-right"></i>
                                             </a></span>
                                     </td>

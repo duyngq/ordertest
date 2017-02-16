@@ -34,7 +34,7 @@ if (isset ( $submit )) {
 	$recvPhone = $_POST ["recvPhone"];
 
 	$orderDate = $_POST ["orderDate"];
-	
+
 	$productDesc = $_POST ["product_desc"];
 	$additionalFee = $_POST ["product_additional"];
 
@@ -50,9 +50,18 @@ if (isset ( $submit )) {
 
     $pricePerWeight1 = $_POST ["price_per_weight_1"];
     validateNumber ( $pricePerWeight, "Price per package weight 1" );
-    
-	$totalPackagePrice = $_POST ["total_package_price"];
-	validateNumber ( $totalPackagePrice, "Package price amount" );
+
+    $totalWeight2 = $_POST ["total_weight_2"];
+    validateNumber ( $totalWeight, "Package weight 2" );
+
+    $pricePerWeight2 = $_POST ["price_per_weight_2"];
+    validateNumber ( $pricePerWeight, "Price per package weight 2" );
+
+    $addFee = $_POST ["add_fee"];
+    validateNumber ( $addFee, "Additional fee" );
+
+// 	$totalPackagePrice = $_POST ["total_package_price"];
+// 	validateNumber ( $totalPackagePrice, "Package price amount" );
 
 	/**
 	 * get all products details from product table
@@ -134,7 +143,7 @@ if (isset ( $submit )) {
                     $recvCustId = $customer ["id"];
                 }
             }
-			$orderId = addNewOrder ( $custId, $recvCustId, $userId, $orderDate, $totalWeight, $pricePerWeight, $totalWeight1, $pricePerWeight1, $productDesc, $additionalFee, $total, $connection, $submit );
+			$orderId = addNewOrder ( $custId, $recvCustId, $userId, $orderDate, $totalWeight, $pricePerWeight, $totalWeight1, $pricePerWeight1, $totalWeight2, $pricePerWeight2, $addFee, $productDesc, $additionalFee, $total, $connection, $submit );
 //			addOrderDetails($orderId, $products, $connection, $submit);
 	} else {
 		rollback();
@@ -147,8 +156,8 @@ if (isset ( $submit )) {
 	unset ( $submit );
 }
 
-function addNewOrder($custId, $recvCustId, $userId, $orderDate, $totalWeight, $pricePerWeight, $totalWeight1, $pricePerWeight1, $productDesc, $additionalFee, $total, $connection, $submit) {
-	$addNewOrder = "insert into orders(send_cust_id, recv_cust_id, user_id, status, date, total_weight, price_per_weight, total_weight_1, price_per_weight_1, product_desc, additional_fee, total) values ($custId, $recvCustId, $userId, 0, '$orderDate', $totalWeight, $pricePerWeight, $totalWeight1, $pricePerWeight1, '$productDesc', '$additionalFee', $total)";
+function addNewOrder($custId, $recvCustId, $userId, $orderDate, $totalWeight, $pricePerWeight, $totalWeight1, $pricePerWeight1, $totalWeight2, $pricePerWeight2, $addFee, $productDesc, $additionalFee, $total, $connection, $submit) {
+	$addNewOrder = "insert into orders(send_cust_id, recv_cust_id, user_id, status, date, total_weight, price_per_weight, total_weight_1, price_per_weight_1, total_weight_2, price_per_weight_2, fee, product_desc, additional_fee, total) values ($custId, $recvCustId, $userId, 0, '$orderDate', $totalWeight, $pricePerWeight, $totalWeight1, $pricePerWeight1, $totalWeight2, $pricePerWeight2, $addFee, '$productDesc', '$additionalFee', $total)";
 	$addNewOrderResult = mysql_query ( $addNewOrder, $connection ) or die ( mysql_error () . "Can not retrieve to database" );
 	$orderId = mysql_insert_id ();
 	if (!$addNewOrderResult) {
@@ -192,6 +201,15 @@ function validateNumber($validatedValue, $stringName) {
 }
 
 // TODO: load customers data at load to fill
+// Load and save all customers to be able to selectable when input
+function loadAllCustomer() {
+	$getCustQuery = "SELECT * FROM sendcustomers where id = $custId ";
+	$custResult = mysql_query($getCustQuery) or die(mysql_error() . "Can not retrieve information from database");
+	while ($cust = mysql_fetch_array($custResult)) {
+		$senderArray = array("id" => $cust['id'], "cust_name" => $cust['cust_name'], "address" => $cust['address'], "phone" => $cust['phone']);
+	}
+}
+loadAllCustomer();
 ?>
 <DOCTYPE html PUBLIC"-//W3C//DTDXHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -375,7 +393,7 @@ p.hidden {
 										onchange="calTotalPricePackage(); updateTotal()" /></td>
 								</tr>
 								<tr>
-									<td><blockquote>
+									<td  style="border-bottom: 1px solid"><blockquote>
 											<p>Total price:</p>
 										</blockquote></td>
 									<td><input name="total_package_price" type="text"
@@ -401,11 +419,42 @@ p.hidden {
 										onchange="calTotalPricePackage_1(); updateTotal()" /></td>
 								</tr>
 								<tr>
-									<td><blockquote>
+									<td  style="border-bottom: 1px solid"><blockquote>
 											<p>Total price:</p>
 										</blockquote></td>
 									<td><input name="total_package_price_1" type="text"
 										id="total_package_price_1" value="0" size="60" readonly="true" /></td>
+								</tr>
+								<tr>
+									<td>- Product details:</td>
+								</tr>
+								<tr>
+									<td><blockquote>
+											<p>Total weight:</p>
+										</blockquote></td>
+									<td><input name="total_weight_2" type="text" id="total_weight_2"
+										value="0" size="60"
+										onchange="calTotalPricePackage_2(); updateTotal()" /></td>
+								</tr>
+								<tr>
+									<td><blockquote>
+											<p>Price (USD/lb):</p>
+										</blockquote></td>
+									<td><input name="price_per_weight_2" type="text"
+										id="price_per_weight_2" value="0" size="60"
+										onchange="calTotalPricePackage_2(); updateTotal()" /></td>
+								</tr>
+								<tr>
+									<td  style="border-bottom: 1px solid"><blockquote>
+											<p>Total price:</p>
+										</blockquote></td>
+									<td><input name="total_package_price_2" type="text"
+										id="total_package_price_2" value="0" size="60" readonly="true" /></td>
+								</tr>
+								<tr>
+									<td><p>Additional Fee :</p></td>
+									<td><input name="add_fee" type="text" id="add_fee" value="0"
+										size="60" onchange="updateTotal()"/></td>
 								</tr>
 								<tr>
 									<td><p>Total (*)</p></td>
