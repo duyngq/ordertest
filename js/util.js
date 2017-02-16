@@ -85,3 +85,17 @@ function removeProductRow(tableId, selectedRow) {
 	document.getElementById(tableId).deleteRow(row.rowIndex);
 	//document.getElementById('noOfProducts').value = document.getElementById(tableId).rows.length - 1;
 }
+
+function DoNav(theUrl) {
+    document.location.href = theUrl;
+}
+
+function ChangeColor(tableRow, highLight) {
+    if (highLight) {
+        tableRow.style.backgroundColor = '#dcfac9';
+        tableRow.style.cursor='pointer';
+    } else {
+        tableRow.style.backgroundColor = 'white';
+        tableRow.style.cursor='default';
+    }
+}

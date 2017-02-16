@@ -89,7 +89,8 @@ p.hidden {
 					$orderArray = array("id" => $order['id'], "send_cust_id" => $order['send_cust_id'],
 			                  "user_id" => $order['user_id'], "status" => $order['status'], "date" => $order['date'], "total_weight" => $order['total_weight'],
 			                  "price_per_weight" => $order['price_per_weight'], "total_weight_1" => $order['total_weight_1'],
-			                  "price_per_weight_1" => $order['price_per_weight_1'], "total" => $order['total'], "recv_cust_id" => $order['recv_cust_id'],
+			                  "price_per_weight_1" => $order['price_per_weight_1'], "total_weight_2" => $order['total_weight_2'],
+                              "price_per_weight_2" => $order['price_per_weight_2'], "fee" => $order['fee'], "total" => $order['total'], "recv_cust_id" => $order['recv_cust_id'],
 			                  "product_desc" => $order['product_desc'], "additional_fee" => $order['additional_fee']);
 				}
 
@@ -153,13 +154,22 @@ p.hidden {
 							echo "<br>PHU THU:<br>";
 							echo str_replace($order, $replace, $orderArray['additional_fee']);
 							echo "<br><br>";
+							$totalWeight = $orderArray["total_weight"];
 							$details2="";
 							$total2="";
 							if ((!is_null($orderArray["total_weight_1"]) && !empty($orderArray["total_weight_1"])) && (!is_null($orderArray["price_per_weight_1"]) && !empty($orderArray["price_per_weight_1"]))) {
 								$details2 = $details2." + ".$orderArray["total_weight_1"]." X ".$orderArray["price_per_weight_1"];
 								$total2 = $total2." + ".$orderArray["total_weight_1"]*$orderArray["price_per_weight_1"];
+								$totalWeight += $orderArray["total_weight_1"];
 							}
-	                        echo "<strong>TOTAL : ".$orderArray["total_weight"]." X ".$orderArray["price_per_weight"].$details2." = ".($orderArray["total_weight"]*$orderArray["price_per_weight"]).$total2." = ".$orderArray["total"]."</strong>";
+							$details3="";
+                            $total3="";
+                            if ((!is_null($orderArray["total_weight_2"]) && !empty($orderArray["total_weight_2"])) && (!is_null($orderArray["price_per_weight_2"]) && !empty($orderArray["price_per_weight_2"]))) {
+                                $details3 = $details3." + ".$orderArray["total_weight_2"]." X ".$orderArray["price_per_weight_2"];
+                                $total3 = $total3." + ".$orderArray["total_weight_2"]*$orderArray["price_per_weight_2"];
+                                $totalWeight += $orderArray["total_weight_2"];
+                            }
+	                        echo "<strong>TOTAL : ".$orderArray["total_weight"]." X ".$orderArray["price_per_weight"].$details2.$details3." = ".($orderArray["total_weight"]*$orderArray["price_per_weight"]).$total2.$total3." + ".$orderArray['fee']." = ".$orderArray["total"]."</strong>";
 						?>
                     </td>
 				</tr>
@@ -168,7 +178,7 @@ p.hidden {
 			<table id="tablenoborder" class="nothing">
 				<tr>
 					<td contenteditable='true'><strong>Weight:(lbs)</strong></td>
-					<td><?php echo $orderArray["total_weight"];?></td>
+					<td><?php echo $totalWeight;?></td>
 					<td><strong>Date:</strong></td>
 					<td><?php echo $orderArray["date"];?></td>
 					<td><strong>No.oBox:</strong></td>

@@ -533,7 +533,7 @@ p.hidden {
 			<tr>
 				<td colspan=2>
 				<p>- Comment:</p>
-				<p><textarea name="comment" cols="150" rows="4"
+				<p><textarea name="comment" cols="134" rows="4"
 					style="border: 1px solid #ff0000"></textarea></p>
 				</td>
 			</tr>
