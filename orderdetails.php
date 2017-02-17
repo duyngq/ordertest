@@ -207,9 +207,7 @@ if (isset($sbmUpdateInfo) ) {
     }
     if ($addSysLogCommentQuery != "INSERT INTO comments(date, comment, order_id, user_name) VALUES") {
     	$addSysLogCommentResult = mysql_query($addSysLogCommentQuery, $connection) or die(mysql_error() . "Can not store comment to database");
-    	if ($addSysLogCommentResult) {
-    		echo "<script>alert('Add new infomation succeed');</script>";
-    	} else {
+    	if (!$addSysLogCommentResult) {
     		rollback();
             clearAll ( $connection, $sbmUpdateInfo );
     		echo "<script>alert('Add new infomation failed');</script>";
