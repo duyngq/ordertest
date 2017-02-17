@@ -123,7 +123,7 @@ $(document).ready(function() {
                             <table width="100%" border="0" bordercolor="#F0F0F0">
                                 <tr>
 	                                <td>Order Number:</td>
-	                                <td><input name="orderNo" type="text" id="orderNo" size="60"/></td>
+	                                <td><input name="orderNo" type="text" id="orderNo" size="60" onkeydown="if (event.keyCode == 13) return false;"/></td>
                                 </tr>
                                 <!-- tr>
                                     <td>Sender Name:</td>

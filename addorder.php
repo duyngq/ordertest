@@ -20,13 +20,13 @@ include_once 'dbconn.php';
 if (isset ( $_POST ["submit"] )) {
 	$submit = $_POST ["submit"];
 }
-if (isset($_SESSION['sender'])) {
-	unset ($_SESSION['sender']);
-}
+//if (isset($_SESSION['sender'])) {
+//	unset ($_SESSION['sender']);
+//}
 if (isset ( $submit )) {
 	unset ( $_POST ["submit"] );
 
-	$custName = $_POST ["custsName"];
+	$custName = $_POST ["custName"];
 	$custAddr = $_POST ["custAddr"];
 	// TODO: need to validate phone format here.
 	$custPhone = $_POST ["custPhone"];
@@ -203,16 +203,42 @@ function validateNumber($validatedValue, $stringName) {
 	}
 }
 
-// TODO: load customers data at load to fill
 // Load and save all customers to be able to selectable when input
-function loadAllCustomer() {
-	$getCustQuery = "SELECT * FROM sendcustomers where id = $custId ";
-	$custResult = mysql_query($getCustQuery) or die(mysql_error() . "Can not retrieve information from database");
-	while ($cust = mysql_fetch_array($custResult)) {
-		$senderArray = array("id" => $cust['id'], "cust_name" => $cust['cust_name'], "address" => $cust['address'], "phone" => $cust['phone']);
-	}
+function loadAllCustomers() {
+	getSenders();
+	getReceivers();
 }
-// loadAllCustomer();
+
+function getSenders() {
+    // get all customers' name
+    $getCustomersNameQuery = "SELECT * FROM sendcustomers";
+    $getCustomersNameResult = mysql_query($getCustomersNameQuery);
+    // Mysql_num_row is counting table row
+    if($getCustomersNameResult) {
+        while ($customer=mysql_fetch_array($getCustomersNameResult)) {
+            $senderArray[$customer['phone']] = array("cust_name" => $customer['cust_name'], "address" => $customer['address'], "phone" => $customer['phone']);
+        }
+        if (isset($senderArray)) {
+            $_SESSION['sender'] = $senderArray;
+        }
+    }
+}
+
+function getReceivers() {
+    // get all customers' name
+    $getRecvNameQuery = "SELECT * FROM recvcustomers";
+    $getRecvNameResult = mysql_query($getRecvNameQuery);
+    // Mysql_num_row is counting table row
+    if($getRecvNameResult) {
+        while ($recv = mysql_fetch_array($getRecvNameResult)) {
+            $receiverArray[$recv['phone']] = array("cust_name" => $recv['cust_name'], "address" => $recv['address'], "phone" => $recv['phone']);
+        }
+        if (isset($receiverArray)) {
+            $_SESSION['recv'] = $receiverArray;
+        }
+    }
+}
+loadAllCustomers();
 ?>
 <DOCTYPE html PUBLIC"-//W3C//DTDXHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -263,47 +289,30 @@ p.hidden {
                                 </tr>
 								<tr>
 								<td><blockquote>Sender Phone Number:</blockquote></td>
-								<td><input name="custPhone" type="text" id="custPhone" size="60" required />
+								<td><input name="custPhone" type="text" id="custPhone" size="60" list="custPhoneList" required />
 									<!-- drop down list that can be search/add new text -->
 									<script type="text/javascript">
-// 										$(function(){
-										    $("input[name=custPhone]").focusout(function(){
-// 										        var sender = $("#browsers option[value='" + $('#custPhone').val() + "']").attr('data-id');
-// 												if ($this != null && $this.val() != null) {
-													var custPhone = $(this).val();
-											        alert(custPhone);
-											        $('input[name="custsName"]').val(ptamzzNamespace.sessionUser[custPhone]['name']);
-											        $('input[name="custAddr"]').val(ptamzzNamespace.sessionUser[custPhone]['address']);
-// 													$('#custsName options').filter(function(){return this.value == custPhone;}).data(custPhone);//.val(ptamzzNamespace.sessionUser[custPhone]['name]);
-// 													$('#custAddr').val(ptamzzNamespace.sessionUser[custPhone]['address]);
-// 												}
-										    });
-// 										});
+									   $("input[name=custPhone]").focusout(function(){
+										   var ptamzzNamespace = <?php if (isset($_SESSION['sender'])) {echo json_encode($_SESSION['sender']);}?>;
+										   var custPhone = $(this).val();
+										   $('input[name="custName"]').val(ptamzzNamespace[custPhone]['cust_name']);
+										   $('input[name="custAddr"]').val(ptamzzNamespace[custPhone]['address']);
+									   });
 									</script>
-
-									<datalist id="custPhone">
+									<datalist id="custPhoneList">
 									<?php
-										// get all customers' name
-										$getCustomersNameQuery = "SELECT * FROM sendcustomers";
-										$getCustomersNameResult = mysql_query($getCustomersNameQuery);
-										// Mysql_num_row is counting table row
-										if($getCustomersNameResult) {
-											$queriedRows = mysql_num_rows($getCustomersNameResult);
-											while ($customer=mysql_fetch_array($getCustomersNameResult)) {
-												$senderArray[$customer['phone']] = array("id" => $customer['id'], "cust_name" => $customer['cust_name'], "address" => $customer['address'], "phone" => $customer['phone']);
-												echo "<option data-id=\"".$customer['phone']."\" value=\"".$customer['phone']."\"></option>";
-											}
-											$_SESSION['sender'] = $senderArray;
-// 											}
-										}
+									   if (isset($_SESSION['sender'])) {
+										   foreach ($_SESSION['sender'] as $sender) {
+										   	   echo "<option data-id=\"".$sender['phone']."\" value=\"".$sender['phone']."\"></option>";
+										   }
+									   }
 									?>
-											<script type="text/javascript"> var ptamzzNamespace = { sessionUser : '<?php echo json_encode($_SESSION['sender']);?>'</script>;
 									</datalist>
 								</td>
 								</tr>
 								<tr>
 									<td><blockquote>Sender Name:</blockquote></td>
-									<td><input list="custsName" name="custsName" id="custsName" size="60" /></td>
+									<td><input list="custName" name="custName" id="custName" size="60" /></td>
 								</tr>
 								<td><blockquote>Sender Address:</blockquote></td>
 								<td><input name="custAddr" type="text" id="custAddr" size="60" required /></td>
@@ -314,7 +323,26 @@ p.hidden {
                                 </tr>
 								<tr>
                                 <td><blockquote>Receiver Phone Number:</blockquote></td>
-                                <td><input name="recvPhone" type="text" id="recvPhone" size="60" required /></td>
+                                <td><input name="recvPhone" type="text" id="recvPhone" size="60" list="recvPhoneList" required />
+                                    <!-- drop down list that can be search/add new text -->
+                                    <script type="text/javascript">
+                                       $("input[name=recvPhone]").focusout(function(){
+                                           var recvs = <?php if (isset($_SESSION['recv'])) {echo json_encode($_SESSION['recv']);}?>;
+                                           var recvPhone = $(this).val();
+                                           $('input[name="recvName"]').val(recvs[recvPhone]['cust_name']);
+                                           $('input[name="recvAddr"]').val(recvs[recvPhone]['address']);
+                                       });
+                                    </script>
+                                    <datalist id="recvPhoneList">
+                                    <?php
+                                    if (isset($_SESSION['recv'])) {
+                                       foreach ($_SESSION['recv'] as $receiver) {
+                                           echo "<option data-id=\"".$receiver['phone']."\" value=\"".$receiver['phone']."\"></option>";
+                                       }
+                                    }
+                                    ?>
+                                    </datalist>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td><blockquote>Receiver Name:</blockquote></td>
@@ -339,9 +367,9 @@ p.hidden {
 												<th>Additional Fee</th>
 											</tr>
 											<tr>
-												<td><p><textarea name="product_desc" cols="65" rows="4"
+												<td><p><textarea name="product_desc" id="product_desc" cols="65" rows="4"
 										style="border: 1px solid black" placeholder="Click and write product description"></textarea></p></td>
-												<td><p><textarea name="product_additional" cols="65" rows="4"
+												<td><p><textarea name="product_additional" id="product_additional" cols="65" rows="4"
 										style="border: 1px solid black" placeholder="Click and write additional fee description"></textarea></p></td>
 											</tr>
 										</table>
@@ -419,7 +447,7 @@ p.hidden {
 										onchange="calTotalPricePackage_2(); updateTotal()" /></td>
 								</tr>
 								<tr>
-									<td  style="border-bottom: 1px solid"><blockquote>
+									<td style="border-bottom: 1px solid"><blockquote>
 											<p>Total price:</p>
 										</blockquote></td>
 									<td><input name="total_package_price_2" type="text"

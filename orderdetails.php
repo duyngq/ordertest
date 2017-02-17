@@ -90,11 +90,11 @@ if (isset($sbmUpdateInfo) ) {
 	$setClauseForUpdateCustomerQuery="";
 
 	$systemLog="";
-	$customerInfoArray = array("custId" => "Customer id", "custName" => "Customer Name", "address" => "Address", "phone" => "Customer Phone");
+	$customerInfoArray = array("id" => "Sender id", "cust_name" => "Sender Name", "address" => "Address", "phone" => "Customer Phone");
 	foreach ($compareNewCustAndOldCust as $key => $value) {
 		$newValue = $newCustArray[$key];
 		if (!is_null($newValue) || !empty($newValue) || isset($newValue)) {
-			if (is_numeric($newValue)) {
+			if (is_numeric($newValue) & $key!="phone") {
 				$setClauseForUpdateCustomerQuery = $setClauseForUpdateCustomerQuery.$key."=".$newValue.", ";
 			} else {
 				$setClauseForUpdateCustomerQuery = $setClauseForUpdateCustomerQuery.$key.'="'.$newValue.'", ';
@@ -112,12 +112,11 @@ if (isset($sbmUpdateInfo) ) {
 	$whereClauseForUpdateRecvQuery = " WHERE id=$recvId";
 	$setClauseForUpdateRecvQuery="";
 
-	$systemLog="";
-	$recvInfoArray = array("custId" => "Customer id", "custName" => "Customer Name", "address" => "Address", "phone" => "Customer Phone");
+	$recvInfoArray = array("id" => "Receiver id", "cust_name" => "Receiver Name", "address" => "Address", "phone" => "Customer Phone");
 	foreach ($compareNewCustAndOldRecv as $key => $value) {
 		$newValue = $newRecvArray[$key];
 		if (!is_null($newValue) || !empty($newValue) || isset($newValue)) {
-			if (is_numeric($newValue)) {
+			if (is_numeric($newValue) && $key!="phone") {
 				$setClauseForUpdateRecvQuery = $setClauseForUpdateRecvQuery.$key."=".$newValue.", ";
 			} else {
 				$setClauseForUpdateRecvQuery = $setClauseForUpdateRecvQuery.$key.'="'.$newValue.'", ';
@@ -145,7 +144,8 @@ if (isset($sbmUpdateInfo) ) {
     $orderInfoArray = array("id" => "Order id", "send_cust_id" => "Sender Id", "user_id" => "User Id", "status" => "Ship status", "date" => "Order date", "total_weight" => "Total weight",
                   "price_per_weight" => "Price per weight", "total_weight_1" => "Total weight 1",
                   "price_per_weight_1" => "Price per weight 1", "total_weight_2" => "Total weight 2",
-                  "price_per_weight_2" => "Price per weight 2", "fee" => "Fee", "total" =>"Total", "recv_cust_id" => "Receiver Id");
+                  "price_per_weight_2" => "Price per weight 2", "fee" => "Fee", "total" =>"Total", "recv_cust_id" => "Receiver Id",
+                  "product_desc" => "Product description", "additional_fee" => "Additional fee");
     foreach ($compareNewOrderAndOldOrder as $key => $value) {
         $newValue = $newOrderArray[$key];
         if (!is_null($newValue) || !empty($newValue) || isset($newValue)) {
@@ -175,7 +175,7 @@ if (isset($sbmUpdateInfo) ) {
 
 	//update receiver
 	if ($setClauseForUpdateRecvQuery != null || $setClauseForUpdateRecvQuery != '') {
-		$updateCustomerQuery = $updateCustomerQuery.substr($setClauseForUpdateCustomerQuery,0,-2).$whereClauseForUpdateCustomerQuery;
+		$updateRecvQuery = $updateRecvQuery.substr($setClauseForUpdateRecvQuery,0,-2).$whereClauseForUpdateRecvQuery;
 
 		$updateRecvResult = mysql_query($updateRecvQuery, $connection) or die(mysql_error() . "Can not store data to database");
 		if (!$updateRecvResult) {
@@ -198,7 +198,9 @@ if (isset($sbmUpdateInfo) ) {
             exit;
         }
     }
+	commit();
 
+	begin();
     $addSysLogCommentQuery = "INSERT INTO comments(date, comment, order_id, user_name) VALUES";
     if ($systemLog != "") {
     	$addSysLogCommentQuery = $addSysLogCommentQuery.'("'.$currentDate.'", "'.$systemLog.'", '.$orderId.', "'.$username.'")';
@@ -224,12 +226,9 @@ if (isset($sbmUpdateInfo) ) {
 
 	if ($addCommentQuery != "INSERT INTO comments(date, comment, order_id, user_name) VALUES") {
 		$addCommentResult = mysql_query($addCommentQuery, $connection) or die(mysql_error() . "Can not store comment to database");
-		if ($addCommentResult) {
-			echo "<script>alert('Add comment succeed');</script>";
-		} else {
+		if (!$addCommentResult) {
 			rollback();
             clearAll ( $connection, $sbmUpdateInfo );
-			echo "<script>alert('Add comment failed');</script>";
 			exit;
 		}
 	}
@@ -287,8 +286,7 @@ p.hidden {
 </head>
 
 <body>
-<form name="addComment" onsubmit="return validateCustomer()"
-	method="post">
+<form name="addComment" onsubmit="return validation()" method="post">
 <center>
 <table width="1024px" border="1">
 	<tr>
@@ -355,12 +353,12 @@ p.hidden {
 			<tr>
 				<td><blockquote>Phone:</blockquote></td>
 				<td><input type="text" name="custPhone" id="custPhone"
-					value="<?php echo $cust['phone'];?>" size="60" /></td>
+					value="<?php echo $cust['phone'];?>" size="60" required /></td>
 			</tr>
 			<tr>
 				<td><blockquote>Address:</blockquote></td>
 				<td><input type="text" name="custAddr" id="custAddr"
-					value="<?php echo $cust['address'];?>" size="60" /></td>
+					value="<?php echo $cust['address'];?>" size="60" required /></td>
 			</tr>
 
 			<?php }
@@ -386,18 +384,18 @@ p.hidden {
 			<tr>
 				<td><blockquote>Phone:</blockquote></td>
 				<td><input type="text" name="recvPhone" id="recvPhone"
-					value="<?php echo $recv['phone'];?>" size="60" /></td>
+					value="<?php echo $recv['phone'];?>" size="60" required /></td>
 			</tr>
 			<tr>
 				<td><blockquote>Address:</blockquote></td>
 				<td><input type="text" name="recvAddr" id="recvAddr"
-					value="<?php echo $recv['address'];?>" size="60" /></td>
+					value="<?php echo $recv['address'];?>" size="60" required /></td>
 			</tr>
 			<?php } ?>
 			<tr>
 				<td>- Date:</td>
 				<td><input name="orderDate" type="date" id="datepicker"
-					value="<?php echo $orderArray['date'];?>" size="60" /></td>
+					value="<?php echo $orderArray['date'];?>" size="60" required /></td>
 			</tr>
 			<tr style="border-bottom: 1px solid">
 				<td colspan="6" style="border-bottom: 1px solid">- <strong>Status</strong>:
@@ -420,8 +418,8 @@ p.hidden {
                         <th>Additional Fee</th>
                     </tr>
                     <tr>
-                        <td><p><textarea name="product_desc" cols="65" rows="4" style="border: 1px solid black"><?php echo $orderArray['product_desc'];?></textarea></p></td>
-                        <td><p><textarea name="product_additional" cols="65" rows="4" style="border: 1px solid black" ><?php echo $orderArray['additional_fee'];?></textarea></p></td>
+                        <td><p><textarea name="product_desc" id="product_desc" cols="65" rows="4" style="border: 1px solid black"><?php echo $orderArray['product_desc'];?></textarea></p></td>
+                        <td><p><textarea name="product_additional" id="product_additional" cols="65" rows="4" style="border: 1px solid black" ><?php echo $orderArray['additional_fee'];?></textarea></p></td>
                     </tr>
 				</table>
 				</td>
