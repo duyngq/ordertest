@@ -19,10 +19,16 @@ include_once 'dbconn.php';
 // TODO: load customers data at load to fill
 // Load and save all customers to be able to selectable when input
 function loadAllCustomer() {
-    $getCustQuery = "SELECT * FROM sendcustomers where id = $custId ";
+    $getCustQuery = "SELECT * FROM sendcustomers";
     $custResult = mysql_query($getCustQuery) or die(mysql_error() . "Can not retrieve information from database");
     while ($cust = mysql_fetch_array($custResult)) {
         $senderArray = array("id" => $cust['id'], "cust_name" => $cust['cust_name'], "address" => $cust['address'], "phone" => $cust['phone']);
+    }
+
+    $getRecvQuery = "SELECT * FROM recvcustomers";
+    $recvResult = mysql_query($getRecvQuery) or die(mysql_error() . "Can not retrieve information from database");
+    while ($cust = mysql_fetch_array($recvResult)) {
+    	$recvArray = array("id" => $cust['id'], "cust_name" => $cust['cust_name'], "address" => $cust['address'], "phone" => $cust['phone']);
     }
 }
 //loadAllCustomer();
@@ -98,35 +104,6 @@ $(document).ready(function() {
 	    });
 	});
 });
-//$("#searchOrder").submit(function(e){
-//        $.ajax({
-//            url: 'search.php',                  //the script to call to get data
-//            type: "POST",
-//            data: searchOrder,                        //you can insert url argumnets here to pass to api.php
-//               //for example "id=5&parent=6"
-//            dataType: 'json',                //data format
-//            success: function(data) {        //on recieve of reply
-//                    var id = data[0];              //get id
-//                    var vname = data[1];           //get name
-//                    //--------------------------------------------------------------------
-//                    // 3) Update html content
-//                    //--------------------------------------------------------------------
-//                    $('#searchResult').html("<b>id: </b>"+id+"<b> name: </b>"+vname); //Set output element html
-//                    //recommend reading up on jquery selectors they are awesome
-//                    // http://api.jquery.com/category/selectors/
-//                },
-//           error: function() {        //on recieve of reply
-//                    //--------------------------------------------------------------------
-//                    // 3) Update html content
-//                    //--------------------------------------------------------------------
-//                    $(".searchResult-error").html("");
-//                    $("#searchResult").append('<tbody class="employee-grid-error"><tr><th colspan="12">No data found in the server</th></tr></tbody>');
-//                    $("#searchResult_processing").css("display","none");
-//                    //recommend reading up on jquery selectors they are awesome
-//                    // http://api.jquery.com/category/selectors/
-//                }
-//        });
-//    });
 </script>
 </head>
 
@@ -148,7 +125,7 @@ $(document).ready(function() {
 	                                <td>Order Number:</td>
 	                                <td><input name="orderNo" type="text" id="orderNo" size="60"/></td>
                                 </tr>
-                                <tr>
+                                <!-- tr>
                                     <td>Sender Name:</td>
                                     <td><input name="sender" type="text" id="sender" size="60"/></td>
                                 </tr>
@@ -163,7 +140,7 @@ $(document).ready(function() {
                                 <tr>
                                     <td>Receiver Phone Number:</td>
                                     <td><input name="receiverPhone" type="text" id="receiverPhone" size="60" /></td>
-                                </tr>
+                                </tr-->
                             </table>
                             <p align="center"><input type="button" name="submit" id="submit" value="Search" /></p>
                         </div></td>

@@ -20,6 +20,9 @@ include_once 'dbconn.php';
 if (isset ( $_POST ["submit"] )) {
 	$submit = $_POST ["submit"];
 }
+if (isset($_SESSION['sender'])) {
+	unset ($_SESSION['sender']);
+}
 if (isset ( $submit )) {
 	unset ( $_POST ["submit"] );
 
@@ -209,7 +212,7 @@ function loadAllCustomer() {
 		$senderArray = array("id" => $cust['id'], "cust_name" => $cust['cust_name'], "address" => $cust['address'], "phone" => $cust['phone']);
 	}
 }
-loadAllCustomer();
+// loadAllCustomer();
 ?>
 <DOCTYPE html PUBLIC"-//W3C//DTDXHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -260,46 +263,47 @@ p.hidden {
                                 </tr>
 								<tr>
 								<td><blockquote>Sender Phone Number:</blockquote></td>
-								<td><input name="custPhone" type="text" id="custPhone" size="60" required /></td>
+								<td><input name="custPhone" type="text" id="custPhone" size="60" required />
+									<!-- drop down list that can be search/add new text -->
+									<script type="text/javascript">
+// 										$(function(){
+										    $("input[name=custPhone]").focusout(function(){
+// 										        var sender = $("#browsers option[value='" + $('#custPhone').val() + "']").attr('data-id');
+// 												if ($this != null && $this.val() != null) {
+													var custPhone = $(this).val();
+											        alert(custPhone);
+											        $('input[name="custsName"]').val(ptamzzNamespace.sessionUser[custPhone]['name']);
+											        $('input[name="custAddr"]').val(ptamzzNamespace.sessionUser[custPhone]['address']);
+// 													$('#custsName options').filter(function(){return this.value == custPhone;}).data(custPhone);//.val(ptamzzNamespace.sessionUser[custPhone]['name]);
+// 													$('#custAddr').val(ptamzzNamespace.sessionUser[custPhone]['address]);
+// 												}
+										    });
+// 										});
+									</script>
+
+									<datalist id="custPhone">
+									<?php
+										// get all customers' name
+										$getCustomersNameQuery = "SELECT * FROM sendcustomers";
+										$getCustomersNameResult = mysql_query($getCustomersNameQuery);
+										// Mysql_num_row is counting table row
+										if($getCustomersNameResult) {
+											$queriedRows = mysql_num_rows($getCustomersNameResult);
+											while ($customer=mysql_fetch_array($getCustomersNameResult)) {
+												$senderArray[$customer['phone']] = array("id" => $customer['id'], "cust_name" => $customer['cust_name'], "address" => $customer['address'], "phone" => $customer['phone']);
+												echo "<option data-id=\"".$customer['phone']."\" value=\"".$customer['phone']."\"></option>";
+											}
+											$_SESSION['sender'] = $senderArray;
+// 											}
+										}
+									?>
+											<script type="text/javascript"> var ptamzzNamespace = { sessionUser : '<?php echo json_encode($_SESSION['sender']);?>'</script>;
+									</datalist>
+								</td>
 								</tr>
 								<tr>
 									<td><blockquote>Sender Name:</blockquote></td>
-									<td>
-										<!-- drop down list that can be search/add new text -->
-
-
-
-									<script type="text/javascript">
-		//			$(function(){
-		//			    $('#custsName').change(function(){
-		//			        var abc = $("#browsers option[value='" + $('#custsName').val() + "']").attr('data-id');
-		//			        alert(abc);
-		//			    });
-		//			});
-				</script>
-
-									<input list="custsName" name="custsName" id="custsName" size="60" />
-									<datalist id="custsName">
-			  <?php
-					// get all customers' name
-					/*
-					 * $getCustomersNameQuery = "SELECT cust_name, phone FROM customers";
-					 * $getCustomersNameResult = mysql_query($getCustomersNameQuery);
-					 * // Mysql_num_row is counting table row
-					 * if($getCustomersNameResult) {
-					 * $queriedRows = mysql_num_rows($getCustomersNameResult);
-					 * while ($customer=mysql_fetch_array($getCustomersNameResult)) {
-					 * $custDetails=$customer['cust_name']." - ".$customer['phone'];
-					 * echo "<option data-id=\"".$custDetails."\" value=\"".$custDetails."\"></option>";
-					 * }
-					 * }
-					 */
-					?></datalist>
-
-
-
-
-									</td>
+									<td><input list="custsName" name="custsName" id="custsName" size="60" /></td>
 								</tr>
 								<td><blockquote>Sender Address:</blockquote></td>
 								<td><input name="custAddr" type="text" id="custAddr" size="60" required /></td>
@@ -314,10 +318,7 @@ p.hidden {
                                 </tr>
                                 <tr>
                                     <td><blockquote>Receiver Name:</blockquote></td>
-                                    <td>
-	                                    <input list="recvName" name="recvName" id="recvName" size="60" />
-	                                    <datalist id="recvName">
-                                    </td>
+                                    <td><input list="recvName" name="recvName" id="recvName" size="60" /></td>
                                 </tr>
                                 <td><blockquote>Receiver Address:</blockquote></td>
                                 <td><input name="recvAddr" type="text" id="recvAddr" size="60" required /></td>
@@ -345,33 +346,6 @@ p.hidden {
 											</tr>
 										</table>
 									</td>
-									<!-- td colspan="2">
-										<table width="1024px" border="0" id='productTbl'>
-											<tr>
-												<th>Product Name</th>
-												<th>Quantity</th>
-												<th>Price</th>
-												<th>Amount</th>
-											</tr>
-											<tr>
-												<td><input name="product1name" type="text" id="product1name"
-													size="30" placeholder="Product name" /></td>
-												<td><input name="product1quantity" type="number"
-													id="product1quantity" value="0" size="30"
-													onchange="calProductAmount('product1quantity', 'product1price', 'product1amount')" /></td>
-												<td><input name="product1price" type="text"
-													id="product1price" value="0" size="30"
-													onchange="calProductAmount('product1quantity', 'product1price', 'product1amount')" /></td>
-												<td><input name="product1amount" type="text"
-													id="product1amount" value="0" size="30" readonly="true" /></td>
-												<td><input type="button"
-													onclick="addProductRow('productTbl')" border=0
-													style='cursor: hand' value="+" /></td>
-												<td></td>
-											</tr>
-											<input name="noOfProducts" id="noOfProducts" type="hidden" border=0 value="1" readonly/>
-										</table>
-									</td-->
 								</tr>
 								<tr>
 									<td>- Product details:</td>

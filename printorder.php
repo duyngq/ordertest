@@ -17,7 +17,6 @@ if (! isset ( $_SESSION ['loggedIn'] ) || (isset ( $_SESSION ['loggedIn'] ) && !
 //header('Content-Type: text/plain');
 include_once 'dbconn.php';
 
-//TODO: update order with new content
 //TODO: need to move this page to structure as header, content, footer
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -140,16 +139,16 @@ p.hidden {
 				<tr>
 					<td contenteditable='true'>
 						<p id="underline"><strong>DESCRIPTION OF CONTENTS: (TÊN HÀNG HÓA):</strong></p>
-						<?php 
+						<?php
     						// For loop here over product list to show:
     						// + <quantity> <unit> <productName>
-    						
+
     						// hien phu thu
     						// PHU THU: <quantity> <unit> <productName> X <price> = <total>
     						// TOTAL: <weight> X <pricePerWeight> = total1 + <total> = <final total>
     						$order   = array("\r\n", "\n", "\r");
                             $replace = '<br />';
-                            
+
 							echo str_replace($order, $replace, $orderArray['product_desc']);
 							echo "<br>PHU THU:<br>";
 							echo str_replace($order, $replace, $orderArray['additional_fee']);

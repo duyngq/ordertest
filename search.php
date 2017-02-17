@@ -28,7 +28,6 @@ function validateNumber($validatedValue, $stringName) {
     }
 }
 
-// TODO: load customers data at load to fill
 // Load and save all customers to be able to selectable when input
 function loadAllCustomer() {
     $getCustQuery = "SELECT * FROM sendcustomers where id = $custId ";
@@ -47,28 +46,28 @@ function isValueSet($value) {
 }
 //    $sender = $_POST ["sender"];
 //    $senderPhone = $_POST ["senderPhone"];
-//    
+//
 //    $receiver = $_POST ["receiver"];
 //    $receiverPhone = $_POST ["receiverPhone"];
-    
+
     $orderId = $_POST ["orderNo"];
-    
+
 //    begin();
     if (isValueSet($orderId)) {
         $orderQuery = "select * from orders where id=".$orderId;
         $orderQueryResult = mysql_query($orderQuery, $connection) or die ( mysql_error () . "Can not retrieve database" );
         $row['order'] = mysql_fetch_row($orderQueryResult);
-        
+
         //Sender
         $senderQuery = "select * from sendcustomers where id=".$row['order'][1];
         $senderQueryResult = mysql_query($senderQuery, $connection) or die ( mysql_error () . "Can not retrieve database" );
         $row['sender'] = mysql_fetch_row($senderQueryResult);
-        
+
         //Receiver
         $receiverQuery = "select * from recvcustomers where id=".$row['order'][8];
         $receiverQueryResult = mysql_query($receiverQuery, $connection) or die ( mysql_error () . "Can not retrieve database" );
         $row['receiver'] = mysql_fetch_row($receiverQueryResult);
-        
+
         $orderId = base64_encode($orderId);
         $pos1 = rand(0, 25);
         $pos2 = rand(26, 51);
@@ -76,7 +75,7 @@ function isValueSet($value) {
         $randomLetter1 = $a_z[$pos1];
         $randomLetter2 = $a_z[$pos2];
         $row['orderId'] = substr_replace($orderId, $randomLetter1 . $randomLetter2, 1, 0);
-        
+
         echo json_encode($row);
     } else {
         throw new Exception('Unable to find order');
