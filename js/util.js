@@ -1,3 +1,12 @@
+function calFeeAmount(weight, price, total) {
+	var weight = document.getElementById(weight).value;// addClient.lender_loanAmount.value;
+	var pricePerWeight = document.getElementById(price).value;// addClient.builder_packageAmount.value;
+	var totalPricePackage = parseFloat(weight)* parseFloat(pricePerWeight);
+	document.getElementById(total).value = totalPricePackage;
+}
+function calTotal() {
+	document.getElementById("prm_sum").value = parseFloat(document.getElementById("total").value) + parseFloat(document.getElementById("total1").value) + parseFloat(document.getElementById("total2").value) + parseFloat(document.getElementById("total3").value) + parseFloat(document.getElementById("total4").value) + parseFloat(document.getElementById("total5").value) + parseFloat(document.getElementById("add_fee").value);
+}
 function calTotalPricePackage() {
 	var weight = document.getElementById("total_weight").value;// addClient.lender_loanAmount.value;
 	var pricePerWeight = document.getElementById("price_per_weight").value;// addClient.builder_packageAmount.value;

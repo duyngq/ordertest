@@ -293,7 +293,7 @@ p.hidden {
 		<p>Welcome, <?php echo $_SESSION['username']; ?>! <a href="index.php">Home</a>
 		<a href="logout.php">Log out</a></p>
 		</div>
-		<p align="left"><strong>ORDER DETAILS</strong></p>
+		<p align="left"><strong>SHIPMENT DETAILS</strong></p>
 		<p align="left">Today's Date: <?php date_default_timezone_set('Australia/Melbourne'); echo date('d/m/Y');?>
 		- Time: <?php echo date('H:i'); ?></p>
 		<table width="100%" border="0" bordercolor="#F0F0F0">
