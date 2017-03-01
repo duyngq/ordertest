@@ -56,6 +56,8 @@ p.hidden {
 	<div id="page-wrap">
 		<textarea id="header">SAO PHI CARGO</textarea>
 		<div id="identity">
+		  <div style="width:800px;">
+		      <div style="width:300px; float:left;">
 			<p align="center" id="underline" style="font-size:20px">
 				1229 Jacklin Rd, Milpitas, Ca, 95036</br>
 			</p>
@@ -64,15 +66,17 @@ p.hidden {
 			</p>
 			</br>
 			</br>
-
+            </div>
+            <div style="width:300px; float:right;">
 			<p align="center" id="underline" style="font-size:20px">
 				160 Đường D2, Phường 25, Quận Bình Thạnh</br>
 			</p>
 			<p align="center" style="font-size:20px">
 				<strong>MR.Khoa: </strong><a href="#">0934-934-952</a>
 			</p>
-			</br>
-			</br>
+			</div>
+			</div>
+			</br></br></br></br></br>
 			<?php
 				$orderId = $_GET ['tr'];
 				$orderId1 = substr ( $orderId, 0, 1 );
@@ -107,8 +111,11 @@ p.hidden {
 					$recvArray = array("id" => $recv['id'], "cust_name" => $recv['cust_name'], "address" => $recv['address'], "phone" => $recv['phone']);
 				}
 			?>
+			<div style="width:800px; float:center;">
 			<p align="center" style="font-size:20px">
+			</br>
 				RECEIPT</br>SP: <?php echo $orderArray['id'];?></p>
+				</div>
 			<div style="clear: both"></div>
 			<div id="customer" align="center">
 				<table id="meta">
