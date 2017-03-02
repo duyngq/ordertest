@@ -190,8 +190,13 @@ if (isset ( $submit )) {
 }
 
 function addNewOrder($custId, $recvCustId, $userId, $orderDate, $totalWeight, $pricePerWeight, $totalWeight1, $pricePerWeight1, $totalWeight2, $pricePerWeight2, $totalWeight3, $pricePerWeight3, $totalWeight4, $pricePerWeight5, $totalWeight5, $pricePerWeight5, $addFee, $productDesc, $additionalFee, $total, $connection, $submit) {
-	$addNewOrder = "insert into orders(send_cust_id, recv_cust_id, user_id, status, date, total_weight, price_per_weight, total_weight_1, price_per_weight_1, total_weight_2, price_per_weight_2, total_weight_3, price_per_weight_3, total_weight_4, price_per_weight_4, total_weight_5, price_per_weight_5, fee, product_desc, additional_fee, total)
-	   values ($custId, $recvCustId, $userId, 0, '$orderDate', $totalWeight, $pricePerWeight, $totalWeight1, $pricePerWeight1, $totalWeight2, $pricePerWeight2, $totalWeight3, $pricePerWeight3, $totalWeight4, $pricePerWeight5, $totalWeight5, $pricePerWeight5, $addFee, '$productDesc', '$additionalFee', $total)";
+	//convert input date to format d/m/Y to parse to timestamp for cal current week number of month
+	$dates = explode ("/",$orderDate);
+    $ordDate = strtotime($dates[1]."/".$dates[0]."/".$dates[2]);
+	$code = date("n", $ordDate).weekOfMonth($ordDate);
+	
+	$addNewOrder = "insert into orders(send_cust_id, recv_cust_id, user_id, status, date, total_weight, price_per_weight, total_weight_1, price_per_weight_1, total_weight_2, price_per_weight_2, total_weight_3, price_per_weight_3, total_weight_4, price_per_weight_4, total_weight_5, price_per_weight_5, code, fee, product_desc, additional_fee, total)
+	   values ($custId, $recvCustId, $userId, 0, '$orderDate', $totalWeight, $pricePerWeight, $totalWeight1, $pricePerWeight1, $totalWeight2, $pricePerWeight2, $totalWeight3, $pricePerWeight3, $totalWeight4, $pricePerWeight5, $totalWeight5, $pricePerWeight5, '$code', $addFee, '$productDesc', '$additionalFee', $total)";
 	$addNewOrderResult = mysql_query ( $addNewOrder, $connection ) or die ( mysql_error () . "Can not retrieve to database" );
 	$orderId = mysql_insert_id ();
 	if (!$addNewOrderResult) {
@@ -222,6 +227,25 @@ function clearAll($connection, $submit) {
 	mysql_close ( $connection );
 	ob_end_flush ();
 	unset ( $submit );
+}
+
+function weekOfMonth($date) {
+    //Get the first day of the month.
+    $firstOfMonth = strtotime(date("Y-m-01", $date));
+    //Apply above formula.
+    $weekNumber = intval(date("W", $date)) - intval(date("W", $firstOfMonth)) + 1;
+    switch ($weekNumber) {
+    case 1:
+        return "a";
+    case 2:
+        return "b";
+    case 3:
+        return "c";
+    case 4:
+        return "d";
+    case 5:
+        return "e";
+    }
 }
 
 function validateNumber($validatedValue, $stringName) {
@@ -399,9 +423,9 @@ p.hidden {
 											</tr>
 											<tr>
 												<td><p><textarea name="product_desc" id="product_desc" cols="65" rows="20"
-										style="border: 1px solid black" placeholder="Click and write product description" onclick="openProductDescWindow('addOrder')"></textarea></p></td>
+										style="border: 1px solid black" placeholder="Click and write product description" onclick="openProductDescWindow()"></textarea></p></td>
 												<td><p><textarea name="product_additional" id="product_additional" cols="65" rows="20"
-										style="border: 1px solid black" placeholder="Click and write additional fee description" onclick="openFeeWindow('addOrder')"></textarea></p></td>
+										style="border: 1px solid black" placeholder="Click and write additional fee description" onclick="openFeeWindow()"></textarea></p></td>
 											</tr>
 										</table>
 									</td>
@@ -500,6 +524,7 @@ p.hidden {
 								<form id="form1" name="form1" method="post"
 									style="text-align: center">
 									<input type="submit" name="submit" id="submit" value="Add" />
+								    <input name="formName" type="hidden" id="formName" value="addOrder" size="60" required />
 								</form>
 							</div>
 							<p align="left">&nbsp;</p>

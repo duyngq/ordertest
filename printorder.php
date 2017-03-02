@@ -22,7 +22,7 @@ include_once 'dbconn.php';
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>ORDER INVOICE</title>
+<title>SHIPMENT INVOICE</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Order details</title>
 <style type="text/css">
@@ -93,8 +93,11 @@ p.hidden {
 			                  "user_id" => $order['user_id'], "status" => $order['status'], "date" => $order['date'], "total_weight" => $order['total_weight'],
 			                  "price_per_weight" => $order['price_per_weight'], "total_weight_1" => $order['total_weight_1'],
 			                  "price_per_weight_1" => $order['price_per_weight_1'], "total_weight_2" => $order['total_weight_2'],
-                              "price_per_weight_2" => $order['price_per_weight_2'], "fee" => $order['fee'], "total" => $order['total'], "recv_cust_id" => $order['recv_cust_id'],
-			                  "product_desc" => $order['product_desc'], "additional_fee" => $order['additional_fee']);
+                              "price_per_weight_2" => $order['price_per_weight_2'], "total_weight_3" => $order['total_weight_3'],
+                              "price_per_weight_3" => $order['price_per_weight_3'], "total_weight_4" => $order['total_weight_4'],
+                              "price_per_weight_4" => $order['price_per_weight_4'], "total_weight_5" => $order['total_weight_5'],
+                              "price_per_weight_5" => $order['price_per_weight_5'], "fee" => $order['fee'], "total" => $order['total'], "recv_cust_id" => $order['recv_cust_id'],
+			                  "product_desc" => $order['product_desc'], "additional_fee" => $order['additional_fee'], "code" => $order['code']);
 				}
 
 				//Get customer info
@@ -114,7 +117,7 @@ p.hidden {
 			<div style="width:800px; float:center;">
 			<p align="center" style="font-size:20px">
 			</br>
-				RECEIPT</br>SP: <?php echo $orderArray['id'];?></p>
+				RECEIPT</br>SP: <?php echo $orderArray['code']."  ".$orderArray['id'];?></p>
 				</div>
 			<div style="clear: both"></div>
 			<div id="customer" align="center">
@@ -157,9 +160,9 @@ p.hidden {
                             $replace = '<br />';
 
 							echo str_replace($order, $replace, $orderArray['product_desc']);
-							echo "<br>PHU THU:<br>";
-							echo str_replace($order, $replace, $orderArray['additional_fee']);
-							echo "<br><br>";
+//							echo "<br>PHU THU:<br>";
+//							echo str_replace($order, $replace, $orderArray['additional_fee']);
+//							echo "<br><br>";
 							$totalWeight = $orderArray["total_weight"];
 							$details1="";
 							$total1="";

@@ -13,20 +13,14 @@ textarea {
   height: 100vw;
 }
 </style>
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script type="text/javascript">
-$(document).ready(function(){
-    //This sessionStorage.getItem(); is also a predefined function in javascript
-    //will retrieve session and get the value;
-    document.productDesc.product_desc.value = opener.document.addOrder.product_desc.value;
-    document.productDesc.product_desc.value = opener.document.addComment.product_desc.value;
-    alert(opener.document.addOrder.product_desc.value);
+$(window).on('load', function() { //load data after page loaded 
+    document.productDesc.product_desc.value = opener.document.getElementById("product_desc").value;
 });
 function updateParentContent() {
-	opener.document.addOrder.product_desc.value = document.productDesc.product_desc.value;
-	opener.document.addComment.product_desc.value = document.productDesc.product_desc.value;
-    //opener.document.parentForm.pf2.value = document.childForm.cf2.value;
-    //self.close();
-    //return false;
+	opener.document.getElementById("product_desc").value = document.productDesc.product_desc.value;
 }
 </script>
 </head>

@@ -5,7 +5,7 @@ function calFeeAmount(weight, price, total) {
 	document.getElementById(total).value = totalPricePackage;
 }
 function calTotal() {
-	document.getElementById("prm_sum").value = parseFloat(document.getElementById("total").value) + parseFloat(document.getElementById("total1").value) + parseFloat(document.getElementById("total2").value) + parseFloat(document.getElementById("total3").value) + parseFloat(document.getElementById("total4").value) + parseFloat(document.getElementById("total5").value) + parseFloat(document.getElementById("add_fee").value);
+	document.getElementById("prm_sum").value = parseFloat(document.getElementById("total0").value) + parseFloat(document.getElementById("total1").value) + parseFloat(document.getElementById("total2").value) + parseFloat(document.getElementById("total3").value) + parseFloat(document.getElementById("total4").value) + parseFloat(document.getElementById("total5").value) + parseFloat(document.getElementById("add_fee").value);
 }
 function calTotalPricePackage() {
 	var weight = document.getElementById("total_weight").value;// addClient.lender_loanAmount.value;
@@ -110,7 +110,15 @@ function ChangeColor(tableRow, highLight) {
 }
 
 function openProductDescWindow() {
-	childWindow = window.open("productdesc.html", 'win2','status=no,toolbar=no,scrollbars=yes,titlebar=no,menubar=no,resizable=yes,directories=no,location=no');
+	var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : screen.left;
+    var dualScreenTop = window.screenTop != undefined ? window.screenTop : screen.top;
+
+    var width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+    var height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+
+    var left = ((width / 2) ) + dualScreenLeft;
+    var top = ((height / 2) ) + dualScreenTop;
+	childWindow = window.open("productdesc.html", 'win2','status=no,toolbar=no,scrollbars=yes,titlebar=no,menubar=no,resizable=yes,directories=no,location=no,top=' + top + ', left=' + left);
 	if (childWindow.opener == null) {
     	childWindow.opener = self;
 	}
@@ -124,10 +132,10 @@ function openFeeWindow() {
     var width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
     var height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
 
-    var left = ((width / 2) - (700 / 2)) + dualScreenLeft;
-    var top = ((height / 2) - (300 / 2)) + dualScreenTop;
+    var left = ((width / 2) - (800 / 2)) + dualScreenLeft;
+    var top = ((height / 2) - (400 / 2)) + dualScreenTop;
     
-    childWindow = window.open("fee.html", 'win2', 'status=no,toolbar=no,scrollbars=yes,titlebar=no,menubar=no,resizable=yes,width=700,height=300,directories=no,location=no,top=' + top + ', left=' + left);
+    childWindow = window.open("fee.html", 'win2', 'status=no,toolbar=no,scrollbars=yes,titlebar=no,menubar=no,resizable=yes,width=800,height=400,directories=no,location=no,top=' + top + ', left=' + left);
     if (childWindow.opener == null) {
         childWindow.opener = self;
     }

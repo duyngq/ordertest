@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 01, 2017 at 07:54 PM
+-- Generation Time: Mar 02, 2017 at 06:17 PM
 -- Server version: 5.6.17
 -- PHP Version: 5.5.12
 
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `comments` (
   `user_name` varchar(45) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `FK_comments_orderId` (`order_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=49 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=53 ;
 
 --
 -- Dumping data for table `comments`
@@ -61,7 +61,11 @@ INSERT INTO `comments` (`id`, `date`, `comment`, `order_id`, `user_name`) VALUES
 (45, '17/02/2017 17:46', 'tryrd', 35, 'admin'),
 (46, '17/02/2017 17:47', '<em><span style=''color:#FF0000''>*System comment:</span> <strong>Customer Phone</strong> changed from <strong>989621756</strong> to <strong>098962175612</strong>.. </em>', 35, 'admin'),
 (47, '17/02/2017 17:51', '<em><span style=''color:#FF0000''>*System comment:</span> <strong>Customer Phone</strong> changed from <strong>98962175612</strong> to <strong>098962175612</strong>.. </em><em><span style=''color:#FF0000''>*System comment:</span> <strong>Customer Phone</stron', 35, 'admin'),
-(48, '17/02/2017 17:52', '<em><span style=''color:#FF0000''>*System comment:</span> <strong>Customer Phone</strong> changed from <strong>98962175612</strong> to <strong>098962175612</strong>.. </em>', 35, 'admin');
+(48, '17/02/2017 17:52', '<em><span style=''color:#FF0000''>*System comment:</span> <strong>Customer Phone</strong> changed from <strong>98962175612</strong> to <strong>098962175612</strong>.. </em>', 35, 'admin'),
+(49, '02/03/2017 17:53', '<em><span style=''color:#FF0000''>*System comment:</span> <strong>Price per weight 4</strong> changed from <strong>12</strong> to <strong>8</strong>.. </em><em><span style=''color:#FF0000''>*System comment:</span> <strong>Total</strong> changed from <strong>3', 38, 'admin'),
+(50, '02/03/2017 17:53', 'test', 38, 'admin'),
+(51, '02/03/2017 17:53', '<em><span style=''color:#FF0000''>*System comment:</span> <strong>Total</strong> changed from <strong>332</strong> to <strong> 332</strong>.. </em>', 38, 'admin'),
+(52, '02/03/2017 17:53', 'test', 38, 'admin');
 
 -- --------------------------------------------------------
 
@@ -105,6 +109,7 @@ CREATE TABLE IF NOT EXISTS `orders` (
   `price_per_weight_4` double NOT NULL,
   `total_weight_5` double NOT NULL,
   `price_per_weight_5` double NOT NULL,
+  `code` varchar(5) NOT NULL,
   `fee` double NOT NULL,
   `product_desc` longtext NOT NULL,
   `additional_fee` longtext NOT NULL,
@@ -112,16 +117,17 @@ CREATE TABLE IF NOT EXISTS `orders` (
   KEY `FK_orders_userId` (`user_id`),
   KEY `FK_orders_custid` (`send_cust_id`),
   KEY `recv_cust_id` (`recv_cust_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=38 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=39 ;
 
 --
 -- Dumping data for table `orders`
 --
 
-INSERT INTO `orders` (`id`, `send_cust_id`, `user_id`, `status`, `date`, `total_weight`, `price_per_weight`, `total`, `recv_cust_id`, `total_weight_1`, `price_per_weight_1`, `total_weight_2`, `price_per_weight_2`, `total_weight_3`, `price_per_weight_3`, `total_weight_4`, `price_per_weight_4`, `total_weight_5`, `price_per_weight_5`, `fee`, `product_desc`, `additional_fee`) VALUES
-(35, 7, 1, 1, '19/02/2017', 2, 3, 90, 10, 4, 5, 6, 7, 0, 0, 0, 0, 0, 0, 22, '1.a\r\n2.b\r\n3.c\r\n4.\r\n5.6.\r\n7.', '1.10\r\n2.1\r\n3.9\r\n53\r\n3.\r\n4.\r\n8.'),
-(36, 7, 1, 0, '02/03/2017', 2, 3, 100, 10, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 58, 'asdsdaa', 'weight,price,total\r\n2,3,6\r\n6,6,36\r\n\r\n Additional fee : 58\r\n Total          : 100'),
-(37, 7, 1, 0, '02/03/2017', 2, 3, 100, 10, 5, 6, 0, 0, 0, 0, 0, 0, 0, 0, 64, 'asdbsa\r\nasd\r\n asdf\r\nds\r\nfsd\r\nf\r\nasd f\r\nsdaf\r\n asd\r\nf \r\nsdf\r\n sdaf\r\n sda\r\nf \r\nsadf\r\n sdf\r\n sad\r\nf\r\nsadf \r\nasdf\r\n asd\r\nf ds', 'weight,price,total\r\n2,3,6\r\n5,6,30\r\n\r\n Additional fee : 64\r\n Total          : 100');
+INSERT INTO `orders` (`id`, `send_cust_id`, `user_id`, `status`, `date`, `total_weight`, `price_per_weight`, `total`, `recv_cust_id`, `total_weight_1`, `price_per_weight_1`, `total_weight_2`, `price_per_weight_2`, `total_weight_3`, `price_per_weight_3`, `total_weight_4`, `price_per_weight_4`, `total_weight_5`, `price_per_weight_5`, `code`, `fee`, `product_desc`, `additional_fee`) VALUES
+(35, 7, 1, 1, '19/02/2017', 2, 3, 90, 10, 4, 5, 6, 7, 0, 0, 0, 0, 0, 0, '', 22, '1.a\r\n2.b\r\n3.c\r\n4.\r\n5.6.\r\n7.', '1.10\r\n2.1\r\n3.9\r\n53\r\n3.\r\n4.\r\n8.'),
+(36, 7, 1, 0, '02/03/2017', 2, 3, 100, 10, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, '', 58, 'asdsdaa', 'weight,price,total\r\n2,3,6\r\n6,6,36\r\n\r\n Additional fee : 58\r\n Total          : 100'),
+(37, 7, 1, 0, '02/03/2017', 2, 3, 100, 10, 5, 6, 0, 0, 0, 0, 0, 0, 0, 0, '', 64, 'asdbsa\r\nasd\r\n asdf\r\nds\r\nfsd\r\nf\r\nasd f\r\nsdaf\r\n asd\r\nf \r\nsdf\r\n sdaf\r\n sda\r\nf \r\nsadf\r\n sdf\r\n sad\r\nf\r\nsadf \r\nasdf\r\n asd\r\nf ds', 'weight,price,total\r\n2,3,6\r\n5,6,30\r\n\r\n Additional fee : 64\r\n Total          : 100'),
+(38, 7, 1, 0, '02/03/2017', 1, 2, 332, 10, 3, 4, 5, 6, 7, 8, 9, 8, 11, 12, '3a', 28, '12\r\n3\r\n23\r\ns\r\nfds\r\nf\r\nfv\r\nzcx\r\nv\r\nsfd\r\nsdf\r\n\r\nDuy', 'weight,price,total\r\n1,2,2\r\n3,4,12\r\n5,6,30\r\n7,8,56\r\n9,8,72\r\n11,12,132\r\n\r\n Additional fee : 28\r\n Total          : 332');
 
 -- --------------------------------------------------------
 
@@ -232,7 +238,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `password`, `enabled`, `date_last_entered`) VALUES
-(1, 'admin', '$2y$10$NzEJDTu0tYZnawVFqGvPv.nd.7k2w2b5AS3OPS/GSDh1I.ZgECF4W', 1, '02/03/2017 01:36'),
+(1, 'admin', '$2y$10$NzEJDTu0tYZnawVFqGvPv.nd.7k2w2b5AS3OPS/GSDh1I.ZgECF4W', 1, '02/03/2017 23:56'),
 (5, 'khoa', '$2y$10$xaxBADES/DDDFk2xIv86BuQuAveQUyOB7dm4tJjje5IJq2zZkecC2', 1, '13/02/2017 02:07');
 
 --
