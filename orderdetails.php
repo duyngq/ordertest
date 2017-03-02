@@ -43,33 +43,65 @@ if (isset($sbmUpdateInfo) ) {
     $productDesc = $_POST ["product_desc"];
     $additionalFee = $_POST ["product_additional"];
 
+    //parse additional fee with the last line is total, the next of last line is fee (delimiter as :), and the rest is each fee (delimiter as comma)
+    $feeDetails = 0;
+    $fees = split("\r\n", $additionalFee); // get each line
+    for ( $i = 1; $i < count($fees); $i++) { //skip title as 0
+    	if (!empty($fees[$i])) {
+    		$fee = split(",", $fees[$i]); //get each fee details
+    		if ( count($fee) > 1) {
+    			$feeDetails ++;
+    			${"totalWeight".($i-1)} = $fee[0];
+    			validateNumber ( ${"totalWeight".($i-1)}, "Package weight" );
+    			${"pricePerWeight".($i-1)} = $fee[1];
+    			validateNumber ( ${"totalWeight".($i-1)}, "Price per package weight" );
+    		} else {
+    			$fee = split(":", $fees[$i]); //get the total (the last one) and additional fee
+    			if ( count($fee) > 0) {
+    				if ($i == count($fees) - 1) {
+    					$total = $fee[1];
+    					validateNumber ( $total, "Total amount of all products" );
+    				} else {
+    					$addFee = trim($fee[1]);
+    					validateNumber ( $addFee, "Additional fee" );
+    				}
+    			}
+    		}
+    	}
+    }
+
+    for ($j = $feeDetails; $j < 6; $j++) { //hard code with 6 fee details
+    	${"totalWeight".($j)} = 0;
+    	${"pricePerWeight".($j)} = 0;
+    }
+
     // Validate param for product details
-    $totalWeight = $_POST ["total_weight"];
-    validateNumber ( $totalWeight, "Package weight" );
+//     $totalWeight = $_POST ["total_weight"];
+//     validateNumber ( $totalWeight, "Package weight" );
 
-    $pricePerWeight = $_POST ["price_per_weight"];
-    validateNumber ( $pricePerWeight, "Price per package weight" );
+//     $pricePerWeight = $_POST ["price_per_weight"];
+//     validateNumber ( $pricePerWeight, "Price per package weight" );
 
-    $totalPackagePrice = $_POST ["total_package_price"];
-    validateNumber ( $totalPackagePrice, "Package price amount" );
+//     $totalPackagePrice = $_POST ["total_package_price"];
+//     validateNumber ( $totalPackagePrice, "Package price amount" );
 
-    $totalWeight1 = $_POST ["total_weight_1"];
-    validateNumber ( $totalWeight, "Package weight 1" );
+//     $totalWeight1 = $_POST ["total_weight_1"];
+//     validateNumber ( $totalWeight, "Package weight 1" );
 
-    $pricePerWeight1 = $_POST ["price_per_weight_1"];
-    validateNumber ( $pricePerWeight, "Price per package weight 1" );
+//     $pricePerWeight1 = $_POST ["price_per_weight_1"];
+//     validateNumber ( $pricePerWeight, "Price per package weight 1" );
 
-    $totalWeight2 = $_POST ["total_weight_2"];
-    validateNumber ( $totalWeight, "Package weight 2" );
+//     $totalWeight2 = $_POST ["total_weight_2"];
+//     validateNumber ( $totalWeight, "Package weight 2" );
 
-    $pricePerWeight2 = $_POST ["price_per_weight_2"];
-    validateNumber ( $pricePerWeight, "Price per package weight 2" );
+//     $pricePerWeight2 = $_POST ["price_per_weight_2"];
+//     validateNumber ( $pricePerWeight, "Price per package weight 2" );
 
-    $addFee = $_POST ["add_fee"];
-    validateNumber ( $addFee, "Additional fee" );
+//     $addFee = $_POST ["add_fee"];
+//     validateNumber ( $addFee, "Additional fee" );
 
-    $total = $_POST ["prm_sum"];
-    validateNumber ( $total, "Total amount of all products" );
+//     $total = $_POST ["prm_sum"];
+//     validateNumber ( $total, "Total amount of all products" );
 
     // add customer
     $userId = $_SESSION ['user_id'];
@@ -129,10 +161,13 @@ if (isset($sbmUpdateInfo) ) {
 	//Generate update query for order
 	$orderId = $_SESSION['orderId'];
     $newOrderArray = array("id" => $orderId, "send_cust_id" => $custId,
-                  "user_id" => $userId, "status" => $status, "date" => $orderDate, "total_weight" => $totalWeight,
-                  "price_per_weight" => $pricePerWeight, "total_weight_1" => $totalWeight1,
+                  "user_id" => $userId, "status" => $status, "date" => $orderDate, "total_weight" => $totalWeight0,
+                  "price_per_weight" => $pricePerWeight0, "total_weight_1" => $totalWeight1,
                   "price_per_weight_1" => $pricePerWeight1, "total_weight_2" => $totalWeight2,
-                  "price_per_weight_2" => $pricePerWeight2, "fee" => $addFee, "total" => $total, "recv_cust_id" => $recvId,
+                  "price_per_weight_2" => $pricePerWeight2, "total_weight_3" => $totalWeight3,
+                  "price_per_weight_3" => $pricePerWeight3, "total_weight_4" => $totalWeight4,
+                  "price_per_weight_4" => $pricePerWeight4, "total_weight_5" => $totalWeight5,
+                  "price_per_weight_5" => $pricePerWeight5, "fee" => $addFee, "total" => $total, "recv_cust_id" => $recvId,
                   "product_desc" => $productDesc, "additional_fee" => $additionalFee);
     $orderArray = $_SESSION['oldOrderArray'];
     $compareNewOrderAndOldOrder= array_diff_assoc($newOrderArray, $orderArray);
@@ -144,7 +179,10 @@ if (isset($sbmUpdateInfo) ) {
     $orderInfoArray = array("id" => "Order id", "send_cust_id" => "Sender Id", "user_id" => "User Id", "status" => "Ship status", "date" => "Order date", "total_weight" => "Total weight",
                   "price_per_weight" => "Price per weight", "total_weight_1" => "Total weight 1",
                   "price_per_weight_1" => "Price per weight 1", "total_weight_2" => "Total weight 2",
-                  "price_per_weight_2" => "Price per weight 2", "fee" => "Fee", "total" =>"Total", "recv_cust_id" => "Receiver Id",
+                  "price_per_weight_2" => "Price per weight 2", "total_weight_3" => "Total weight 3",
+                  "price_per_weight_3" => "Price per weight 3", "total_weight_4" => "Total weight 4",
+                  "price_per_weight_4" => "Price per weight 4", "total_weight_5" => "Total weight 5",
+                  "price_per_weight_5" => "Price per weight 5", "fee" => "Fee", "total" =>"Total", "recv_cust_id" => "Receiver Id",
                   "product_desc" => "Product description", "additional_fee" => "Additional fee");
     foreach ($compareNewOrderAndOldOrder as $key => $value) {
         $newValue = $newOrderArray[$key];
@@ -324,7 +362,10 @@ p.hidden {
                   "user_id" => $order['user_id'], "status" => $order['status'], "date" => $order['date'], "total_weight" => $order['total_weight'],
                   "price_per_weight" => $order['price_per_weight'], "total_weight_1" => $order['total_weight_1'],
                   "price_per_weight_1" => $order['price_per_weight_1'], "total_weight_2" => $order['total_weight_2'],
-                  "price_per_weight_2" => $order['price_per_weight_2'], "fee" => $order['fee'], "total" => $order['total'], "recv_cust_id" => $order['recv_cust_id'],
+                  "price_per_weight_2" => $order['price_per_weight_2'], "total_weight_3" => $order['total_weight_3'],
+                  "price_per_weight_3" => $order['price_per_weight_3'], "total_weight_4" => $order['total_weight_4'],
+                  "price_per_weight_4" => $order['price_per_weight_4'], "total_weight_5" => $order['total_weight_5'],
+                  "price_per_weight_5" => $order['price_per_weight_5'], "fee" => $order['fee'], "total" => $order['total'], "recv_cust_id" => $order['recv_cust_id'],
 			      "product_desc" => $order['product_desc'], "additional_fee" => $order['additional_fee']);
 			$_SESSION['oldOrderArray'] = $orderArray;
 		}
@@ -416,13 +457,15 @@ p.hidden {
                         <th>Additional Fee</th>
                     </tr>
                     <tr>
-                        <td><p><textarea name="product_desc" id="product_desc" cols="65" rows="4" style="border: 1px solid black"><?php echo $orderArray['product_desc'];?></textarea></p></td>
-                        <td><p><textarea name="product_additional" id="product_additional" cols="65" rows="4" style="border: 1px solid black" ><?php echo $orderArray['additional_fee'];?></textarea></p></td>
-                    </tr>
+						<td><p><textarea name="product_desc" id="product_desc" cols="65" rows="20"
+				style="border: 1px solid black" placeholder="Click and write product description" onclick="openProductDescWindow()"><?php echo $orderArray['product_desc'];?></textarea></p></td>
+						<td><p><textarea name="product_additional" id="product_additional" cols="65" rows="20"
+				style="border: 1px solid black" placeholder="Click and write additional fee description" onclick="openFeeWindow()"><?php echo $orderArray['additional_fee'];?></textarea></p></td>
+					</tr>
 				</table>
 				</td>
 			</tr>
-			<tr>
+			<!-- tr>
 				<td>- Product details:</td>
 			</tr>
 			<tr>
@@ -525,7 +568,7 @@ p.hidden {
 				<td><input name="prm_sum" type="text" id="prm_sum"
 					value="<?php echo $orderArray['total'];?>" size="60"
 					readonly="true" /></td>
-			</tr>
+			</tr-->
 			<tr>
 				<td colspan=2>
 				<p>- Comment:</p>

@@ -42,7 +42,7 @@ if (isset ( $submit )) {
 	$additionalFee = $_POST ["product_additional"];
 
 	//parse additional fee with the last line is total, the next of last line is fee (delimiter as :), and the rest is each fee (delimiter as comma)
-	$feeDetails = 0; 
+	$feeDetails = 0;
 	$fees = split("\r\n", $additionalFee); // get each line
 	for ( $i = 1; $i < count($fees); $i++) { //skip title as 0
 		if (!empty($fees[$i])) {
@@ -67,7 +67,7 @@ if (isset ( $submit )) {
 			}
 		}
 	}
-	
+
 	for ($j = $feeDetails; $j < 6; $j++) { //hard code with 6 fee details
 		${"totalWeight".($j)} = 0;
 		${"pricePerWeight".($j)} = 0;
@@ -171,7 +171,7 @@ if (isset ( $submit )) {
         		$custId = $customer ["id"];
         	}
         }
-        
+
         if (is_null($recvCustId)) {
         	while ( $customer = mysql_fetch_array ( $checkReceiverResult ) ) {
         		$recvCustId = $customer ["id"];
@@ -190,7 +190,7 @@ if (isset ( $submit )) {
 }
 
 function addNewOrder($custId, $recvCustId, $userId, $orderDate, $totalWeight, $pricePerWeight, $totalWeight1, $pricePerWeight1, $totalWeight2, $pricePerWeight2, $totalWeight3, $pricePerWeight3, $totalWeight4, $pricePerWeight5, $totalWeight5, $pricePerWeight5, $addFee, $productDesc, $additionalFee, $total, $connection, $submit) {
-	$addNewOrder = "insert into orders(send_cust_id, recv_cust_id, user_id, status, date, total_weight, price_per_weight, total_weight_1, price_per_weight_1, total_weight_2, price_per_weight_2, total_weight_3, price_per_weight_3, total_weight_4, price_per_weight_4, total_weight_5, price_per_weight_5, fee, product_desc, additional_fee, total) 
+	$addNewOrder = "insert into orders(send_cust_id, recv_cust_id, user_id, status, date, total_weight, price_per_weight, total_weight_1, price_per_weight_1, total_weight_2, price_per_weight_2, total_weight_3, price_per_weight_3, total_weight_4, price_per_weight_4, total_weight_5, price_per_weight_5, fee, product_desc, additional_fee, total)
 	   values ($custId, $recvCustId, $userId, 0, '$orderDate', $totalWeight, $pricePerWeight, $totalWeight1, $pricePerWeight1, $totalWeight2, $pricePerWeight2, $totalWeight3, $pricePerWeight3, $totalWeight4, $pricePerWeight5, $totalWeight5, $pricePerWeight5, $addFee, '$productDesc', '$additionalFee', $total)";
 	$addNewOrderResult = mysql_query ( $addNewOrder, $connection ) or die ( mysql_error () . "Can not retrieve to database" );
 	$orderId = mysql_insert_id ();
@@ -399,35 +399,10 @@ p.hidden {
 											</tr>
 											<tr>
 												<td><p><textarea name="product_desc" id="product_desc" cols="65" rows="20"
-										style="border: 1px solid black" placeholder="Click and write product description" onclick="openProductDescWindow()"></textarea></p></td>
+										style="border: 1px solid black" placeholder="Click and write product description" onclick="openProductDescWindow('addOrder')"></textarea></p></td>
 												<td><p><textarea name="product_additional" id="product_additional" cols="65" rows="20"
-										style="border: 1px solid black" placeholder="Click and write additional fee description" onclick="openFeeWindow()"></textarea></p></td>
+										style="border: 1px solid black" placeholder="Click and write additional fee description" onclick="openFeeWindow('addOrder')"></textarea></p></td>
 											</tr>
-											<script>
-										    function openProductDescWindow() {
-										    	childWindow = window.open("productdesc.html", 'win2','status=no,toolbar=no,scrollbars=yes,titlebar=no,menubar=no,resizable=yes,directories=no,location=no');
-										    	if (childWindow.opener == null) {
-											    	childWindow.opener = self;
-										    	}
-										    }
-
-                                            function openFeeWindow() {
-                                            	// Fixes dual-screen position                         Most browsers      Firefox
-                                                var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : screen.left;
-                                                var dualScreenTop = window.screenTop != undefined ? window.screenTop : screen.top;
-
-                                                var width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
-                                                var height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
-
-                                                var left = ((width / 2) - (700 / 2)) + dualScreenLeft;
-                                                var top = ((height / 2) - (300 / 2)) + dualScreenTop;
-                                                
-                                                childWindow = window.open("fee.html", 'win2', 'status=no,toolbar=no,scrollbars=yes,titlebar=no,menubar=no,resizable=yes,width=700,height=300,directories=no,location=no,top=' + top + ', left=' + left);
-                                                if (childWindow.opener == null) {
-                                                    childWindow.opener = self;
-                                                }
-                                            }
-											</script>
 										</table>
 									</td>
 								</tr>

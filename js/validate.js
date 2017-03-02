@@ -153,7 +153,7 @@ function validateProductTable() {
 
 function validateNumber(value, string, element) {
 	if (checknumber(value) == false) {
-		alert("Please enter " + string + " in number.");
+		alert("Please enter " + string + " in number.")
 		document.getElementById(element).focus();
 		return false;
 	}

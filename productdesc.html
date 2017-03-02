@@ -18,10 +18,12 @@ $(document).ready(function(){
     //This sessionStorage.getItem(); is also a predefined function in javascript
     //will retrieve session and get the value;
     document.productDesc.product_desc.value = opener.document.addOrder.product_desc.value;
+    document.productDesc.product_desc.value = opener.document.addComment.product_desc.value;
     alert(opener.document.addOrder.product_desc.value);
 });
 function updateParentContent() {
 	opener.document.addOrder.product_desc.value = document.productDesc.product_desc.value;
+	opener.document.addComment.product_desc.value = document.productDesc.product_desc.value;
     //opener.document.parentForm.pf2.value = document.childForm.cf2.value;
     //self.close();
     //return false;
