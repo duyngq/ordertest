@@ -524,7 +524,6 @@ p.hidden {
 								<form id="form1" name="form1" method="post"
 									style="text-align: center">
 									<input type="submit" name="submit" id="submit" value="Add" />
-								    <input name="formName" type="hidden" id="formName" value="addOrder" size="60" required />
 								</form>
 							</div>
 							<p align="left">&nbsp;</p>

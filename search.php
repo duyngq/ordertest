@@ -44,6 +44,47 @@ function isValueSet($value) {
     }
     return false;
 }
+
+function searchOrder($orderQueryString) {
+	$orderQueryResult = mysql_query($orderQueryString) or die ( mysql_error () . "Can not retrieve database" );
+	$result = array();
+	$i = 1;
+	while ($order = mysql_fetch_array($orderQueryResult)) {
+// 		$row['order'.$i] = mysql_fetch_row($orderQueryResult);
+
+		//Sender
+		$senderQuery = "select * from sendcustomers where id=".$order['send_cust_id'];
+		$senderQueryResult = mysql_query($senderQuery) or die ( mysql_error () . "Can not retrieve database" );
+		$row['sender'] = mysql_fetch_row($senderQueryResult);
+
+		//Receiver
+		$receiverQuery = "select * from recvcustomers where id=".$order['recv_cust_id'];
+		$receiverQueryResult = mysql_query($receiverQuery) or die ( mysql_error () . "Can not retrieve database" );
+		$row['receiver'] = mysql_fetch_row($receiverQueryResult);
+
+		$orderId = base64_encode($order['id']);
+		$pos1 = rand(0, 25);
+		$pos2 = rand(26, 51);
+		$a_z = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		$randomLetter1 = $a_z[$pos1];
+		$randomLetter2 = $a_z[$pos2];
+		$row['orderId'] = substr_replace($orderId, $randomLetter1 . $randomLetter2, 1, 0);
+
+		array_push($result, array(
+			'id' => $order['id'],
+			'date' => $order['date'],
+			'sender_name' => $row['sender'][1],
+			'sender_phone' => $row['sender'][2],
+			'sender_address' => $row['sender'][3],
+			'recv_name' => $row['receiver'][1],
+			'recv_phone' => $row['receiver'][2],
+			'recv_address' => $row['receiver'][3],
+			'order_id' => $row['orderId'],
+			'total' => $order['total']
+		));
+	}
+	echo json_encode($result);
+}
 //    $sender = $_POST ["sender"];
 //    $senderPhone = $_POST ["senderPhone"];
 //
@@ -51,32 +92,16 @@ function isValueSet($value) {
 //    $receiverPhone = $_POST ["receiverPhone"];
 
     $orderId = $_POST ["orderNo"];
+    $senderPhone = $_POST ["senderPhone"];
+    $receiverPhone = $_POST ["receiverPhone"];
 
 //    begin();
     if (isValueSet($orderId)) {
-        $orderQuery = "select * from orders where id=".$orderId;
-        $orderQueryResult = mysql_query($orderQuery, $connection) or die ( mysql_error () . "Can not retrieve database" );
-        $row['order'] = mysql_fetch_row($orderQueryResult);
-
-        //Sender
-        $senderQuery = "select * from sendcustomers where id=".$row['order'][1];
-        $senderQueryResult = mysql_query($senderQuery, $connection) or die ( mysql_error () . "Can not retrieve database" );
-        $row['sender'] = mysql_fetch_row($senderQueryResult);
-
-        //Receiver
-        $receiverQuery = "select * from recvcustomers where id=".$row['order'][8];
-        $receiverQueryResult = mysql_query($receiverQuery, $connection) or die ( mysql_error () . "Can not retrieve database" );
-        $row['receiver'] = mysql_fetch_row($receiverQueryResult);
-
-        $orderId = base64_encode($orderId);
-        $pos1 = rand(0, 25);
-        $pos2 = rand(26, 51);
-        $a_z = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        $randomLetter1 = $a_z[$pos1];
-        $randomLetter2 = $a_z[$pos2];
-        $row['orderId'] = substr_replace($orderId, $randomLetter1 . $randomLetter2, 1, 0);
-
-        echo json_encode($row);
+        searchOrder("select * from orders where id=".$orderId);
+    } else if (isValueSet($senderPhone)) {
+		searchOrder("SELECT * FROM orders where send_cust_id = (select id from sendcustomers where phone like '%".$senderPhone."%')");
+    } else if (isValueSet($receiverPhone)) {
+    	searchOrder("SELECT * FROM orders where recv_cust_id = (select id from recvcustomers where phone like '%".$receiverPhone."%')");
     } else {
         throw new Exception('Unable to find order');
     }

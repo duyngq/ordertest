@@ -579,7 +579,6 @@ p.hidden {
 		<div align="center">
 			<form id="frmUpdateInfo" name="frmUpdateInfo" method="post" style="text-align: center" >
 			     <p><input type="submit" name="sbmUpdateInfo" value="Update Information" onclick="return confirm('Are you sure you want to change ?')" /></p>
-			     <input name="formName" type="hidden" id="formName" value="addComment" size="60" required />
 			</form>
 	           <p><input type="button" name="print" value="Print order" onclick="PrintPreview(this)"/></p>
 		</div>

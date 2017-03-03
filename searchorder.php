@@ -60,7 +60,7 @@ p.hidden {
 $(document).ready(function() {
 	$("#submit").click(function(){
 		$("#searchResult tbody").remove();
-		var dataString = 'orderNo='+ $("#orderNo").val();// + '&email1='+ email + '&password1='+ password + '&contact1='+ contact;
+		var dataString = 'orderNo='+ $("#orderNo").val() + '&senderPhone=' + $('#senderPhone').val() + '&receiverPhone=' + $('#receiverPhone').val();// + '&email1='+ email + '&password1='+ password + '&contact1='+ contact;
 		$.ajax({
 	        url: 'search.php',                  //the script to call to get data
 	        type: "POST",
@@ -68,28 +68,33 @@ $(document).ready(function() {
 	           //for example "id=5&parent=6"
 	        dataType: 'json',                //data format
 	        success: function(data) {        //on recieve of reply
-	                var order = data['order'];              //get id
-	                var sender = data['sender'];           //get name
-	                var receiver = data['receiver'];           //get name
-	                //--------------------------------------------------------------------
-	                // 3) Update html content
-	                //--------------------------------------------------------------------
-                    $("#searchResult").append('<tbody><tr>');
-                    var newRow =
-                    	"<tbody><tr onMouseOver=\"ChangeColor(this, true);\" onMouseOut=\"ChangeColor(this, false);\" onClick=\"DoNav('orderdetails.php?tr=" + data['orderId'] + "')\">"
-                    	+"<td>"+order[0]+"</td>"
-                    	+"<td>"+order[4]+"</td>"
-                    	+"<td>"+sender[1]+"</td>"
-                    	+"<td>"+sender[2]+"</td>"
-                    	+"<td>"+sender[3]+"</td>"
-                    	+"<td>"+receiver[1]+"</td>"
-                        +"<td>"+receiver[2]+"</td>"
-                        +"<td>"+receiver[3]+"</td>"
-                        +"<td>"+order[7]+"</td>"
-                    	+"</tr></tbody>" ;
-                    $("#searchResult").append($(newRow));
-	                //recommend reading up on jquery selectors they are awesome
-	                // http://api.jquery.com/category/selectors/
+	        	// Loop through Object
+		            for (var key in data) {
+			            if (data.hasOwnProperty(key)) {
+// 			                var order = data['order'];              //get id
+// 			                var sender = data['sender'];           //get name
+// 			                var receiver = data['receiver'];           //get name
+			                //--------------------------------------------------------------------
+			                // 3) Update html content
+			                //--------------------------------------------------------------------
+		                    $("#searchResult").append('<tbody><tr>');
+		                    var newRow =
+		                    	"<tbody><tr onMouseOver=\"ChangeColor(this, true);\" onMouseOut=\"ChangeColor(this, false);\" onClick=\"DoNav('orderdetails.php?tr=" + data[key]['order_id'] + "')\">"
+		                    	+"<td>"+data[key]['id']+"</td>"
+		                    	+"<td>"+data[key]['date']+"</td>"
+		                    	+"<td>"+data[key]['sender_name']+"</td>"
+		                    	+"<td>"+data[key]['sender_phone']+"</td>"
+		                    	+"<td>"+data[key]['sender_address']+"</td>"
+		                    	+"<td>"+data[key]['recv_name']+"</td>"
+		                        +"<td>"+data[key]['recv_phone']+"</td>"
+		                        +"<td>"+data[key]['recv_address']+"</td>"
+		                        +"<td>"+data[key]['total']+"</td>"
+		                    	+"</tr></tbody>" ;
+		                    $("#searchResult").append($(newRow));
+			                //recommend reading up on jquery selectors they are awesome
+			                // http://api.jquery.com/category/selectors/
+				        }
+		            }
 	            },
 	       error: function() {        //on recieve of reply
 	                //--------------------------------------------------------------------
@@ -130,17 +135,17 @@ $(document).ready(function() {
                                     <td><input name="sender" type="text" id="sender" size="60"/></td>
                                 </tr>
                                 <tr>
+	                                <td>Receiver Name:</td>
+	                                <td><input name="receiver" type="text" id="receiver" size="60" /></td>
+                                </tr-->
+                                <tr>
                                     <td>Sender Phone Number:</td>
                                     <td><input name="senderPhone" type="text" id="senderPhone" size="60"/></td>
                                 </tr>
                                 <tr>
-	                                <td>Receiver Name:</td>
-	                                <td><input name="receiver" type="text" id="receiver" size="60" /></td>
-                                </tr>
-                                <tr>
                                     <td>Receiver Phone Number:</td>
                                     <td><input name="receiverPhone" type="text" id="receiverPhone" size="60" /></td>
-                                </tr-->
+                                </tr>
                             </table>
                             <p align="center"><input type="button" name="submit" id="submit" value="Search" /></p>
                         </div></td>
