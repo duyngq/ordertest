@@ -39,92 +39,23 @@ if (isset ( $submit )) {
 	$orderDate = $_POST ["orderDate"];
 
 	$productDesc = $_POST ["product_desc"];
-	$additionalFee = $_POST ["product_additional"];
+	$additionalFee = "";
 
 	//parse additional fee with the last line is total, the next of last line is fee (delimiter as :), and the rest is each fee (delimiter as comma)
-	$feeDetails = 0;
-	$fees = split("\r\n", $additionalFee); // get each line
-	for ( $i = 1; $i < count($fees); $i++) { //skip title as 0
-		if (!empty($fees[$i])) {
-			$fee = split(",", $fees[$i]); //get each fee details
-			if ( count($fee) > 1) {
-				$feeDetails ++;
-				${"totalWeight".($i-1)} = $fee[0];
-				validateNumber ( ${"totalWeight".($i-1)}, "Package weight" );
-				${"pricePerWeight".($i-1)} = $fee[1];
-				validateNumber ( ${"totalWeight".($i-1)}, "Price per package weight" );
-			} else {
-				$fee = split(":", $fees[$i]); //get the total (the last one) and additional fee
-				if ( count($fee) > 0) {
-					if ($i == count($fees) - 1) {
-						$total = $fee[1];
-						validateNumber ( $total, "Total amount of all products" );
-					} else {
-						$addFee = trim($fee[1]);
-						validateNumber ( $addFee, "Additional fee" );
-					}
-				}
-			}
-		}
+	for ( $i = 0; $i <= 5; $i++) { //skip title as 0
+		${"proDesc".$i} = $_POST["proDesc".$i];
+		${"totalWeight".$i} = $_POST["weight".$i];
+		validateNumber ( ${"totalWeight".$i}, "Package weight" );
+		${"pricePerWeight".$i} = $_POST["price".$i];;
+		validateNumber ( ${"totalWeight".$i}, "Price per package weight" );
 	}
 
-	for ($j = $feeDetails; $j < 6; $j++) { //hard code with 6 fee details
-		${"totalWeight".($j)} = 0;
-		${"pricePerWeight".($j)} = 0;
-	}
 	// Validate param for product details
-//	$totalWeight = $_POST ["total_weight"];
-//	validateNumber ( $totalWeight, "Package weight" );
-//
-//	$pricePerWeight = $_POST ["price_per_weight"];
-//	validateNumber ( $pricePerWeight, "Price per package weight" );
-//
-//	$totalWeight1 = $_POST ["total_weight_1"];
-//    validateNumber ( $totalWeight, "Package weight 1" );
-//
-//    $pricePerWeight1 = $_POST ["price_per_weight_1"];
-//    validateNumber ( $pricePerWeight, "Price per package weight 1" );
-//
-//    $totalWeight2 = $_POST ["total_weight_2"];
-//    validateNumber ( $totalWeight, "Package weight 2" );
-//
-//    $pricePerWeight2 = $_POST ["price_per_weight_2"];
-//    validateNumber ( $pricePerWeight, "Price per package weight 2" );
-//
-//    $addFee = $_POST ["add_fee"];
-//    validateNumber ( $addFee, "Additional fee" );
+    $addFee = $_POST ["add_fee"];
+    validateNumber ( $addFee, "Additional fee" );
 
-// 	$totalPackagePrice = $_POST ["total_package_price"];
-// 	validateNumber ( $totalPackagePrice, "Package price amount" );
-
-	/**
-	 * get all products details from product table
-	 */
-//	$noOfProducts = $_POST ["noOfProducts"];
-//	if (! is_numeric ( $noOfProducts )) {
-//		echo "<script>alert('Number of products should be a number!!!!')</script>";
-//		exit ();
-//	} else if ($noOfProducts < 0) {
-//		echo "<script>alert('Number of products should be greater or equal 0!!!!')</script>";
-//		exit ();
-//	}
-//
-//	$products = array (); //store product details with order as: name, quantity, price
-//	for($i = 1; $i <= $noOfProducts; $i ++) {
-//		$product = array ();
-//		$product [0] = $_POST ["product" . $i . "name"];
-//		if (is_null($product[0]) || $product[0] == null || $product[0] == '') {
-//			continue;
-//		}
-//		$product [1] = $_POST ["product" . $i . "quantity"];
-//		validateNumber ( $_POST ["product" . $i . "quantity"], "Product quantity of " . $_POST ["product" . $i . "name"] );
-//		$product [2] = $_POST ["product" . $i . "price"];
-//		validateNumber ( $_POST ["product" . $i . "price"], "Product price of " . $_POST ["product" . $i . "name"] );
-//		$products [$i] = $product;
-//	}
-
-//	$total = $_POST ["prm_sum"];
-//	validateNumber ( $total, "Total amount of all products" );
+	$total = $_POST ["prm_sum"];
+	validateNumber ( $total, "Total amount of all products" );
 
 	// add customer
 	$userId = $_SESSION ['user_id'];
@@ -177,7 +108,14 @@ if (isset ( $submit )) {
         		$recvCustId = $customer ["id"];
         	}
         }
-        $orderId = addNewOrder ( $custId, $recvCustId, $userId, $orderDate, $totalWeight0, $pricePerWeight0, $totalWeight1, $pricePerWeight1, $totalWeight2, $pricePerWeight2, $totalWeight3, $pricePerWeight3, $totalWeight4, $pricePerWeight5, $totalWeight5, $pricePerWeight5, $addFee, $productDesc, $additionalFee, $total, $connection, $submit );
+        $orderId = addNewOrder ( $custId, $recvCustId, $userId, $orderDate, 
+            $proDesc0, $totalWeight0, $pricePerWeight0, 
+            $proDesc1, $totalWeight1, $pricePerWeight1, 
+            $proDesc2, $totalWeight2, $pricePerWeight2, 
+            $proDesc3, $totalWeight3, $pricePerWeight3, 
+            $proDesc4, $totalWeight4, $pricePerWeight4, 
+            $proDesc5, $totalWeight5, $pricePerWeight5, 
+            $addFee, $productDesc, $additionalFee, $total, $connection, $submit );
 	} else {
 		rollback();
 		echo "<script>alert('Unable to add new order');</script>";
@@ -189,14 +127,20 @@ if (isset ( $submit )) {
 	unset ( $submit );
 }
 
-function addNewOrder($custId, $recvCustId, $userId, $orderDate, $totalWeight, $pricePerWeight, $totalWeight1, $pricePerWeight1, $totalWeight2, $pricePerWeight2, $totalWeight3, $pricePerWeight3, $totalWeight4, $pricePerWeight5, $totalWeight5, $pricePerWeight5, $addFee, $productDesc, $additionalFee, $total, $connection, $submit) {
+function addNewOrder($custId, $recvCustId, $userId, $orderDate, $proDesc0, $totalWeight, $pricePerWeight, $proDesc1, $totalWeight1, $pricePerWeight1, $proDesc2, $totalWeight2, $pricePerWeight2, $proDesc3, $totalWeight3, $pricePerWeight3, $proDesc4, $totalWeight4, $pricePerWeight4, $proDesc5, $totalWeight5, $pricePerWeight5, $addFee, $productDesc, $additionalFee, $total, $connection, $submit) {
 	//convert input date to format d/m/Y to parse to timestamp for cal current week number of month
 	$dates = explode ("/",$orderDate);
     $ordDate = strtotime($dates[1]."/".$dates[0]."/".$dates[2]);
 	$code = date("n", $ordDate).weekOfMonth($ordDate);
 	
-	$addNewOrder = "insert into orders(send_cust_id, recv_cust_id, user_id, status, date, total_weight, price_per_weight, total_weight_1, price_per_weight_1, total_weight_2, price_per_weight_2, total_weight_3, price_per_weight_3, total_weight_4, price_per_weight_4, total_weight_5, price_per_weight_5, code, fee, product_desc, additional_fee, total)
-	   values ($custId, $recvCustId, $userId, 0, '$orderDate', $totalWeight, $pricePerWeight, $totalWeight1, $pricePerWeight1, $totalWeight2, $pricePerWeight2, $totalWeight3, $pricePerWeight3, $totalWeight4, $pricePerWeight5, $totalWeight5, $pricePerWeight5, '$code', $addFee, '$productDesc', '$additionalFee', $total)";
+	$addNewOrder = "insert into orders(send_cust_id, recv_cust_id, user_id, status, date, 
+	   desc_0, total_weight, price_per_weight, 
+	   desc_1, total_weight_1, price_per_weight_1, 
+	   desc_2, total_weight_2, price_per_weight_2, 
+	   desc_3, total_weight_3, price_per_weight_3, 
+	   desc_4, total_weight_4, price_per_weight_4, 
+	   desc_5, total_weight_5, price_per_weight_5, code, fee, product_desc, additional_fee, total)
+	   values ($custId, $recvCustId, $userId, 0, '$orderDate', '$proDesc0', $totalWeight, $pricePerWeight, '$proDesc1', $totalWeight1, $pricePerWeight1, '$proDesc2', $totalWeight2, $pricePerWeight2, '$proDesc3', $totalWeight3, $pricePerWeight3, '$proDesc4', $totalWeight4, $pricePerWeight4, '$proDesc5', $totalWeight5, $pricePerWeight5, '$code', $addFee, '$productDesc', '$additionalFee', $total)";
 	$addNewOrderResult = mysql_query ( $addNewOrder, $connection ) or die ( mysql_error () . "Can not retrieve to database" );
 	$orderId = mysql_insert_id ();
 	if (!$addNewOrderResult) {
@@ -229,6 +173,7 @@ function clearAll($connection, $submit) {
 	unset ( $submit );
 }
 
+// get the week number of the month for input date
 function weekOfMonth($date) {
     //Get the first day of the month.
     $firstOfMonth = strtotime(date("Y-m-01", $date));
@@ -310,6 +255,14 @@ tr {
 p.hidden {
 	border-style: hidden;
 }
+
+.rTable { display: table; width: 100%; }
+.rTableRow {display: table-row;}
+.rTableHeading { display: table-header-group; background-color: #ddd;}
+.rTableCell, .rTableHead { display: table-cell; padding: 3px 10px; border: 1px solid #999999; }
+.rTableHeading { display: table-header-group; background-color: #ddd; font-weight: bold; }
+.rTableFoot { display: table-footer-group; font-weight: bold; background-color: #ddd; }
+.rTableBody { display: table-row-group; }
 </style>
 <script type="text/javascript" src="js/validate.js"></script>
 <script type="text/javascript" src="js/util.js"></script>
@@ -372,7 +325,6 @@ p.hidden {
 								<td><blockquote>Sender Address:</blockquote></td>
 								<td><input name="custAddr" type="text" id="custAddr" size="60" required /></td>
 								</tr>
-								<!-- TODO: create sender and receiver customer instead of customer as generic -->
 								<tr>
                                     <td>- Receiver</td>
                                 </tr>
@@ -419,112 +371,163 @@ p.hidden {
 										<table width="1024px" border="0" id='productTbl'>
 											<tr>
 												<th>Description</th>
-												<th>Additional Fee</th>
+												<th>Shipment Fee</th>
 											</tr>
 											<tr>
-												<td><p><textarea name="product_desc" id="product_desc" cols="65" rows="20"
-										style="border: 1px solid black" placeholder="Click and write product description" onclick="openProductDescWindow()"></textarea></p></td>
-												<td><p><textarea name="product_additional" id="product_additional" cols="65" rows="20"
-										style="border: 1px solid black" placeholder="Click and write additional fee description" onclick="openFeeWindow()"></textarea></p></td>
+												<td width=40%><p><textarea name="product_desc" id="product_desc" cols="65" rows="20"
+										style="border: 1px solid black" placeholder="Click and write product description"></textarea></p></td>
+												<td width=60% style="vertical-align: top;" id="feeTableRow"><!--<p><textarea name="product_additional" id="product_additional" cols="65" rows="20"
+										style="border: 1px solid black" placeholder="Click and write additional fee description" onclick="openFeeWindow()"></textarea></p>-->
+										           <div class="rTable" id="feeTable">
+									                </div>
+										        </td>
 											</tr>
 										</table>
 									</td>
 								</tr>
-								<!-- tr>
-									<td>- Product details:</td>
-								</tr>
-								<tr>
-									<td><blockquote>
-											<p>Total weight:</p>
-										</blockquote></td>
-									<td><input name="total_weight" type="text" id="total_weight"
-										value="0" size="60"
-										onchange="calTotalPricePackage(); updateTotal()" /></td>
-								</tr>
-								<tr>
-									<td><blockquote>
-											<p>Price (USD/lb):</p>
-										</blockquote></td>
-									<td><input name="price_per_weight" type="text"
-										id="price_per_weight" value="0" size="60"
-										onchange="calTotalPricePackage(); updateTotal()" /></td>
-								</tr>
-								<tr>
-									<td  style="border-bottom: 1px solid"><blockquote>
-											<p>Total price:</p>
-										</blockquote></td>
-									<td><input name="total_package_price" type="text"
-										id="total_package_price" value="0" size="60" readonly="true" /></td>
-								</tr>
-								<tr>
-									<td>- Product details:</td>
-								</tr>
-								<tr>
-									<td><blockquote>
-											<p>Total weight:</p>
-										</blockquote></td>
-									<td><input name="total_weight_1" type="text" id="total_weight_1"
-										value="0" size="60"
-										onchange="calTotalPricePackage(); updateTotal()" /></td>
-								</tr>
-								<tr>
-									<td><blockquote>
-											<p>Price (USD/lb):</p>
-										</blockquote></td>
-									<td><input name="price_per_weight_1" type="text"
-										id="price_per_weight_1" value="0" size="60"
-										onchange="calTotalPricePackage_1(); updateTotal()" /></td>
-								</tr>
-								<tr>
-									<td  style="border-bottom: 1px solid"><blockquote>
-											<p>Total price:</p>
-										</blockquote></td>
-									<td><input name="total_package_price_1" type="text"
-										id="total_package_price_1" value="0" size="60" readonly="true" /></td>
-								</tr>
-								<tr>
-									<td>- Product details:</td>
-								</tr>
-								<tr>
-									<td><blockquote>
-											<p>Total weight:</p>
-										</blockquote></td>
-									<td><input name="total_weight_2" type="text" id="total_weight_2"
-										value="0" size="60"
-										onchange="calTotalPricePackage_2(); updateTotal()" /></td>
-								</tr>
-								<tr>
-									<td><blockquote>
-											<p>Price (USD/lb):</p>
-										</blockquote></td>
-									<td><input name="price_per_weight_2" type="text"
-										id="price_per_weight_2" value="0" size="60"
-										onchange="calTotalPricePackage_2(); updateTotal()" /></td>
-								</tr>
-								<tr>
-									<td style="border-bottom: 1px solid"><blockquote>
-											<p>Total price:</p>
-										</blockquote></td>
-									<td><input name="total_package_price_2" type="text"
-										id="total_package_price_2" value="0" size="60" readonly="true" /></td>
-								</tr>
-								<tr>
-									<td><p>Additional Fee :</p></td>
-									<td><input name="add_fee" type="text" id="add_fee" value="0"
-										size="60" onchange="updateTotal()"/></td>
-								</tr>
-								<tr>
-									<td><p>Total (*)</p></td>
-									<td><input name="prm_sum" type="text" id="prm_sum" value="0"
-										size="60" /></td>
-								</tr-->
+								<div id="dialog-form" title="Product description">
+                                       <textarea name="product_desc_dlg" id="product_desc_dlg" style="border: 1px solid black; width: 100%; height: 100%" placeholder="Click and write product description"></textarea>
+                                </div>
+                                <div id="shipmentFee-form" title="Shipment Fee">
+                                       <div class="rTable">
+                                            <div class="rTableRow">
+                                                <div class="rTableHead"><strong>Description</strong></div>
+                                                <div class="rTableHead"><strong>Weight(lbs)</strong></div>
+                                                <div class="rTableHead"><strong>Price</strong></div>
+                                                <div class="rTableHead"><strong>Total</strong></div>
+                                            </div>
+                                            <div class="rTableRow">
+                                                <div class="rTableCell"><input name="proDesc0" type="text" id="proDesc0" class="proDesc0" size="30" style="border:0"/></div>
+                                                <div class="rTableCell"><input name="weight0" type="text" id="weight0" class="weight0" value="0" size="10" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight0', 'price0', 'total0');calTotal('shipmentFee-form');calTotalWeight('shipmentFee-form');"/></div>
+                                                <div class="rTableCell"><input name="price0" type="text" id="price0" class="price0" value="0" size="20" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight0', 'price0', 'total0');calTotal('shipmentFee-form');" /></div>
+                                                <div class="rTableCell"><input name="total0" type="text" id="total0" class="total0" value="0" size="10" style="border:0" readonly="readonly" /></div>
+                                            </div>
+                                            <div class="rTableRow">
+                                                <div class="rTableCell"><input name="proDesc1" type="text" id="proDesc1" class="proDesc1" size="30" style="border:0"/></div>
+                                                <div class="rTableCell"><input name="weight1" type="text" id="weight1" class="weight1" value="0" size="10" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight1', 'price1', 'total1');calTotal('shipmentFee-form');calTotalWeight('shipmentFee-form');"/></div>
+                                                <div class="rTableCell"><input name="price1" type="text" id="price1" class="price1" value="0" size="20" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight1', 'price1', 'total1');calTotal('shipmentFee-form');" /></div>
+                                                <div class="rTableCell"><input name="total1" type="text" id="total1" class="total1" value="0" size="10" style="border:0" readonly="readonly" /></div>
+                                            </div>
+                                            <div class="rTableRow">
+                                                <div class="rTableCell"><input name="proDesc2" type="text" id="proDesc2" class="proDesc2" size="30" style="border:0"/></div>
+                                                <div class="rTableCell"><input name="weight2" type="text" id="weight2" class="weight2" value="0" size="10" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight2', 'price2', 'total2');calTotal('shipmentFee-form');calTotalWeight('shipmentFee-form');"/></div>
+                                                <div class="rTableCell"><input name="price2" type="text" id="price2" class="price2" value="0" size="20" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight2', 'price2', 'total2');calTotal('shipmentFee-form');" /></div>
+                                                <div class="rTableCell"><input name="total2" type="text" id="total2" class="total2" value="0" size="10" style="border:0" readonly="readonly" /></div>
+                                            </div>
+                                            <div class="rTableRow">
+                                                <div class="rTableCell"><input name="proDesc3" type="text" id="proDesc3" class="proDesc3" size="30" style="border:0"/></div>
+                                                <div class="rTableCell"><input name="weight3" type="text" id="weight3" class="weight3" value="0" size="10" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight3', 'price3', 'total3');calTotal('shipmentFee-form');calTotalWeight('shipmentFee-form');"/></div>
+                                                <div class="rTableCell"><input name="price3" type="text" id="price3" class="price3" value="0" size="20" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight3', 'price3', 'total3');calTotal('shipmentFee-form');" /></div>
+                                                <div class="rTableCell"><input name="total3" type="text" id="total3" class="total3" value="0" size="10" style="border:0" readonly="readonly" /></div>
+                                            </div>
+                                            <div class="rTableRow">
+                                                <div class="rTableCell"><input name="proDesc4" type="text" id="proDesc4" class="proDesc4" size="30" style="border:0"/></div>
+                                                <div class="rTableCell"><input name="weight4" type="text" id="weight4" class="weight4" value="0" size="10" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight4', 'price4', 'total4');calTotal('shipmentFee-form');calTotalWeight('shipmentFee-form');"/></div>
+                                                <div class="rTableCell"><input name="price4" type="text" id="price4" class="price4" value="0" size="20" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight4', 'price4', 'total4');calTotal('shipmentFee-form');" /></div>
+                                                <div class="rTableCell"><input name="total4" type="text" id="total4" class="total4" value="0" size="10" style="border:0" readonly="readonly" /></div>
+                                            </div>
+                                            <div class="rTableRow">
+                                                <div class="rTableCell"><input name="proDesc5" type="text" id="proDesc5" class="proDesc5" size="30" style="border:0"/></div>
+                                                <div class="rTableCell"><input name="weight5" type="text" id="weight5" class="weight5" value="0" size="10" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight5', 'price5', 'total5');calTotal('shipmentFee-form');calTotalWeight('shipmentFee-form');"/></div>
+                                                <div class="rTableCell"><input name="price5" type="text" id="price5" class="price5" value="0" size="20" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight5', 'price5', 'total5');calTotal('shipmentFee-form');" /></div>
+                                                <div class="rTableCell"><input name="total5" type="text" id="total5" class="total5" value="0" size="10" style="border:0" readonly="readonly" /></div>
+                                            </div>
+                                            <br/><br/>
+                                            <!-- Additional fee and total -->
+                                            <div class="rTableRow">
+                                                <div class="rTableCell" style="border:0"></div>
+                                                <div class="rTableCell" style="border:0"></div>
+                                                <div class="rTableCell" >Additional fee</div>
+                                                <div class="rTableCell"><input name="add_fee" type="text" id="add_fee" class="add_fee" value="0" size="10" style="border:0" onchange="calTotal('shipmentFee-form');"/></div>
+                                            </div>
+                                            <div class="rTableRow">
+                                                <div class="rTableCell" style="border:0">Total (*)</div>
+                                                <div class="rTableCell" style="border:0"><input name="weight_sum" type="text" id="weight_sum" class="weight_sum" value="0" size="10" style="border:0" readonly="readonly"/></div>
+                                                <div class="rTableCell" style="border:0"></div>
+                                                <div class="rTableCell" style="border:0"><input name="prm_sum" type="text" id="prm_sum" class="prm_sum" value="0" size="10" style="border:0" readonly="readonly"/></div>
+                                            </div>
+                                        </div>
+<!--                                    </form>-->
+                                </div>
+                                <script>
+                                  $( function() {
+                                      $('.rTable').clone().appendTo('#feeTable');
+                                      $('#feeTable').find('input').attr('readonly', 'readonly');
+                                      var productDescDlg = $( "#dialog-form" ).dialog({
+                                            autoOpen: false,
+                                            height: 800,
+                                            width: 800,
+                                            modal: true,
+                                            buttons: {
+                                              Close: function() {
+                                    	  	    productDescDlg.dialog( "close" );
+                                                $( "#product_desc" ).val($( "#product_desc_dlg" ).val());
+                                              }
+                                            },
+                                            close: function() {
+                                                $( "#product_desc" ).val($( "#product_desc_dlg" ).val());
+                                            }
+                                          });
+                                       
+                                          $( "#product_desc" ).on( "click", function() {
+                                        	productDescDlg.dialog( "open" );
+                                            $( "#product_desc_dlg" ).val($( "#product_desc" ).val());
+                                          });
+                                  } );
+                                  $(function() {
+                                       // dialog handling for Shipment Fee
+                                          var shipmentFeeDlg = $( "#shipmentFee-form" ).dialog({
+                                              autoOpen: false,
+                                              height: 500,
+                                              width: 800,
+                                              modal: true,
+                                              buttons: {
+                                                Close: function() {
+                                        	       shipmentFeeDlg.dialog( "close" );
+                                        	       copyDataToParentPage();
+                                                }
+                                              },
+                                              close: function() {
+                                            	  copyDataToParentPage();
+                                              }
+                                            });
+                                         
+                                            $( "#feeTableRow" ).on( "click", function() {
+                                            	shipmentFeeDlg.dialog( "open" );
+                                            	copyDataToShipmentFeeDialog(); //when open dialog, copy data from parent to child
+                                            });
+
+                                            function copyDataToParentPage() {
+                                                for ( i = 0; i <= 5; i++) {
+                                                	$('#feeTable').find('#proDesc' + i).val($('#shipmentFee-form').find('#proDesc' + i).val());
+                                                	$('#feeTable').find('#weight' + i).val($('#shipmentFee-form').find('#weight' + i).val());
+                                                	$('#feeTable').find('#price' + i).val($('#shipmentFee-form').find('#price' + i).val());
+                                                	$('#feeTable').find('#total' + i).val($('#shipmentFee-form').find('#total' + i).val());
+                                                }
+                                                $('#feeTable').find('#add_fee').val($('#shipmentFee-form').find('#add_fee').val());
+                                                $('#feeTable').find('#weight_sum').val($('#shipmentFee-form').find('#weight_sum').val());
+                                                $('#feeTable').find('#prm_sum').val($('#shipmentFee-form').find('#prm_sum').val());
+                                            }
+
+                                            function copyDataToShipmentFeeDialog() {
+                                                for ( i = 0; i <= 5; i++) {
+                                                    $('#shipmentFee-form').find('#proDesc' + i).val($('#feeTable').find('#proDesc' + i).val());
+                                                    $('#shipmentFee-form').find('#weight' + i).val($('#feeTable').find('#weight' + i).val());
+                                                    $('#shipmentFee-form').find('#price' + i).val($('#feeTable').find('#price' + i).val());
+                                                    $('#shipmentFee-form').find('#total' + i).val($('#feeTable').find('#total' + i).val());
+                                                }
+                                                $('#shipmentFee-form').find('#add_fee').val($('#feeTable').find('#add_fee').val());
+                                                $('#shipmentFee-form').find('#weight_sum').val($('#feeTable').find('#weight_sum').val());
+                                                $('#shipmentFee-form').find('#prm_sum').val($('#feeTable').find('#prm_sum').val());
+                                            }
+                                        } );
+                                </script>
 							</table>
 							<p>&nbsp;</p>
 							<div align="center">
-								<form id="form1" name="form1" method="post"
-									style="text-align: center">
+<!--								<form id="form1" name="form1" method="post"-->
+<!--									style="text-align: center">-->
 									<input type="submit" name="submit" id="submit" value="Add" />
-								</form>
 							</div>
 							<p align="left">&nbsp;</p>
 						</div></td>

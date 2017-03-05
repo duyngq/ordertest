@@ -16,22 +16,43 @@ if (! isset ( $_SESSION ['loggedIn'] ) || (isset ( $_SESSION ['loggedIn'] ) && !
 }
 
 include_once 'dbconn.php';
-// TODO: load customers data at load to fill
-// Load and save all customers to be able to selectable when input
-function loadAllCustomer() {
-    $getCustQuery = "SELECT * FROM sendcustomers";
-    $custResult = mysql_query($getCustQuery) or die(mysql_error() . "Can not retrieve information from database");
-    while ($cust = mysql_fetch_array($custResult)) {
-        $senderArray = array("id" => $cust['id'], "cust_name" => $cust['cust_name'], "address" => $cust['address'], "phone" => $cust['phone']);
-    }
 
-    $getRecvQuery = "SELECT * FROM recvcustomers";
-    $recvResult = mysql_query($getRecvQuery) or die(mysql_error() . "Can not retrieve information from database");
-    while ($cust = mysql_fetch_array($recvResult)) {
-    	$recvArray = array("id" => $cust['id'], "cust_name" => $cust['cust_name'], "address" => $cust['address'], "phone" => $cust['phone']);
+// Load and save all customers to be able to selectable when input
+function loadAllCustomers() {
+    getSenders();
+    getReceivers();
+}
+
+function getSenders() {
+    // get all customers' name
+    $getCustomersNameQuery = "SELECT * FROM sendcustomers";
+    $getCustomersNameResult = mysql_query($getCustomersNameQuery);
+    // Mysql_num_row is counting table row
+    if($getCustomersNameResult) {
+        while ($customer=mysql_fetch_array($getCustomersNameResult)) {
+            $senderArray[$customer['phone']] = array("cust_name" => $customer['cust_name'], "address" => $customer['address'], "phone" => $customer['phone']);
+        }
+        if (isset($senderArray)) {
+            $_SESSION['sender'] = $senderArray;
+        }
     }
 }
-//loadAllCustomer();
+
+function getReceivers() {
+    // get all customers' name
+    $getRecvNameQuery = "SELECT * FROM recvcustomers";
+    $getRecvNameResult = mysql_query($getRecvNameQuery);
+    // Mysql_num_row is counting table row
+    if($getRecvNameResult) {
+        while ($recv = mysql_fetch_array($getRecvNameResult)) {
+            $receiverArray[$recv['phone']] = array("cust_name" => $recv['cust_name'], "address" => $recv['address'], "phone" => $recv['phone']);
+        }
+        if (isset($receiverArray)) {
+            $_SESSION['recv'] = $receiverArray;
+        }
+    }
+}
+loadAllCustomers();
 ?>
 <DOCTYPE html PUBLIC"-//W3C//DTDXHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -130,21 +151,31 @@ $(document).ready(function() {
 	                                <td>Order Number:</td>
 	                                <td><input name="orderNo" type="text" id="orderNo" size="60" onkeydown="if (event.keyCode == 13) return false;"/></td>
                                 </tr>
-                                <!-- tr>
-                                    <td>Sender Name:</td>
-                                    <td><input name="sender" type="text" id="sender" size="60"/></td>
-                                </tr>
-                                <tr>
-	                                <td>Receiver Name:</td>
-	                                <td><input name="receiver" type="text" id="receiver" size="60" /></td>
-                                </tr-->
                                 <tr>
                                     <td>Sender Phone Number:</td>
-                                    <td><input name="senderPhone" type="text" id="senderPhone" size="60"/></td>
+                                    <td><input name="senderPhone" type="text" id="senderPhone" size="60" list="custPhoneList"/></td>
+                                    <datalist id="custPhoneList">
+                                    <?php
+                                       if (isset($_SESSION['sender'])) {
+                                           foreach ($_SESSION['sender'] as $sender) {
+                                               echo "<option data-id=\"".$sender['phone']."\" value=\"".$sender['phone']."\"></option>";
+                                           }
+                                       }
+                                    ?>
+                                    </datalist>
                                 </tr>
                                 <tr>
                                     <td>Receiver Phone Number:</td>
-                                    <td><input name="receiverPhone" type="text" id="receiverPhone" size="60" /></td>
+                                    <td><input name="receiverPhone" type="text" id="receiverPhone" size="60" list="recvPhoneList"/></td>
+                                    <datalist id="recvPhoneList">
+                                    <?php
+                                    if (isset($_SESSION['recv'])) {
+                                       foreach ($_SESSION['recv'] as $receiver) {
+                                           echo "<option data-id=\"".$receiver['phone']."\" value=\"".$receiver['phone']."\"></option>";
+                                       }
+                                    }
+                                    ?>
+                                    </datalist>
                                 </tr>
                             </table>
                             <p align="center"><input type="button" name="submit" id="submit" value="Search" /></p>

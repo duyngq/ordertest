@@ -242,6 +242,8 @@ echo date('d/m/Y'); ?> - Time: <?php echo date('H:i'); ?> </p>
                         <p align="left">
                             <label>
                                 <input type="submit" name="Submit" value="Add Shipment" onClick="window.location.href='addorder.php'"/>
+                            </label>
+                            <label>
                                 <input type="submit" name="Search" value="Search Shipment" onClick="window.location.href='searchorder.php'"/>
                             </label>
                         </p>

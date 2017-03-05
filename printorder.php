@@ -124,23 +124,21 @@ p.hidden {
 				<table id="meta">
 					<tr>
                         <td class="meta-head">
-							<p id="underline"><strong>
+							<p><strong>
 								Sender (Người gửi)</strong></br>
 							</p> Name: <?php echo $senderArray['cust_name'];?></br>
-							<p id="underline">Address: <?php echo $senderArray['address'];?></p>
-							<p id="underline">Phone: <?php echo $senderArray['phone'];?></p>
+							<p>Address: <?php echo $senderArray['address'];?></p>
+							<p>Phone: <?php echo $senderArray['phone'];?></p>
 						</td>
 						<td class="meta-head">
-							<p id="underline"> <strong>
+							<p> <strong>
 								Receiver (Người nhận)</strong></br>
 							</p> Name: <?php echo $recvArray['cust_name'];?></br>
-							<p id="underline">Address: <?php echo $recvArray['address'];?></p>
-							<p id="underline">Phone: <?php echo $recvArray['phone'];?></p>
+							<p>Address: <?php echo $recvArray['address'];?></p>
+							<p>Phone: <?php echo $recvArray['phone'];?></p>
 						</td>
 					</tr>
-
 				</table>
-
 			</div>
 		</div>
         </br></br>
@@ -160,6 +158,7 @@ p.hidden {
                             $replace = '<br />';
 
 							echo str_replace($order, $replace, $orderArray['product_desc']);
+							echo "<br/>";
 //							echo "<br>PHU THU:<br>";
 //							echo str_replace($order, $replace, $orderArray['additional_fee']);
 //							echo "<br><br>";
