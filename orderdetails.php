@@ -44,12 +44,32 @@ if (isset($sbmUpdateInfo) ) {
     $additionalFee = "";
 
     //parse additional fee with the last line is total, the next of last line is fee (delimiter as :), and the rest is each fee (delimiter as comma)
-    for ( $i = 0; $i <= 5; $i++) { //skip title as 0
+    /*for ( $i = 0; $i <= 5; $i++) { //skip title as 0
         ${"proDesc".$i} = $_POST["proDesc".$i];
         ${"totalWeight".$i} = $_POST["weight".$i];
         validateNumber ( ${"totalWeight".$i}, "Package weight" );
         ${"pricePerWeight".$i} = $_POST["price".$i];;
         validateNumber ( ${"totalWeight".$i}, "Price per package weight" );
+    }*/
+    $oldProducts = $_SESSION['oldOrderDetailsArray'];
+    $products = array ();
+    $noOfProducts = 11;
+    for($i = 0; $i < $noOfProducts; $i ++) {
+        $product [0] = $oldProducts[$i][0];
+        $product [1] = $oldProducts[$i][1];
+        $product = array ();
+        $product [2] = $_POST ["proDesc" . $i];
+
+        $product [3] = $_POST ["weight" . $i];
+        validateNumber ( $_POST ["weight" . $i], "Package weight of " . $_POST ["proDesc" . $i] );
+        $product [4] = $_POST ["price" . $i];
+        validateNumber ( $_POST ["price" . $i], "Price per package of " . $_POST ["proDesc" . $i] );
+
+        $product [5] = $_POST ["unit" . $i];
+        validateNumber ( $_POST ["unit" . $i], "Unit of " . $_POST ["proDesc" . $i] );
+        $product [6] = $_POST ["unitPrice" . $i];
+        validateNumber ( $_POST ["unitPrice" . $i], "Price per unit of " . $_POST ["proDesc" . $i] );
+        $products [$i] = $product;
     }
 
     // Validate param for product details
@@ -115,9 +135,14 @@ if (isset($sbmUpdateInfo) ) {
 	}
 
 	//convert input date to format d/m/Y to parse to timestamp for cal current week number of month
-    $dates = explode ("/",$orderDate);
-    $ordDate = strtotime($dates[1]."/".$dates[0]."/".$dates[2]);
-    $code = date("n", $ordDate).weekOfMonth($ordDate);
+	$code = "";
+	try{
+	    $dates = explode ("/",$orderDate);
+	    $ordDate = strtotime($dates[1]."/".$dates[0]."/".$dates[2]);
+	    $code = date("n", $ordDate).weekOfMonth($ordDate);
+	} catch (Exception $e) {
+		// seems like we can't parse date, so mark code as empty
+	}
     
 	//Generate update query for order
 	$orderId = $_SESSION['orderId'];
@@ -159,6 +184,13 @@ if (isset($sbmUpdateInfo) ) {
             $systemLog = $systemLog."<em><span style='color:#FF0000'>*System comment:</span> <strong>".$orderInfoArray[$key]."</strong> changed from <strong>".$orderArray[$key]."</strong> to <strong>".$newValue."</strong>.. </em>";
         }
     }
+    
+    // Generate update query for order details
+    $updateOrderDetailsQuery = " ";
+    foreach ($products as $product) {
+        $updateOrderDetailsQuery.="UPDATE orderdetails SET order_id=$product[1],p_desc='$product[2]',weight=$product[3], price_weight=$product[4], unit=$product[5], price_unit=$product[6]";
+        $systemLog = $systemLog."<em><span style='color:#FF0000'>*System comment:</span> <strong>Order details:</strong> changed to <strong>p_desc='".$product[2]."',weight=".$product[3].", price_weight=".$product[4].", unit=".$product[5].", price_unit=".$product[5]."</strong>.. </em>";
+    }
 
 	begin();
 	//update customers
@@ -196,6 +228,17 @@ if (isset($sbmUpdateInfo) ) {
             rollback();
             clearAll ( $connection, $sbmUpdateInfo );
             echo "<script>alert('Update order failed');</script>";
+            exit;
+        }
+    }
+    
+    //update order details
+    if ($updateOrderDetailsQuery != null || $updateOrderDetailsQuery != '') {
+        $$updateOrderDetailsResult = mysql_query($updateOrderDetailsQuery, $connection) or die(mysql_error() . "Can not store data to database");
+        if (!$updateOrderDetailsResult) {
+            rollback();
+            clearAll ( $connection, $sbmUpdateInfo );
+            echo "<script>alert('Update order details failed');</script>";
             exit;
         }
     }
@@ -348,6 +391,7 @@ p.hidden {
 			$_SESSION['recvId'] = $recvId;
 			$_SESSION['orderStatus'] = $order['status'];
 			$_SESSION['orderId'] = $order['id'];
+			$_SESSION['newType'] = $order['new_type'];
 			$orderArray = array("id" => $order['id'], "send_cust_id" => $order['send_cust_id'],
                   "user_id" => $order['user_id'], "status" => $order['status'], "date" => $order['date'], 
                   "desc_0" => $order['desc_0'], "total_weight" => $order['total_weight'], "price_per_weight" => $order['price_per_weight'], 
@@ -452,84 +496,146 @@ p.hidden {
                                         style="border: 1px solid black" placeholder="Click and write product description"><?php echo $orderArray['product_desc'];?></textarea></p>
                         </td>
                         <td width=60% style="vertical-align: top;" id="feeTableRow">
-                            <div class="rTable" id="feeTable" stype="border:1px solid black"></div>
+                            <div class="rTable" id="feeTable" stype="border:1px solid black">
+                            <div class="rTableRow">
+                                <div class="rTableHead"><strong>Description</strong></div>
+                                <div class="rTableHead"><strong>Weight(lbs)</strong></div>
+                                <div class="rTableHead"><strong>Price</strong></div>
+                                <div class="rTableHead"><strong>Unit</strong></div>
+                                <div class="rTableHead"><strong>Price</strong></div>
+                                <div class="rTableHead"><strong>Total</strong></div>
+                            </div>
+                            <?php
+                                if ($_SESSION['newType'] == 1) { // new order type --> retrieve to orderdetails
+                                    $getOrderDetailsQuery = "select * from orderdetails where order_id=".$orderId;
+                                    $orderDetailsResult = mysql_query($getOrderDetailsQuery) or die(mysql_error() . "Can not retrieve information from database");
+                                    $noOfProducts = 0;
+                                    $oldProducts = array ();
+                                    while ($orderDetails = mysql_fetch_array($orderDetailsResult)) {
+                                        $product = array ();
+                                        $product [0] = $orderDetails['id'];
+                                        $product [1] = $orderDetails['order_id'];
+                                        $product [2] = $orderDetails['p_desc'];
+                                        $product [3] = $orderDetails['weight'];
+                                        $product [4] = $orderDetails['price_weight'];
+                                        $product [5] = $orderDetails['unit'];
+                                        $product [6] = $orderDetails['price_unit'];
+                                        $oldProducts [$noOfProducts] = $product;
+                            ?>
+                                <div class="rTableRow">
+                                    <div class="rTableCell"><input name="proDesc<?php echo $noOfProducts;?>" type="text" id="proDesc<?php echo $noOfProducts;?>" class="proDesc<?php echo $noOfProducts;?>" size="30" style="border:0" value="<?php echo $product[2];?>"/></div>
+                                    <div class="rTableCell"><input name="weight<?php echo $noOfProducts;?>" type="text" id="weight<?php echo $noOfProducts;?>" class="weight<?php echo $noOfProducts;?>" value="<?php echo $product[3];?>" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight<?php echo $noOfProducts;?>', 'price<?php echo $noOfProducts;?>', 'unit<?php echo $noOfProducts;?>', 'unitPrice<?php echo $noOfProducts;?>', 'total<?php echo $noOfProducts;?>');calTotal('feeTable');calTotalWeight('feeTable');"/></div>
+                                    <div class="rTableCell"><input name="price<?php echo $noOfProducts;?>" type="text" id="price<?php echo $noOfProducts;?>" class="price<?php echo $noOfProducts;?>" value="<?php echo $product[4];?>" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight<?php echo $noOfProducts;?>', 'price<?php echo $noOfProducts;?>', 'unit<?php echo $noOfProducts;?>', 'unitPrice<?php echo $noOfProducts;?>', 'total<?php echo $noOfProducts;?>');calTotal('feeTable');" /></div>
+                                    <div class="rTableCell"><input name="unit<?php echo $noOfProducts;?>" type="text" id="unit<?php echo $noOfProducts;?>" class="unit<?php echo $noOfProducts;?>" value="<?php echo $product[5];?>" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight<?php echo $noOfProducts;?>', 'price<?php echo $noOfProducts;?>', 'unit<?php echo $noOfProducts;?>', 'unitPrice<?php echo $noOfProducts;?>', 'total<?php echo $noOfProducts;?>');calTotal('feeTable');calTotalUnit('feeTable');"/></div>
+                                    <div class="rTableCell"><input name="unitPrice<?php echo $noOfProducts;?>" type="text" id="unitPrice<?php echo $noOfProducts;?>" class="unitPrice<?php echo $noOfProducts;?>" value="<?php echo $product[6]?>" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight<?php echo $noOfProducts;?>', 'price<?php echo $noOfProducts;?>', 'unit<?php echo $noOfProducts;?>', 'unitPrice<?php echo $noOfProducts;?>', 'total<?php echo $noOfProducts;?>');calTotal('feeTable');" /></div>
+                                    <div class="rTableCell"><input name="total<?php echo $noOfProducts;?>" type="text" id="total<?php echo $noOfProducts;?>" class="total<?php echo $noOfProducts;?>" value="<?php echo ($product[3] * $product[4]) + ($product[5] * $product[6]);?>" size="10" style="border:0" readonly="readonly" /></div>
+                                </div>
+                            <?php
+                                $noOfProducts++; 
+                                    }
+                            ?>
+                            <br/><br/>
+                                    <!-- Additional fee and total -->
+                                    <div class="rTableRow">
+                                         Payment in VietNam
+                                         <div class="rTableCell" style="border:0"></div>
+                                         <div class="rTableCell" style="border:0"></div>
+                                         <div class="rTableCell" style="border:0"></div>
+                                         <div class="rTableCell" style="border:0"></div>
+                                         <div class="rTableCell"><input name="add_fee" type="text" id="add_fee" class="add_fee" value="<?php echo $orderArray['fee'];?>" size="10" style="border:0" onchange="calTotal('feeTable');"/></div>
+                                    </div>
+                                    <div class="rTableRow">
+                                         <div class="rTableCell" style="border:0">Total (*)</div>
+                                         <div class="rTableCell" style="border:0"><input name="weight_sum" type="text" id="weight_sum" class="weight_sum" value="<?php
+                                            $weightSum = 0;
+                                            foreach ($oldProducts as $orderDetails) {
+                                                $weightSum += $orderDetails[3];
+                                            }
+                                            echo $weightSum;
+                                         ?>" size="10" style="border:0" readonly="readonly"/></div>
+                                         <div class="rTableCell" style="border:0"></div>
+                                         <div class="rTableCell" style="border:0"><input name="unit_sum" type="text" id="unit_sum" class="unit_sum" value="<?php
+                                            $weightSum = 0;
+                                            foreach ($oldProducts as $orderDetails) {
+                                                $weightSum += $orderDetails[5];
+                                            }
+                                            echo $weightSum;
+                                         ?>" size="5" style="border:0" readonly="readonly"/></div><div class="rTableCell" style="border:0"></div>
+                                         <div class="rTableCell" style="border:0"><input name="prm_sum" type="text" id="prm_sum" class="prm_sum" value="<?php echo $orderArray['total'];?>" size="10" style="border:0" readonly="readonly"/></div>
+                                    </div>
+                                    <?php 
+                                    } else {
+                                    ?>
+		                            <div class="rTableRow">
+		                                <div class="rTableCell"><input name="proDesc0" type="text" id="proDesc0" class="proDesc0" size="30" style="border:0" value="<?php echo $orderArray['desc_0'];?>"/></div>
+		                                <div class="rTableCell"><input name="weight0" type="text" id="weight0" class="weight0" value="<?php echo $orderArray['total_weight'];?>" size="10" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight0', 'price0', 'total0');calTotal('shipmentFee-form');calTotalWeight('shipmentFee-form');"/></div>
+		                                <div class="rTableCell"><input name="price0" type="text" id="price0" class="price0" value="<?php echo $orderArray['price_per_weight'];?>" size="20" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight0', 'price0', 'total0');calTotal('shipmentFee-form');" /></div>
+		                                <div class="rTableCell"><input name="total0" type="text" id="total0" class="total0" value="<?php echo $orderArray['total_weight'] * $orderArray['price_per_weight'];?>" size="10" style="border:0" readonly="readonly" /></div>
+		                            </div>
+		                            <div class="rTableRow">
+		                                <div class="rTableCell"><input name="proDesc1" type="text" id="proDesc1" class="proDesc1" size="30" style="border:0" value="<?php echo $orderArray['desc_1'];?>"/></div>
+		                                <div class="rTableCell"><input name="weight1" type="text" id="weight1" class="weight1" value="<?php echo $orderArray['total_weight_1'];?>" size="10" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight1', 'price1', 'total1');calTotal('shipmentFee-form');calTotalWeight('shipmentFee-form');"/></div>
+		                                <div class="rTableCell"><input name="price1" type="text" id="price1" class="price1" value="<?php echo $orderArray['price_per_weight_1'];?>" size="20" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight1', 'price1', 'total1');calTotal('shipmentFee-form');" /></div>
+		                                <div class="rTableCell"><input name="total1" type="text" id="total1" class="total1" value="<?php echo $orderArray['total_weight_1'] * $orderArray['price_per_weight_1'];?>" size="10" style="border:0" readonly="readonly" /></div>
+		                            </div>
+		                            <div class="rTableRow">
+		                                <div class="rTableCell"><input name="proDesc2" type="text" id="proDesc2" class="proDesc2" size="30" style="border:0" value="<?php echo $orderArray['desc_2'];?>"/></div>
+		                                <div class="rTableCell"><input name="weight2" type="text" id="weight2" class="weight2" value="<?php echo $orderArray['total_weight_2'];?>" size="10" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight2', 'price2', 'total2');calTotal('shipmentFee-form');calTotalWeight('shipmentFee-form');"/></div>
+		                                <div class="rTableCell"><input name="price2" type="text" id="price2" class="price2" value="<?php echo $orderArray['price_per_weight_2'];?>" size="20" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight2', 'price2', 'total2');calTotal('shipmentFee-form');" /></div>
+		                                <div class="rTableCell"><input name="total2" type="text" id="total2" class="total2" value="<?php echo $orderArray['total_weight_2'] * $orderArray['price_per_weight_2'];?>" size="10" style="border:0" readonly="readonly" /></div>
+		                            </div>
+		                            <div class="rTableRow">
+		                                <div class="rTableCell"><input name="proDesc3" type="text" id="proDesc3" class="proDesc3" size="30" style="border:0" value="<?php echo $orderArray['desc_3'];?>"/></div>
+		                                <div class="rTableCell"><input name="weight3" type="text" id="weight3" class="weight3" value="<?php echo $orderArray['price_per_weight_3'];?>" size="10" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight3', 'price3', 'total3');calTotal('shipmentFee-form');calTotalWeight('shipmentFee-form');"/></div>
+		                                <div class="rTableCell"><input name="price3" type="text" id="price3" class="price3" value="<?php echo $orderArray['price_per_weight_3'];?>" size="20" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight3', 'price3', 'total3');calTotal('shipmentFee-form');" /></div>
+		                                <div class="rTableCell"><input name="total3" type="text" id="total3" class="total3" value="<?php echo $orderArray['total_weight_3'] * $orderArray['price_per_weight_3'];?>" size="10" style="border:0" readonly="readonly" /></div>
+		                            </div>
+		                            <div class="rTableRow">
+		                                <div class="rTableCell"><input name="proDesc4" type="text" id="proDesc4" class="proDesc4" size="30" style="border:0" value="<?php echo $orderArray['desc_4'];?>"/></div>
+		                                <div class="rTableCell"><input name="weight4" type="text" id="weight4" class="weight4" value="<?php echo $orderArray['price_per_weight_4'];?>" size="10" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight4', 'price4', 'total4');calTotal('shipmentFee-form');calTotalWeight('shipmentFee-form');"/></div>
+		                                <div class="rTableCell"><input name="price4" type="text" id="price4" class="price4" value="<?php echo $orderArray['price_per_weight_4'];?>" size="20" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight4', 'price4', 'total4');calTotal('shipmentFee-form');" /></div>
+		                                <div class="rTableCell"><input name="total4" type="text" id="total4" class="total4" value="<?php echo $orderArray['total_weight_4'] * $orderArray['price_per_weight_4'];?>" size="10" style="border:0" readonly="readonly" /></div>
+		                            </div>
+		                            <div class="rTableRow">
+		                                 <div class="rTableCell"><input name="proDesc5" type="text" id="proDesc5" class="proDesc5" size="30" style="border:0" value="<?php echo $orderArray['desc_5'];?>"/></div>
+		                                 <div class="rTableCell"><input name="weight5" type="text" id="weight5" class="weight5" value="<?php echo $orderArray['price_per_weight_5'];?>" size="10" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight5', 'price5', 'total5');calTotal('shipmentFee-form');calTotalWeight('shipmentFee-form');"/></div>
+		                                 <div class="rTableCell"><input name="price5" type="text" id="price5" class="price5" value="<?php echo $orderArray['price_per_weight_5'];?>" size="20" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight5', 'price5', 'total5');calTotal('shipmentFee-form');" /></div>
+		                                 <div class="rTableCell"><input name="total5" type="text" id="total5" class="total5" value="<?php echo $orderArray['total_weight_5'] * $orderArray['price_per_weight_5'];?>" size="10" style="border:0" readonly="readonly" /></div>
+		                            </div>
+		                            <br/><br/>
+		                            <!-- Additional fee and total -->
+		                            <div class="rTableRow">
+		                                 <div class="rTableCell" style="border:0"></div>
+		                                 <div class="rTableCell" style="border:0"></div>
+		                                 <div class="rTableCell" >Additional fee</div>
+		                                 <div class="rTableCell"><input name="add_fee" type="text" id="add_fee" class="add_fee" value="<?php echo $orderArray['fee'];?>" size="10" style="border:0" onchange="calTotal('shipmentFee-form');"/></div>
+		                            </div>
+		                            <div class="rTableRow">
+		                                 <div class="rTableCell" style="border:0">Total (*)</div>
+		                                 <div class="rTableCell" style="border:0"><input name="weight_sum" type="text" id="weight_sum" class="weight_sum" value="<?php
+		                                    $weightSum = $orderArray['total_weight'];
+		                                    for ($i = 1; $i<=5; $i++) {
+		                                        $weightSum += $orderArray['total_weight_'.$i];
+		                                    }
+		                                    echo $weightSum;
+		                                 ?>" size="10" style="border:0" readonly="readonly"/></div>
+		                                 <div class="rTableCell" style="border:0"></div>
+		                                 <div class="rTableCell" style="border:0"><input name="prm_sum" type="text" id="prm_sum" class="prm_sum" value="<?php echo $orderArray['total'];?>" size="10" style="border:0" readonly="readonly"/></div>
+		                            </div>
+                                    <?php 
+                                    } //end if old order type
+                                    ?>
+                            </div>
                         </td>
                     </tr>
                     
                     <div id="dialog-form" title="Product description">
                         <textarea name="product_desc_dlg" id="product_desc_dlg" style="border: 1px solid black; width: 100%; height: 100%" placeholder="Click and write product description"></textarea>
                     </div>
-                    
-                    <div id="shipmentFee-form" title="Shipment Fee" stype="border:1px">
-                        <div class="rTable">
-                            <div class="rTableRow">
-                                <div class="rTableHead"><strong>Description</strong></div>
-                                <div class="rTableHead"><strong>Weight(lbs)</strong></div>
-                                <div class="rTableHead"><strong>Price</strong></div>
-                                <div class="rTableHead"><strong>Total</strong></div>
-                            </div>
-                            <div class="rTableRow">
-                                <div class="rTableCell"><input name="proDesc0" type="text" id="proDesc0" class="proDesc0" size="30" style="border:0" value="<?php echo $orderArray['desc_0'];?>"/></div>
-                                <div class="rTableCell"><input name="weight0" type="text" id="weight0" class="weight0" value="<?php echo $orderArray['total_weight'];?>" size="10" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight0', 'price0', 'total0');calTotal('shipmentFee-form');calTotalWeight('shipmentFee-form');"/></div>
-                                <div class="rTableCell"><input name="price0" type="text" id="price0" class="price0" value="<?php echo $orderArray['price_per_weight'];?>" size="20" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight0', 'price0', 'total0');calTotal('shipmentFee-form');" /></div>
-                                <div class="rTableCell"><input name="total0" type="text" id="total0" class="total0" value="<?php echo $orderArray['total_weight'] * $orderArray['price_per_weight'];?>" size="10" style="border:0" readonly="readonly" /></div>
-                            </div>
-                            <div class="rTableRow">
-                                <div class="rTableCell"><input name="proDesc1" type="text" id="proDesc1" class="proDesc1" size="30" style="border:0" value="<?php echo $orderArray['desc_1'];?>"/></div>
-                                <div class="rTableCell"><input name="weight1" type="text" id="weight1" class="weight1" value="<?php echo $orderArray['total_weight_1'];?>" size="10" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight1', 'price1', 'total1');calTotal('shipmentFee-form');calTotalWeight('shipmentFee-form');"/></div>
-                                <div class="rTableCell"><input name="price1" type="text" id="price1" class="price1" value="<?php echo $orderArray['price_per_weight_1'];?>" size="20" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight1', 'price1', 'total1');calTotal('shipmentFee-form');" /></div>
-                                <div class="rTableCell"><input name="total1" type="text" id="total1" class="total1" value="<?php echo $orderArray['total_weight_1'] * $orderArray['price_per_weight_1'];?>" size="10" style="border:0" readonly="readonly" /></div>
-                            </div>
-                            <div class="rTableRow">
-                                <div class="rTableCell"><input name="proDesc2" type="text" id="proDesc2" class="proDesc2" size="30" style="border:0" value="<?php echo $orderArray['desc_2'];?>"/></div>
-                                <div class="rTableCell"><input name="weight2" type="text" id="weight2" class="weight2" value="<?php echo $orderArray['total_weight_2'];?>" size="10" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight2', 'price2', 'total2');calTotal('shipmentFee-form');calTotalWeight('shipmentFee-form');"/></div>
-                                <div class="rTableCell"><input name="price2" type="text" id="price2" class="price2" value="<?php echo $orderArray['price_per_weight_2'];?>" size="20" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight2', 'price2', 'total2');calTotal('shipmentFee-form');" /></div>
-                                <div class="rTableCell"><input name="total2" type="text" id="total2" class="total2" value="<?php echo $orderArray['total_weight_2'] * $orderArray['price_per_weight_2'];?>" size="10" style="border:0" readonly="readonly" /></div>
-                            </div>
-                            <div class="rTableRow">
-                                <div class="rTableCell"><input name="proDesc3" type="text" id="proDesc3" class="proDesc3" size="30" style="border:0" value="<?php echo $orderArray['desc_3'];?>"/></div>
-                                <div class="rTableCell"><input name="weight3" type="text" id="weight3" class="weight3" value="<?php echo $orderArray['price_per_weight_3'];?>" size="10" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight3', 'price3', 'total3');calTotal('shipmentFee-form');calTotalWeight('shipmentFee-form');"/></div>
-                                <div class="rTableCell"><input name="price3" type="text" id="price3" class="price3" value="<?php echo $orderArray['price_per_weight_3'];?>" size="20" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight3', 'price3', 'total3');calTotal('shipmentFee-form');" /></div>
-                                <div class="rTableCell"><input name="total3" type="text" id="total3" class="total3" value="<?php echo $orderArray['total_weight_3'] * $orderArray['price_per_weight_3'];?>" size="10" style="border:0" readonly="readonly" /></div>
-                            </div>
-                            <div class="rTableRow">
-                                <div class="rTableCell"><input name="proDesc4" type="text" id="proDesc4" class="proDesc4" size="30" style="border:0" value="<?php echo $orderArray['desc_4'];?>"/></div>
-                                <div class="rTableCell"><input name="weight4" type="text" id="weight4" class="weight4" value="<?php echo $orderArray['price_per_weight_4'];?>" size="10" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight4', 'price4', 'total4');calTotal('shipmentFee-form');calTotalWeight('shipmentFee-form');"/></div>
-                                <div class="rTableCell"><input name="price4" type="text" id="price4" class="price4" value="<?php echo $orderArray['price_per_weight_4'];?>" size="20" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight4', 'price4', 'total4');calTotal('shipmentFee-form');" /></div>
-                                <div class="rTableCell"><input name="total4" type="text" id="total4" class="total4" value="<?php echo $orderArray['total_weight_4'] * $orderArray['price_per_weight_4'];?>" size="10" style="border:0" readonly="readonly" /></div>
-                            </div>
-                            <div class="rTableRow">
-                                 <div class="rTableCell"><input name="proDesc5" type="text" id="proDesc5" class="proDesc5" size="30" style="border:0" value="<?php echo $orderArray['desc_5'];?>"/></div>
-                                 <div class="rTableCell"><input name="weight5" type="text" id="weight5" class="weight5" value="<?php echo $orderArray['price_per_weight_5'];?>" size="10" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight5', 'price5', 'total5');calTotal('shipmentFee-form');calTotalWeight('shipmentFee-form');"/></div>
-                                 <div class="rTableCell"><input name="price5" type="text" id="price5" class="price5" value="<?php echo $orderArray['price_per_weight_5'];?>" size="20" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight5', 'price5', 'total5');calTotal('shipmentFee-form');" /></div>
-                                 <div class="rTableCell"><input name="total5" type="text" id="total5" class="total5" value="<?php echo $orderArray['total_weight_5'] * $orderArray['price_per_weight_5'];?>" size="10" style="border:0" readonly="readonly" /></div>
-                            </div>
-                            <br/><br/>
-                            <!-- Additional fee and total -->
-                            <div class="rTableRow">
-                                 <div class="rTableCell" style="border:0"></div>
-                                 <div class="rTableCell" style="border:0"></div>
-                                 <div class="rTableCell" >Additional fee</div>
-                                 <div class="rTableCell"><input name="add_fee" type="text" id="add_fee" class="add_fee" value="<?php echo $orderArray['fee'];?>" size="10" style="border:0" onchange="calTotal('shipmentFee-form');"/></div>
-                            </div>
-                            <div class="rTableRow">
-                                 <div class="rTableCell" style="border:0">Total (*)</div>
-                                 <div class="rTableCell" style="border:0"><input name="weight_sum" type="text" id="weight_sum" class="weight_sum" value="<?php
-                                    $weightSum = $orderArray['total_weight'];
-                                    for ($i = 1; $i<=5; $i++) {
-                                    	$weightSum += $orderArray['total_weight_'.$i];
-                                    }
-                                    echo $weightSum;
-                                 ?>" size="10" style="border:0" readonly="readonly"/></div>
-                                 <div class="rTableCell" style="border:0"></div>
-                                 <div class="rTableCell" style="border:0"><input name="prm_sum" type="text" id="prm_sum" class="prm_sum" value="<?php echo $orderArray['total'];?>" size="10" style="border:0" readonly="readonly"/></div>
-                            </div>
-                       </div>
-                    </div>
                                 <script>
                                   $( function() {
-                                      $('.rTable').clone().appendTo('#feeTable');
-                                      $('#feeTable').find('input').attr('readonly', 'readonly');
+                                      //$('.rTable').clone().appendTo('#feeTable');
+                                      //$('#feeTable').find('input').attr('readonly', 'readonly');
                                       var productDescDlg = $( "#dialog-form" ).dialog({
                                             autoOpen: false,
                                             height: 800,
@@ -553,7 +659,7 @@ p.hidden {
                                   } );
                                   $(function() {
                                        // dialog handling for Shipment Fee
-                                          var shipmentFeeDlg = $( "#shipmentFee-form" ).dialog({
+                                          /*var shipmentFeeDlg = $( "#shipmentFee-form" ).dialog({
                                               autoOpen: false,
                                               height: 500,
                                               width: 800,
@@ -596,17 +702,10 @@ p.hidden {
                                                 $('#shipmentFee-form').find('#add_fee').val($('#feeTable').find('#add_fee').val());
                                                 $('#shipmentFee-form').find('#weight_sum').val($('#feeTable').find('#weight_sum').val());
                                                 $('#shipmentFee-form').find('#prm_sum').val($('#feeTable').find('#prm_sum').val());
-                                            }
+                                            }*/
                                         } );
                                 </script>
 				</table>
-				</td>
-			</tr>
-			<tr>
-				<td colspan=2>
-				<p>- Comment:</p>
-				<p><textarea name="comment" cols="134" rows="4"
-					style="border: 1px solid #ff0000"></textarea></p>
 				</td>
 			</tr>
 		</table>
@@ -619,42 +718,6 @@ p.hidden {
                 window.open('printorder.php?tr=<?php echo $_GET['tr'];?>','win2','status=no,toolbar=no,scrollbars=yes,titlebar=no,menubar=no,resizable=yes,width=1076,height=768,directories=no,location=no');
 		    }
 		</script>
-
-		<!-- p><strong>Previous Comments:</strong></p>
-		<table width="100%" border="1" bordercolor="#000000">
-			<tr>
-				<td width="5%"><strong>Date</strong></td>
-				<td width="4%"><strong>Time</strong></td>
-				<td width="4%"><strong>User</strong></td>
-				<td width="auto"><strong>Comment</strong></td>
-			</tr>
-			<?php
-			$getCommentsQuery = "SELECT * FROM comments WHERE order_id=$orderId ORDER BY id DESC";
-			$commentsQuery=mysql_query($getCommentsQuery) or die(mysql_error() . "Can not retrieve Comments data");
-			while ($comment = mysql_fetch_array($commentsQuery)) {
-				?>
-			<tr>
-				<td><?php $date = $comment['date']; $date_time = explode(" ", $date); echo trim($date_time[0]); ?></td>
-				<td><?php echo trim($date_time[1]); ?></td>
-				<td><?php echo $comment['user_name'] ?></td>
-				<td><?php $comments = explode(". ", $comment['comment']);
-				$lastCmt = $comments[sizeof ($comments) - 2];
-				foreach ($comments as $value) {
-					if ($value == $lastCmt) {
-						echo $value;
-					} else {
-						echo $value."</br>";
-					}
-				}
-				?></td>
-			</tr>
-			<?php }
-			mysql_close($connection);
-			ob_end_flush();?>
-			<tr>
-				<td colspan="5" style="border: hidden"></td>
-			</tr>
-		</table-->
 		</td>
 	</tr>
 </table>

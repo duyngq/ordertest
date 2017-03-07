@@ -42,13 +42,30 @@ if (isset ( $submit )) {
 	$additionalFee = "";
 
 	//parse additional fee with the last line is total, the next of last line is fee (delimiter as :), and the rest is each fee (delimiter as comma)
-	for ( $i = 0; $i <= 5; $i++) { //skip title as 0
+	/*for ( $i = 0; $i <= 5; $i++) { //skip title as 0
 		${"proDesc".$i} = $_POST["proDesc".$i];
 		${"totalWeight".$i} = $_POST["weight".$i];
 		validateNumber ( ${"totalWeight".$i}, "Package weight" );
 		${"pricePerWeight".$i} = $_POST["price".$i];;
 		validateNumber ( ${"totalWeight".$i}, "Price per package weight" );
-	}
+	}*/
+	$products = array ();
+    $noOfProducts = 11;
+    for($i = 0; $i < $noOfProducts; $i ++) {
+        $product = array ();
+        $product [0] = $_POST ["proDesc" . $i];
+
+        $product [1] = $_POST ["weight" . $i];
+        validateNumber ( $_POST ["weight" . $i], "Package weight of " . $_POST ["proDesc" . $i] );
+        $product [2] = $_POST ["price" . $i];
+        validateNumber ( $_POST ["price" . $i], "Price per package of " . $_POST ["proDesc" . $i] );
+
+        $product [3] = $_POST ["unit" . $i];
+        validateNumber ( $_POST ["unit" . $i], "Unit of " . $_POST ["proDesc" . $i] );
+        $product [4] = $_POST ["unitPrice" . $i];
+        validateNumber ( $_POST ["unitPrice" . $i], "Price per unit of " . $_POST ["proDesc" . $i] );
+        $products [$i] = $product;
+    }
 
 	// Validate param for product details
     $addFee = $_POST ["add_fee"];
@@ -109,13 +126,14 @@ if (isset ( $submit )) {
         	}
         }
         $orderId = addNewOrder ( $custId, $recvCustId, $userId, $orderDate, 
-            $proDesc0, $totalWeight0, $pricePerWeight0, 
-            $proDesc1, $totalWeight1, $pricePerWeight1, 
-            $proDesc2, $totalWeight2, $pricePerWeight2, 
-            $proDesc3, $totalWeight3, $pricePerWeight3, 
-            $proDesc4, $totalWeight4, $pricePerWeight4, 
-            $proDesc5, $totalWeight5, $pricePerWeight5, 
-            $addFee, $productDesc, $additionalFee, $total, $connection, $submit );
+            "", 0, 0,//$proDesc0, $totalWeight0, $pricePerWeight0, 
+            "", 0, 0,//$proDesc1, $totalWeight1, $pricePerWeight1, 
+            "", 0, 0,//$proDesc2, $totalWeight2, $pricePerWeight2, 
+            "", 0, 0,//$proDesc3, $totalWeight3, $pricePerWeight3, 
+            "", 0, 0,//$proDesc4, $totalWeight4, $pricePerWeight4, 
+            "", 0, 0,//$proDesc5, $totalWeight5, $pricePerWeight5, 
+            $addFee, $productDesc, $additionalFee, $total, $connection, $submit ); // with new design, move all shipment fee to order details table
+        addOrderDetails($orderId, $products, $connection, $submit);
 	} else {
 		rollback();
 		echo "<script>alert('Unable to add new order');</script>";
@@ -139,8 +157,8 @@ function addNewOrder($custId, $recvCustId, $userId, $orderDate, $proDesc0, $tota
 	   desc_2, total_weight_2, price_per_weight_2, 
 	   desc_3, total_weight_3, price_per_weight_3, 
 	   desc_4, total_weight_4, price_per_weight_4, 
-	   desc_5, total_weight_5, price_per_weight_5, code, fee, product_desc, additional_fee, total)
-	   values ($custId, $recvCustId, $userId, 0, '$orderDate', '$proDesc0', $totalWeight, $pricePerWeight, '$proDesc1', $totalWeight1, $pricePerWeight1, '$proDesc2', $totalWeight2, $pricePerWeight2, '$proDesc3', $totalWeight3, $pricePerWeight3, '$proDesc4', $totalWeight4, $pricePerWeight4, '$proDesc5', $totalWeight5, $pricePerWeight5, '$code', $addFee, '$productDesc', '$additionalFee', $total)";
+	   desc_5, total_weight_5, price_per_weight_5, code, fee, product_desc, additional_fee, total, new_type)
+	   values ($custId, $recvCustId, $userId, 0, '$orderDate', '$proDesc0', $totalWeight, $pricePerWeight, '$proDesc1', $totalWeight1, $pricePerWeight1, '$proDesc2', $totalWeight2, $pricePerWeight2, '$proDesc3', $totalWeight3, $pricePerWeight3, '$proDesc4', $totalWeight4, $pricePerWeight4, '$proDesc5', $totalWeight5, $pricePerWeight5, '$code', $addFee, '$productDesc', '$additionalFee', $total, 1)";
 	$addNewOrderResult = mysql_query ( $addNewOrder, $connection ) or die ( mysql_error () . "Can not retrieve to database" );
 	$orderId = mysql_insert_id ();
 	if (!$addNewOrderResult) {
@@ -152,14 +170,14 @@ function addNewOrder($custId, $recvCustId, $userId, $orderDate, $proDesc0, $tota
 }
 
 function addOrderDetails($orderId, $products, $connection, $submit) {
-	$addOrderDetails="insert into orderdetails (order_id, product_name, product_price, product_quantity) values";
+	$addOrderDetails="insert into orderdetails (order_id, p_desc, weight, price_weight, unit, price_unit) values";
 	foreach ($products as $product) {
-		$addOrderDetails.="($orderId, '$product[0]', $product[2], $product[1]),";
+		$addOrderDetails.="($orderId, '$product[0]', $product[1], $product[2], $product[3], $product[4]),";
 	}
-	$addOrderDetailsResult = mysql_query ( substr($addOrderDetails,0,-1), $connection ) or die ( mysql_error () . "Can not retrieve to database" );
+	$addOrderDetailsResult = mysql_query ( substr($addOrderDetails, 0, -1), $connection ) or die ( mysql_error () . "Can not retrieve to database" );
 	if ($addOrderDetailsResult) {
 		echo "<script>alert('Add new order succeed');</script>";
-		echo "<script>location.href = 'index.php';</script>";
+//		echo "<script>location.href = 'index.php';</script>";
 	} else {
 		echo "<script>alert('Unable to add new order');</script>";
 		clearAll ( $connection, $submit );
@@ -374,12 +392,127 @@ p.hidden {
 												<th>Shipment Fee</th>
 											</tr>
 											<tr>
-												<td width=40%><p><textarea name="product_desc" id="product_desc" cols="65" rows="20"
+												<td width=40%><p><textarea name="product_desc" id="product_desc" cols="65" rows="30"
 										style="border: 1px solid black" placeholder="Click and write product description"></textarea></p></td>
-												<td width=60% style="vertical-align: top;" id="feeTableRow"><!--<p><textarea name="product_additional" id="product_additional" cols="65" rows="20"
-										style="border: 1px solid black" placeholder="Click and write additional fee description" onclick="openFeeWindow()"></textarea></p>-->
-										           <div class="rTable" id="feeTable">
-									                </div>
+												<td width=60% style="vertical-align: top;" id="feeTableRow">
+									           <div class="rTable" id="feeTable">
+			                                       <div class="rTable">
+			                                            <div class="rTableRow">
+			                                                <div class="rTableHead"><strong>Description</strong></div>
+			                                                <div class="rTableHead"><strong>Weight(lbs)</strong></div>
+			                                                <div class="rTableHead"><strong>Price</strong></div>
+			                                                <div class="rTableHead"><strong>Unit</strong></div>
+                                                            <div class="rTableHead"><strong>Price</strong></div>
+			                                                <div class="rTableHead"><strong>Total</strong></div>
+			                                            </div>
+			                                            <div class="rTableRow">
+			                                                <div class="rTableCell"><input name="proDesc0" type="text" id="proDesc0" class="proDesc0" size="30" style="border:0"/></div>
+			                                                <div class="rTableCell"><input name="weight0" type="text" id="weight0" class="weight0" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight0', 'price0', 'unit0', 'unitPrice0', 'total0');calTotal('feeTable');calTotalWeight('feeTable');"/></div>
+			                                                <div class="rTableCell"><input name="price0" type="text" id="price0" class="price0" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight0', 'price0', 'unit0', 'unitPrice0', 'total0');calTotal('feeTable');" /></div>
+			                                                <div class="rTableCell"><input name="unit0" type="text" id="unit0" class="unit0" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight0', 'price0', 'unit0', 'unitPrice0', 'total0');calTotal('feeTable');calTotalUnit('feeTable');"/></div>
+                                                            <div class="rTableCell"><input name="unitPrice0" type="text" id="unitPrice0" class="unitPrice0" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight0', 'price0', 'unit0', 'unitPrice0', 'total0');calTotal('feeTable');" /></div>
+			                                                <div class="rTableCell"><input name="total0" type="text" id="total0" class="total0" value="0" size="10" style="border:0" readonly="readonly" /></div>
+			                                            </div>
+			                                            <div class="rTableRow">
+			                                                <div class="rTableCell"><input name="proDesc1" type="text" id="proDesc1" class="proDesc1" size="30" style="border:0"/></div>
+			                                                <div class="rTableCell"><input name="weight1" type="text" id="weight1" class="weight1" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight1', 'price1', 'unit1', 'unitPrice1', 'total1');calTotal('feeTable');calTotalWeight('feeTable');"/></div>
+			                                                <div class="rTableCell"><input name="price1" type="text" id="price1" class="price1" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight1', 'price1', 'unit1', 'unitPrice1', 'total1');calTotal('feeTable');" /></div>
+			                                                <div class="rTableCell"><input name="unit1" type="text" id="unit1" class="unit1" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight1', 'price1', 'unit1', 'unitPrice1', 'total1');calTotal('feeTable');calTotalUnit('feeTable');"/></div>
+                                                            <div class="rTableCell"><input name="unitPrice1" type="text" id="unitPrice1" class="unitPrice1" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight1', 'price1', 'unit1', 'unitPrice1', 'total1');calTotal('feeTable');" /></div>
+			                                                <div class="rTableCell"><input name="total1" type="text" id="total1" class="total1" value="0" size="10" style="border:0" readonly="readonly" /></div>
+			                                            </div>
+			                                            <div class="rTableRow">
+			                                                <div class="rTableCell"><input name="proDesc2" type="text" id="proDesc2" class="proDesc2" size="30" style="border:0"/></div>
+			                                                <div class="rTableCell"><input name="weight2" type="text" id="weight2" class="weight2" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight2', 'price2', 'unit2', 'unitPrice2', 'total2');calTotal('feeTable');calTotalWeight('feeTable');"/></div>
+			                                                <div class="rTableCell"><input name="price2" type="text" id="price2" class="price2" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight2', 'price2', 'unit2', 'unitPrice2', 'total2');calTotal('feeTable');" /></div>
+			                                                <div class="rTableCell"><input name="unit2" type="text" id="unit2" class="unit2" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight2', 'price2', 'unit2', 'unitPrice2', 'total2');calTotal('feeTable');calTotalUnit('feeTable');"/></div>
+                                                            <div class="rTableCell"><input name="unitPrice2" type="text" id="unitPrice2" class="unitPrice2" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight2', 'price2', 'unit2', 'unitPrice2', 'total2');calTotal('feeTable');" /></div>
+			                                                <div class="rTableCell"><input name="total2" type="text" id="total2" class="total2" value="0" size="10" style="border:0" readonly="readonly" /></div>
+			                                            </div>
+			                                            <div class="rTableRow">
+			                                                <div class="rTableCell"><input name="proDesc3" type="text" id="proDesc3" class="proDesc3" size="30" style="border:0"/></div>
+			                                                <div class="rTableCell"><input name="weight3" type="text" id="weight3" class="weight3" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight3', 'price3', 'unit3', 'unitPrice3', 'total3');calTotal('feeTable');calTotalWeight('feeTable');"/></div>
+			                                                <div class="rTableCell"><input name="price3" type="text" id="price3" class="price3" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight3', 'price3', 'unit3', 'unitPrice3', 'total3');calTotal('feeTable');" /></div>
+			                                                <div class="rTableCell"><input name="unit3" type="text" id="unit3" class="unit3" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight3', 'price3', 'unit3', 'unitPrice3', 'total3');calTotal('feeTable');calTotalUnit('feeTable');"/></div>
+                                                            <div class="rTableCell"><input name="unitPrice3" type="text" id="unitPrice3" class="unitPrice3" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight3', 'price3', 'unit3', 'unitPrice3', 'total3');calTotal('feeTable');" /></div>
+			                                                <div class="rTableCell"><input name="total3" type="text" id="total3" class="total3" value="0" size="10" style="border:0" readonly="readonly" /></div>
+			                                            </div>
+			                                            <div class="rTableRow">
+			                                                <div class="rTableCell"><input name="proDesc4" type="text" id="proDesc4" class="proDesc4" size="30" style="border:0"/></div>
+			                                                <div class="rTableCell"><input name="weight4" type="text" id="weight4" class="weight4" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight4', 'price4', 'unit4', 'unitPrice4', 'total4');calTotal('feeTable');calTotalWeight('feeTable');"/></div>
+			                                                <div class="rTableCell"><input name="price4" type="text" id="price4" class="price4" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight4', 'price4', 'unit4', 'unitPrice4', 'total4');calTotal('feeTable');" /></div>
+			                                                <div class="rTableCell"><input name="unit4" type="text" id="unit4" class="unit4" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight4', 'price4', 'unit4', 'unitPrice4', 'total4');calTotal('feeTable');calTotalUnit('feeTable');"/></div>
+                                                            <div class="rTableCell"><input name="unitPrice4" type="text" id="unitPrice4" class="unitPrice4" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight4', 'price4', 'unit4', 'unitPrice4', 'total4');calTotal('feeTable');" /></div>
+			                                                <div class="rTableCell"><input name="total4" type="text" id="total4" class="total4" value="0" size="10" style="border:0" readonly="readonly" /></div>
+			                                            </div>
+			                                            <div class="rTableRow">
+			                                                <div class="rTableCell"><input name="proDesc5" type="text" id="proDesc5" class="proDesc5" size="30" style="border:0"/></div>
+			                                                <div class="rTableCell"><input name="weight5" type="text" id="weight5" class="weight5" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight5', 'price5', 'unit5', 'unitPrice5', 'total5');calTotal('feeTable');calTotalWeight('feeTable');"/></div>
+			                                                <div class="rTableCell"><input name="price5" type="text" id="price5" class="price5" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight5', 'price5', 'unit5', 'unitPrice5', 'total5');calTotal('feeTable');" /></div>
+			                                                <div class="rTableCell"><input name="unit5" type="text" id="unit5" class="unit5" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight5', 'price5', 'unit5', 'unitPrice5', 'total5');calTotal('feeTable');calTotalUnit('feeTable');"/></div>
+                                                            <div class="rTableCell"><input name="unitPrice5" type="text" id="unitPrice5" class="unitPrice5" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight5', 'price5', 'unit5', 'unitPrice5', 'total5');calTotal('feeTable');" /></div>
+			                                                <div class="rTableCell"><input name="total5" type="text" id="total5" class="total5" value="0" size="10" style="border:0" readonly="readonly" /></div>
+			                                            </div>
+			                                            <div class="rTableRow">
+                                                            <div class="rTableCell"><input name="proDesc6" type="text" id="proDesc6" class="proDesc6" size="30" style="border:0"/></div>
+                                                            <div class="rTableCell"><input name="weight6" type="text" id="weight6" class="weight6" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight6', 'price6', 'unit6', 'unitPrice6', 'total6');calTotal('feeTable');calTotalWeight('feeTable');"/></div>
+                                                            <div class="rTableCell"><input name="price6" type="text" id="price6" class="price6" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight6', 'price6', 'unit6', 'unitPrice6', 'total6');calTotal('feeTable');" /></div>
+                                                            <div class="rTableCell"><input name="unit6" type="text" id="unit6" class="unit6" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight6', 'price6', 'unit6', 'unitPrice6', 'total6');calTotal('feeTable');calTotalUnit('feeTable');"/></div>
+                                                            <div class="rTableCell"><input name="unitPrice6" type="text" id="unitPrice6" class="unitPrice6" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight6', 'price6', 'unit6', 'unitPrice6', 'total6');calTotal('feeTable');" /></div>
+                                                            <div class="rTableCell"><input name="total6" type="text" id="total6" class="total6" value="0" size="10" style="border:0" readonly="readonly" /></div>
+                                                        </div>
+                                                        <div class="rTableRow">
+                                                            <div class="rTableCell"><input name="proDesc7" type="text" id="proDesc7" class="proDesc7" size="30" style="border:0"/></div>
+                                                            <div class="rTableCell"><input name="weight7" type="text" id="weight7" class="weight7" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight7', 'price7', 'unit7', 'unitPrice7', 'total7');calTotal('feeTable');calTotalWeight('feeTable');"/></div>
+                                                            <div class="rTableCell"><input name="price7" type="text" id="price7" class="price7" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight7', 'price7', 'unit7', 'unitPrice7', 'total7');calTotal('feeTable');" /></div>
+                                                            <div class="rTableCell"><input name="unit7" type="text" id="unit7" class="unit7" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight7', 'price7', 'unit7', 'unitPrice7', 'total7');calTotal('feeTable');calTotalUnit('feeTable');"/></div>
+                                                            <div class="rTableCell"><input name="unitPrice7" type="text" id="unitPrice7" class="unitPrice7" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight7', 'price7', 'unit7', 'unitPrice7', 'total7');calTotal('feeTable');" /></div>
+                                                            <div class="rTableCell"><input name="total7" type="text" id="total7" class="total7" value="0" size="10" style="border:0" readonly="readonly" /></div>
+                                                        </div>
+                                                        <div class="rTableRow">
+                                                            <div class="rTableCell"><input name="proDesc8" type="text" id="proDesc8" class="proDesc8" size="30" style="border:0"/></div>
+                                                            <div class="rTableCell"><input name="weight8" type="text" id="weight8" class="weight8" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight8', 'price8', 'unit8', 'unitPrice8', 'total8');calTotal('feeTable');calTotalWeight('feeTable');"/></div>
+                                                            <div class="rTableCell"><input name="price8" type="text" id="price8" class="price8" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight8', 'price8', 'unit8', 'unitPrice8', 'total8');calTotal('feeTable');" /></div>
+                                                            <div class="rTableCell"><input name="unit8" type="text" id="unit8" class="unit8" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight8', 'price8', 'unit8', 'unitPrice8', 'total8');calTotal('feeTable');calTotalUnit('feeTable');"/></div>
+                                                            <div class="rTableCell"><input name="unitPrice8" type="text" id="unitPrice8" class="unitPrice8" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight8', 'price8', 'unit8', 'unitPrice8', 'total8');calTotal('feeTable');" /></div>
+                                                            <div class="rTableCell"><input name="total8" type="text" id="total8" class="total8" value="0" size="10" style="border:0" readonly="readonly" /></div>
+                                                        </div>
+                                                        <div class="rTableRow">
+                                                            <div class="rTableCell"><input name="proDesc9" type="text" id="proDesc9" class="proDesc9" size="30" style="border:0"/></div>
+                                                            <div class="rTableCell"><input name="weight9" type="text" id="weight9" class="weight9" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight9', 'price9', 'unit9', 'unitPrice9', 'total9');calTotal('feeTable');calTotalWeight('feeTable');"/></div>
+                                                            <div class="rTableCell"><input name="price9" type="text" id="price9" class="price9" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight9', 'price9', 'unit9', 'unitPrice9', 'total9');calTotal('feeTable');" /></div>
+                                                            <div class="rTableCell"><input name="unit9" type="text" id="unit9" class="unit9" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight9', 'price9', 'unit9', 'unitPrice9', 'total9');calTotal('feeTable');calTotalUnit('feeTable');"/></div>
+                                                            <div class="rTableCell"><input name="unitPrice9" type="text" id="unitPrice9" class="unitPrice9" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight9', 'price9', 'unit9', 'unitPrice9', 'total9');calTotal('feeTable');" /></div>
+                                                            <div class="rTableCell"><input name="total9" type="text" id="total9" class="total9" value="0" size="10" style="border:0" readonly="readonly" /></div>
+                                                        </div>
+                                                        <div class="rTableRow">
+                                                            <div class="rTableCell"><input name="proDesc10" type="text" id="proDesc10" class="proDesc10" size="30" style="border:0"/></div>
+                                                            <div class="rTableCell"><input name="weight10" type="text" id="weight10" class="weight10" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight10', 'price10', 'unit10', 'unitPrice10', 'total10');calTotal('feeTable');calTotalWeight('feeTable');"/></div>
+                                                            <div class="rTableCell"><input name="price10" type="text" id="price10" class="price10" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight10', 'price10', 'unit10', 'unitPrice10', 'total10');calTotal('feeTable');" /></div>
+                                                            <div class="rTableCell"><input name="unit10" type="text" id="unit10" class="unit10" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight10', 'price10', 'unit10', 'unitPrice10', 'total10');calTotal('feeTable');calTotalUnit('feeTable');"/></div>
+                                                            <div class="rTableCell"><input name="unitPrice10" type="text" id="unitPrice10" class="unitPrice10" value="0" size="5" style="border:0" onchange="calFeeAmount('feeTable', 'weight10', 'price10', 'unit10', 'unitPrice10', 'total10');calTotal('feeTable');" /></div>
+                                                            <div class="rTableCell"><input name="total10" type="text" id="total10" class="total10" value="0" size="10" style="border:0" readonly="readonly" /></div>
+                                                        </div>
+			                                            <br/><br/>
+			                                            <!-- Additional fee and total -->
+			                                            <div class="rTableRow">
+			                                                Payment in VietNam
+			                                                 <div class="rTableCell" style="border:0"></div>
+			                                                <div class="rTableCell" style="border:0"></div>
+			                                                <div class="rTableCell" style="border:0"></div>
+			                                                <div class="rTableCell" style="border:0"></div>
+			                                                <div class="rTableCell"><input name="add_fee" type="text" id="add_fee" class="add_fee" value="0" size="5" style="border:0" onchange="calTotal('feeTable');"/></div>
+			                                            </div>
+			                                            <div class="rTableRow">
+			                                                <div class="rTableCell" style="border:0">Total (*)</div>
+			                                                <div class="rTableCell" style="border:0"><input name="weight_sum" type="text" id="weight_sum" class="weight_sum" value="0" size="5" style="border:0" readonly="readonly"/></div>
+			                                                <div class="rTableCell" style="border:0"></div>
+			                                                <div class="rTableCell" style="border:0"><input name="unit_sum" type="text" id="unit_sum" class="unit_sum" value="0" size="5" style="border:0" readonly="readonly"/></div>
+                                                            <div class="rTableCell" style="border:0"></div>
+			                                                <div class="rTableCell" style="border:0"><input name="prm_sum" type="text" id="prm_sum" class="prm_sum" value="0" size="10" style="border:0" readonly="readonly"/></div>
+			                                            </div>
+			                                        </div>
+								                </div>
 										        </td>
 											</tr>
 										</table>
@@ -388,71 +521,13 @@ p.hidden {
 								<div id="dialog-form" title="Product description">
                                        <textarea name="product_desc_dlg" id="product_desc_dlg" style="border: 1px solid black; width: 100%; height: 100%" placeholder="Click and write product description"></textarea>
                                 </div>
-                                <div id="shipmentFee-form" title="Shipment Fee">
-                                       <div class="rTable">
-                                            <div class="rTableRow">
-                                                <div class="rTableHead"><strong>Description</strong></div>
-                                                <div class="rTableHead"><strong>Weight(lbs)</strong></div>
-                                                <div class="rTableHead"><strong>Price</strong></div>
-                                                <div class="rTableHead"><strong>Total</strong></div>
-                                            </div>
-                                            <div class="rTableRow">
-                                                <div class="rTableCell"><input name="proDesc0" type="text" id="proDesc0" class="proDesc0" size="30" style="border:0"/></div>
-                                                <div class="rTableCell"><input name="weight0" type="text" id="weight0" class="weight0" value="0" size="10" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight0', 'price0', 'total0');calTotal('shipmentFee-form');calTotalWeight('shipmentFee-form');"/></div>
-                                                <div class="rTableCell"><input name="price0" type="text" id="price0" class="price0" value="0" size="20" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight0', 'price0', 'total0');calTotal('shipmentFee-form');" /></div>
-                                                <div class="rTableCell"><input name="total0" type="text" id="total0" class="total0" value="0" size="10" style="border:0" readonly="readonly" /></div>
-                                            </div>
-                                            <div class="rTableRow">
-                                                <div class="rTableCell"><input name="proDesc1" type="text" id="proDesc1" class="proDesc1" size="30" style="border:0"/></div>
-                                                <div class="rTableCell"><input name="weight1" type="text" id="weight1" class="weight1" value="0" size="10" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight1', 'price1', 'total1');calTotal('shipmentFee-form');calTotalWeight('shipmentFee-form');"/></div>
-                                                <div class="rTableCell"><input name="price1" type="text" id="price1" class="price1" value="0" size="20" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight1', 'price1', 'total1');calTotal('shipmentFee-form');" /></div>
-                                                <div class="rTableCell"><input name="total1" type="text" id="total1" class="total1" value="0" size="10" style="border:0" readonly="readonly" /></div>
-                                            </div>
-                                            <div class="rTableRow">
-                                                <div class="rTableCell"><input name="proDesc2" type="text" id="proDesc2" class="proDesc2" size="30" style="border:0"/></div>
-                                                <div class="rTableCell"><input name="weight2" type="text" id="weight2" class="weight2" value="0" size="10" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight2', 'price2', 'total2');calTotal('shipmentFee-form');calTotalWeight('shipmentFee-form');"/></div>
-                                                <div class="rTableCell"><input name="price2" type="text" id="price2" class="price2" value="0" size="20" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight2', 'price2', 'total2');calTotal('shipmentFee-form');" /></div>
-                                                <div class="rTableCell"><input name="total2" type="text" id="total2" class="total2" value="0" size="10" style="border:0" readonly="readonly" /></div>
-                                            </div>
-                                            <div class="rTableRow">
-                                                <div class="rTableCell"><input name="proDesc3" type="text" id="proDesc3" class="proDesc3" size="30" style="border:0"/></div>
-                                                <div class="rTableCell"><input name="weight3" type="text" id="weight3" class="weight3" value="0" size="10" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight3', 'price3', 'total3');calTotal('shipmentFee-form');calTotalWeight('shipmentFee-form');"/></div>
-                                                <div class="rTableCell"><input name="price3" type="text" id="price3" class="price3" value="0" size="20" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight3', 'price3', 'total3');calTotal('shipmentFee-form');" /></div>
-                                                <div class="rTableCell"><input name="total3" type="text" id="total3" class="total3" value="0" size="10" style="border:0" readonly="readonly" /></div>
-                                            </div>
-                                            <div class="rTableRow">
-                                                <div class="rTableCell"><input name="proDesc4" type="text" id="proDesc4" class="proDesc4" size="30" style="border:0"/></div>
-                                                <div class="rTableCell"><input name="weight4" type="text" id="weight4" class="weight4" value="0" size="10" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight4', 'price4', 'total4');calTotal('shipmentFee-form');calTotalWeight('shipmentFee-form');"/></div>
-                                                <div class="rTableCell"><input name="price4" type="text" id="price4" class="price4" value="0" size="20" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight4', 'price4', 'total4');calTotal('shipmentFee-form');" /></div>
-                                                <div class="rTableCell"><input name="total4" type="text" id="total4" class="total4" value="0" size="10" style="border:0" readonly="readonly" /></div>
-                                            </div>
-                                            <div class="rTableRow">
-                                                <div class="rTableCell"><input name="proDesc5" type="text" id="proDesc5" class="proDesc5" size="30" style="border:0"/></div>
-                                                <div class="rTableCell"><input name="weight5" type="text" id="weight5" class="weight5" value="0" size="10" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight5', 'price5', 'total5');calTotal('shipmentFee-form');calTotalWeight('shipmentFee-form');"/></div>
-                                                <div class="rTableCell"><input name="price5" type="text" id="price5" class="price5" value="0" size="20" style="border:0" onchange="calFeeAmount('shipmentFee-form', 'weight5', 'price5', 'total5');calTotal('shipmentFee-form');" /></div>
-                                                <div class="rTableCell"><input name="total5" type="text" id="total5" class="total5" value="0" size="10" style="border:0" readonly="readonly" /></div>
-                                            </div>
-                                            <br/><br/>
-                                            <!-- Additional fee and total -->
-                                            <div class="rTableRow">
-                                                <div class="rTableCell" style="border:0"></div>
-                                                <div class="rTableCell" style="border:0"></div>
-                                                <div class="rTableCell" >Additional fee</div>
-                                                <div class="rTableCell"><input name="add_fee" type="text" id="add_fee" class="add_fee" value="0" size="10" style="border:0" onchange="calTotal('shipmentFee-form');"/></div>
-                                            </div>
-                                            <div class="rTableRow">
-                                                <div class="rTableCell" style="border:0">Total (*)</div>
-                                                <div class="rTableCell" style="border:0"><input name="weight_sum" type="text" id="weight_sum" class="weight_sum" value="0" size="10" style="border:0" readonly="readonly"/></div>
-                                                <div class="rTableCell" style="border:0"></div>
-                                                <div class="rTableCell" style="border:0"><input name="prm_sum" type="text" id="prm_sum" class="prm_sum" value="0" size="10" style="border:0" readonly="readonly"/></div>
-                                            </div>
-                                        </div>
-<!--                                    </form>-->
+                                <!--<div id="shipmentFee-form" title="Shipment Fee">
+                                    </form>
                                 </div>
-                                <script>
+                                --><script>
                                   $( function() {
-                                      $('.rTable').clone().appendTo('#feeTable');
-                                      $('#feeTable').find('input').attr('readonly', 'readonly');
+                                      //$('.rTable').clone().appendTo('#feeTable');
+                                      //$('#feeTable').find('input').attr('readonly', 'readonly');
                                       var productDescDlg = $( "#dialog-form" ).dialog({
                                             autoOpen: false,
                                             height: 800,
@@ -476,7 +551,7 @@ p.hidden {
                                   } );
                                   $(function() {
                                        // dialog handling for Shipment Fee
-                                          var shipmentFeeDlg = $( "#shipmentFee-form" ).dialog({
+                                          /*var shipmentFeeDlg = $( "#shipmentFee-form" ).dialog({
                                               autoOpen: false,
                                               height: 500,
                                               width: 800,
@@ -519,7 +594,7 @@ p.hidden {
                                                 $('#shipmentFee-form').find('#add_fee').val($('#feeTable').find('#add_fee').val());
                                                 $('#shipmentFee-form').find('#weight_sum').val($('#feeTable').find('#weight_sum').val());
                                                 $('#shipmentFee-form').find('#prm_sum').val($('#feeTable').find('#prm_sum').val());
-                                            }
+                                            }*/
                                         } );
                                 </script>
 							</table>

@@ -1,21 +1,37 @@
 //There are element ids duplication between real shipment fee and fee details dialog --> using parent element id goes with class name to identify correct one 
-function calFeeAmount(parentId, weight, price, total) {
+function calFeeAmount(parentId, weight, price, unit, unitPrice, total) {
 	var weight = document.getElementById(parentId).getElementsByClassName(weight)[0].value;// addClient.lender_loanAmount.value;
 	var pricePerWeight = document.getElementById(parentId).getElementsByClassName(price)[0].value;// addClient.builder_packageAmount.value;
-	var totalPricePackage = parseFloat(weight)* parseFloat(pricePerWeight);
+	var unit = document.getElementById(parentId).getElementsByClassName(unit)[0].value;// addClient.lender_loanAmount.value;
+	var unitPrice = document.getElementById(parentId).getElementsByClassName(unitPrice)[0].value;// addClient.lender_loanAmount.value;
+	var totalPricePackage = (parseFloat(weight)* parseFloat(pricePerWeight)) + (parseFloat(unit)* parseFloat(unitPrice));
 	document.getElementById(parentId).getElementsByClassName(total)[0].value = totalPricePackage;
 }
 function calTotal(parentId) {
-	document.getElementById(parentId).getElementsByClassName("prm_sum")[0].value = parseFloat(document.getElementById(parentId).getElementsByClassName("total0")[0].value) + parseFloat(document.getElementById(parentId).getElementsByClassName("total1")[0].value) + parseFloat(document.getElementById(parentId).getElementsByClassName("total2")[0].value) + parseFloat(document.getElementById(parentId).getElementsByClassName("total3")[0].value) + parseFloat(document.getElementById(parentId).getElementsByClassName("total4")[0].value) + parseFloat(document.getElementById(parentId).getElementsByClassName("total5")[0].value) + parseFloat(document.getElementById(parentId).getElementsByClassName("add_fee")[0].value);
+	var total = 0;
+	for ( i = 0; i < 11; i++) {
+		totalId = 'total' + i;
+		total += parseFloat(document.getElementById(parentId).getElementsByClassName(totalId)[0].value);
+	}
+	document.getElementById(parentId).getElementsByClassName("prm_sum")[0].value = total + parseFloat(document.getElementById(parentId).getElementsByClassName("add_fee")[0].value);
 }
 
 function calTotalWeight(parentId) {
 	var weightSum = 0;
-	for ( i = 0; i <= 5; i++) {
+	for ( i = 0; i < 11; i++) {
 		weight = 'weight' + i;
 		weightSum += parseFloat(document.getElementById(parentId).getElementsByClassName(weight)[0].value);
 	}
 	document.getElementById(parentId).getElementsByClassName("weight_sum")[0].value = weightSum;
+}
+
+function calTotalUnit(parentId) {
+	var unitSum = 0;
+	for ( i = 0; i < 11; i++) {
+		unit = 'unit' + i;
+		unitSum += parseFloat(document.getElementById(parentId).getElementsByClassName(unit)[0].value);
+	}
+	document.getElementById(parentId).getElementsByClassName("unit_sum")[0].value = unitSum;
 }
 
 function calTotalPricePackage() {
