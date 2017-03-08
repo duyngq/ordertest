@@ -8,7 +8,7 @@ textarea { border: 0; font: 14px Georgia, Serif; overflow: hidden; resize: none;
 table { border-collapse: collapse; }
 table td, table th { border: 1px solid black; padding: 5px; }
 
-#header { height: 60px; width: 100%; margin: 20px 0; text-align: center; font: bold 60px Helvetica, Sans-Serif; text-decoration: underline; padding: 8px 0px; }
+#header { height: 40px; width: 100%; margin: 20px 0; text-align: center; font: bold 40px Helvetica, Sans-Serif; text-decoration: underline; padding: 8px 0px; }
 
 #address { width: 250px; height: 150px; float: left; }
 #customer { overflow: hidden; }

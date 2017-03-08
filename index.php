@@ -261,13 +261,13 @@ echo date('d/m/Y'); ?> - Time: <?php echo date('H:i'); ?> </p>
             <tr>
                 <td>
                     <div id="tab1focus" class="tab tabfocus" style="display:block;">
-                        Shipping Order
+                        Processing Order
                     </div>
                     <div id="tab1ready" class="tab tabhold" style="display:none;">
                         <!-- Between the parenthesis, provide a list of ids that are to
                              be visible when this tab is clicked. The ids are between
                              single quotes (apostrophes) and separated with a comma. -->
-                        <span onclick="ManageTabPanelDisplay('tab1focus','tab2ready','content1')">Shipping Order</span>
+                        <span onclick="ManageTabPanelDisplay('tab1focus','tab2ready','content1')">Processing Order</span>
                     </div>
                 </td><td width="20"> </td><td>
                     <div id="tab2focus" class="tab tabfocus" style="display:none;">

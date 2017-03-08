@@ -22,7 +22,6 @@ include_once 'dbconn.php';
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>SHIPMENT INVOICE</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Order details</title>
 <style type="text/css">
@@ -58,21 +57,21 @@ p.hidden {
 		<div id="identity">
 		  <div style="width:800px;">
 		      <div style="width:300px; float:left;">
-			<p align="center" id="underline" style="font-size:20px">
+			<p align="center" style="font-size:20px">
 				1229 Jacklin Rd, Milpitas, Ca, 95036</br>
 			</p>
 			<p align="center" style="font-size:20px">
-				<strong>Tell</strong>: <a href="#">408-781-8812</a>
+				<strong>Mr. Pháp: </strong>408-781-8812
 			</p>
 			</br>
 			</br>
             </div>
             <div style="width:300px; float:right;">
-			<p align="center" id="underline" style="font-size:20px">
-				160 Đường D2, Phường 25, Quận Bình Thạnh</br>
+			<p align="center" style="font-size:20px">
+				<br/>
 			</p>
 			<p align="center" style="font-size:20px">
-				<strong>MR.Khoa: </strong><a href="#">0934-934-952</a>
+				<strong>Mr.Khoa: </strong>0934-934-952
 			</p>
 			</div>
 			</div>
@@ -89,6 +88,7 @@ p.hidden {
 				while ($order = mysql_fetch_array($ordersResult)) {
 					$custId = $order['send_cust_id'];
 					$recvId = $order['recv_cust_id'];
+					$_SESSION['orderType'] = $order['new_type'];
 					$orderArray = array("id" => $order['id'], "send_cust_id" => $order['send_cust_id'],
 			                  "user_id" => $order['user_id'], "status" => $order['status'], "date" => $order['date'], "total_weight" => $order['total_weight'],
 			                  "price_per_weight" => $order['price_per_weight'], "total_weight_1" => $order['total_weight_1'],
@@ -147,7 +147,7 @@ p.hidden {
 				<tr>
 					<td contenteditable='true'>
 						<p id="underline"><strong>DESCRIPTION OF CONTENTS: (TÊN HÀNG HÓA):</strong></p>
-						<?php
+						<p><?php
     						// For loop here over product list to show:
     						// + <quantity> <unit> <productName>
 
@@ -156,50 +156,69 @@ p.hidden {
     						// TOTAL: <weight> X <pricePerWeight> = total1 + <total> = <final total>
     						$order   = array("\r\n", "\n", "\r");
                             $replace = '<br />';
+                            $productDes = str_replace($order, $replace, $orderArray['product_desc']);
 
-							echo str_replace($order, $replace, $orderArray['product_desc']);
+							echo $productDes;
+                            if (count(split($replace, $productDes)) < 10) {
+                            	echo "<br/><br/><br/><br/><br/><br/><br/><br/><br/>";
+                            }
 							echo "<br/>";
+
+							$orderFormat = "%-30s %-10s %-10s %-10s %s";
+							echo str_replace(" ", "&nbsp;",sprintf($orderFormat,"Description","weight","price","unit","price"));
+//							echo str_pad("Description",20,"&nbsp;").str_pad("weight",5,"&nbsp;").str_pad("price",5,"&nbsp;").str_pad("unit",5,"&nbsp;").str_pad("price",5,"&nbsp;")."total";
+							echo "<br/>";
+							if ($_SESSION['orderType'] == 1) {
+							     $getOrderDetailsQuery = "select * from orderdetails where order_id=".$orderId;
+							     $orderDetailsResult = mysql_query($getOrderDetailsQuery) or die(mysql_error() . "Can not retrieve information from database");
+							     $noOfProducts = 0;
+							     $oldProducts = array ();
+							     while ($orderDetails = mysql_fetch_array($orderDetailsResult)) {
+                                    echo str_replace(" ", "&nbsp;",sprintf($orderFormat, $orderDetails['p_desc'],$orderDetails['weight'],$orderDetails['price_weight'],$orderDetails['unit'],$orderDetails['price_unit'], ($orderDetails['weight']*$orderDetails['price_weight'])+($orderDetails['unit']*$orderDetails['price_unit'])));
+                                    echo "<br/>";
+							     }
+							}
 //							echo "<br>PHU THU:<br>";
 //							echo str_replace($order, $replace, $orderArray['additional_fee']);
 //							echo "<br><br>";
-							$totalWeight = $orderArray["total_weight"];
-							$details1="";
-							$total1="";
-							if ((!is_null($orderArray["total_weight_1"]) && !empty($orderArray["total_weight_1"])) && (!is_null($orderArray["price_per_weight_1"]) && !empty($orderArray["price_per_weight_1"]))) {
-								$details1 = $details1." + ".$orderArray["total_weight_1"]." X ".$orderArray["price_per_weight_1"];
-								$total1 = $total1." + ".$orderArray["total_weight_1"]*$orderArray["price_per_weight_1"];
-								$totalWeight += $orderArray["total_weight_1"];
-							}
-							$details2="";
-                            $total2="";
-                            if ((!is_null($orderArray["total_weight_2"]) && !empty($orderArray["total_weight_2"])) && (!is_null($orderArray["price_per_weight_2"]) && !empty($orderArray["price_per_weight_2"]))) {
-                                $details2 = $details2." + ".$orderArray["total_weight_2"]." X ".$orderArray["price_per_weight_2"];
-                                $total2 = $total2." + ".$orderArray["total_weight_2"]*$orderArray["price_per_weight_2"];
-                                $totalWeight += $orderArray["total_weight_2"];
-                            }
-                            $details3="";
-                            $total3="";
-                            if ((!is_null($orderArray["total_weight_3"]) && !empty($orderArray["total_weight_3"])) && (!is_null($orderArray["price_per_weight_3"]) && !empty($orderArray["price_per_weight_3"]))) {
-                            	$details3 = $details3." + ".$orderArray["total_weight_3"]." X ".$orderArray["price_per_weight_3"];
-                            	$total3 = $total3." + ".$orderArray["total_weight_3"]*$orderArray["price_per_weight_3"];
-                            	$totalWeight += $orderArray["total_weight_3"];
-                            }
-                            $details4="";
-                            $total4="";
-                            if ((!is_null($orderArray["total_weight_4"]) && !empty($orderArray["total_weight_4"])) && (!is_null($orderArray["price_per_weight_4"]) && !empty($orderArray["price_per_weight_4"]))) {
-                            	$details4 = $details4." + ".$orderArray["total_weight_4"]." X ".$orderArray["price_per_weight_4"];
-                            	$total4 = $total4." + ".$orderArray["total_weight_4"]*$orderArray["price_per_weight_4"];
-                            	$totalWeight += $orderArray["total_weight_4"];
-                            }
-                            $details5="";
-                            $total5="";
-                            if ((!is_null($orderArray["total_weight_5"]) && !empty($orderArray["total_weight_5"])) && (!is_null($orderArray["price_per_weight_5"]) && !empty($orderArray["price_per_weight_5"]))) {
-                            	$details5 = $details5." + ".$orderArray["total_weight_5"]." X ".$orderArray["price_per_weight_5"];
-                            	$total5 = $total5." + ".$orderArray["total_weight_5"]*$orderArray["price_per_weight_5"];
-                            	$totalWeight += $orderArray["total_weight_5"];
-                            }
-	                        echo "<strong>TOTAL : ".$orderArray["total_weight"]." X ".$orderArray["price_per_weight"].$details1.$details2.$details3.$details4.$details5." = ".($orderArray["total_weight"]*$orderArray["price_per_weight"]).$total1.$total2.$total3.$total4.$total5." + ".$orderArray['fee']." = ".$orderArray["total"]."</strong>";
-						?>
+//							$totalWeight = $orderArray["total_weight"];
+//							$details1="";
+//							$total1="";
+//							if ((!is_null($orderArray["total_weight_1"]) && !empty($orderArray["total_weight_1"])) && (!is_null($orderArray["price_per_weight_1"]) && !empty($orderArray["price_per_weight_1"]))) {
+//								$details1 = $details1." + ".$orderArray["total_weight_1"]." X ".$orderArray["price_per_weight_1"];
+//								$total1 = $total1." + ".$orderArray["total_weight_1"]*$orderArray["price_per_weight_1"];
+//								$totalWeight += $orderArray["total_weight_1"];
+//							}
+//							$details2="";
+//                            $total2="";
+//                            if ((!is_null($orderArray["total_weight_2"]) && !empty($orderArray["total_weight_2"])) && (!is_null($orderArray["price_per_weight_2"]) && !empty($orderArray["price_per_weight_2"]))) {
+//                                $details2 = $details2." + ".$orderArray["total_weight_2"]." X ".$orderArray["price_per_weight_2"];
+//                                $total2 = $total2." + ".$orderArray["total_weight_2"]*$orderArray["price_per_weight_2"];
+//                                $totalWeight += $orderArray["total_weight_2"];
+//                            }
+//                            $details3="";
+//                            $total3="";
+//                            if ((!is_null($orderArray["total_weight_3"]) && !empty($orderArray["total_weight_3"])) && (!is_null($orderArray["price_per_weight_3"]) && !empty($orderArray["price_per_weight_3"]))) {
+//                            	$details3 = $details3." + ".$orderArray["total_weight_3"]." X ".$orderArray["price_per_weight_3"];
+//                            	$total3 = $total3." + ".$orderArray["total_weight_3"]*$orderArray["price_per_weight_3"];
+//                            	$totalWeight += $orderArray["total_weight_3"];
+//                            }
+//                            $details4="";
+//                            $total4="";
+//                            if ((!is_null($orderArray["total_weight_4"]) && !empty($orderArray["total_weight_4"])) && (!is_null($orderArray["price_per_weight_4"]) && !empty($orderArray["price_per_weight_4"]))) {
+//                            	$details4 = $details4." + ".$orderArray["total_weight_4"]." X ".$orderArray["price_per_weight_4"];
+//                            	$total4 = $total4." + ".$orderArray["total_weight_4"]*$orderArray["price_per_weight_4"];
+//                            	$totalWeight += $orderArray["total_weight_4"];
+//                            }
+//                            $details5="";
+//                            $total5="";
+//                            if ((!is_null($orderArray["total_weight_5"]) && !empty($orderArray["total_weight_5"])) && (!is_null($orderArray["price_per_weight_5"]) && !empty($orderArray["price_per_weight_5"]))) {
+//                            	$details5 = $details5." + ".$orderArray["total_weight_5"]." X ".$orderArray["price_per_weight_5"];
+//                            	$total5 = $total5." + ".$orderArray["total_weight_5"]*$orderArray["price_per_weight_5"];
+//                            	$totalWeight += $orderArray["total_weight_5"];
+//                            }
+//	                        echo "<strong>TOTAL : ".$orderArray["total_weight"]." X ".$orderArray["price_per_weight"].$details1.$details2.$details3.$details4.$details5." = ".($orderArray["total_weight"]*$orderArray["price_per_weight"]).$total1.$total2.$total3.$total4.$total5." + ".$orderArray['fee']." = ".$orderArray["total"]."</strong>";
+						?></p>
                     </td>
 				</tr>
 
