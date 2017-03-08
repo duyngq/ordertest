@@ -302,13 +302,12 @@ p.hidden {
 			<table width="1024px" border="1">
 				<tr>
 					<td><div align="right">
-							<p>Welcome, <?php echo $_SESSION['username']; ?>!  <a
-									href="index.php">Home</a> <a href="logout.php">Log out</a>
+							<p>Welcome, Saigonair Cargo!  <a href="index.php">Home</a> <a href="logout.php">Log out</a>
 							</p>
 							<p align="left">
 								<strong>ADD NEW SHIPMENT </strong>
 							</p>
-							<p align="left">Today's Date: <?php date_default_timezone_set('Asia/Bangkok'); echo date('d/m/Y');?> - Time: <?php echo date('H:i'); ?> </p>
+							<p align="left">Date: <?php date_default_timezone_set('Asia/Bangkok'); echo date('d/m/Y');?> - Time: <?php echo date('H:i'); ?> </p>
 							<table width="100%" border="0" bordercolor="#F0F0F0">
 							    <tr>
                                     <td>- Sender</td>

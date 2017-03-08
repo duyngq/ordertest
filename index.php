@@ -200,12 +200,27 @@ if (!isset($_SESSION['loggedIn']) || (isset($_SESSION['loggedIn']) && !$_SESSION
                 // Delete row in a table
                 jQuery('.delete-row').click(function(){
                   var c = confirm("Continue delete?");
-                  if(c)
-                    jQuery(this).closest('tr').fadeOut(function(){
+                  if(c) {
+                	var $row = jQuery(this).closest('tr'),
+                	orderId = $row.find("td:nth-child(1)").text();
+//                     $row.fadeOut(function(){
                         //get selected data here, invoke delete and remove also
-                      jQuery(this).remove();
-                    });
+                        var dataString = 'orderid='+ orderId;
+						$.ajax({
+	        				url: 'deleteorder.php',                  //the script to call to get data
+	        				type: "POST",
+	        				data: {'orderId': orderId},
+	        				success: function(data){
+		        				if(data.toLowerCase() == "yes") {
+		        					$row.fadeOut().remove();
+		        				} else {
+			        				alert("can't delete the row")
+		        				}
+	        	             }
+						});
+//                     });
                     return false;
+                  }
                 });
 
                 // Show aciton upon row hover
@@ -222,22 +237,14 @@ if (!isset($_SESSION['loggedIn']) || (isset($_SESSION['loggedIn']) && !$_SESSION
         <table border="1" width="1024px" RULES=NONE FRAME=BOX>
             <tr>
                 <td colspan="4"><div align="right">
-                        <p>Welcome, <!--div class="dropdown" style="float:right;">
-                                <a><?php $user_name = $_SESSION['username'];echo $user_name; ?> </a>
-                                  <div id="myDropdown" class="dropdown-content">
-                                    <a href="#home">Home</a>
-                                    <a href="#about">About</a>
-                                    <a href="logout.php">Log out</a>
-                                  </div>
-                                </div--><?php $user_name = $_SESSION['username'];
-echo $user_name; ?>!  <a href="logout.php">Log out</a>
+                        <p>Welcome, Saigonair Cargo!  <a href="logout.php">Log out</a>
                 <?php
                     if ( isset($_SESSION['role_id']) && $_SESSION['role_id'] == 1) {
                     	echo "<a href=\"edituser.php\">Change pass</a><a href=\"adduser.php\">Add user</a></p>";
                     }
                 ?>
                         <p align="left"><strong>ORDER</strong></p>
-                        <p align="left">Today's Date: <?php date_default_timezone_set('Asia/Bangkok');
+                        <p align="left">Date: <?php date_default_timezone_set('Asia/Bangkok');
 echo date('d/m/Y'); ?> - Time: <?php echo date('H:i'); ?> </p>
                         <p align="left">
                             <label>
@@ -368,7 +375,7 @@ echo date('d/m/Y'); ?> - Time: <?php echo date('H:i'); ?> </p>
                                         <span class="link"><a href="#" class="href-right table-action-hide">
                                                 <i class="fa fa-pencil"></i>
                                             </a>
-                                            <a href="orderdetails.php?tr=<?php echo substr_replace($custId, $randomLetter1 . $randomLetter2, 1, 0);?>" class="href-right delete-row table-action-hide">
+                                            <a class="href-right delete-row table-action-hide">
                                                 <i class="fa fa-trash-o href-right"></i>
                                             </a></span>
                                     </td>
@@ -423,7 +430,7 @@ echo date('d/m/Y'); ?> - Time: <?php echo date('H:i'); ?> </p>
                                         <span class="link"><a href="#" class="href-right table-action-hide">
                                                 <i class="fa fa-pencil"></i>
                                             </a>
-                                            <a href="orderdetails.php?tr=<?php echo substr_replace($orderId, $randomLetter1 . $randomLetter2, 1, 0);?>" class="href-right delete-row table-action-hide">
+                                            <a class="href-right delete-row table-action-hide">
                                                 <i class="fa fa-trash-o href-right"></i>
                                             </a></span>
                                     </td>
