@@ -65,21 +65,14 @@ p.hidden {
 		<div id="identity">
 		  <div style="width:800px;">
 		      <div style="width:400px; float:left;">
-			<p align="center" style="font-size:20px">
-				1229 Jacklin Rd Milpitas CA 95036</br>
-			</p>
-			<p align="center" style="font-size:20px">
-				<strong>Mr. Pháp: </strong>408-781-8812
-			</p>
+			<p align="center" style="font-size:20px">1229 Jacklin Rd, Milpitas, CA 95036</br></p>
+			<p align="center" style="font-size:20px"><strong>Mr. Pháp: </strong>408-781-8812</p>
 			</br>
 			</br>
             </div>
-            <div style="width:200px; float:right;">
-			<p align="center" style="font-size:20px">
-			</p>
-			<p align="center" style="font-size:20px">
-				<strong>Mr.Khoa: </strong>0934-934-952
-			</p>
+            <div style="width:400px; float:right;">
+               <p align="center" style="font-size:20px"></p>
+      			<p align="center" style="font-size:20px"><strong>Mr.Khoa: </strong>0934-934-952</p>
 			</div>
 			</div>
 			</br></br></br></br></br>
@@ -176,14 +169,14 @@ p.hidden {
 //							echo str_pad("Description",20,"&nbsp;").str_pad("weight",5,"&nbsp;").str_pad("price",5,"&nbsp;").str_pad("unit",5,"&nbsp;").str_pad("price",5,"&nbsp;")."total";
 							echo "<br/>";
 						?>
-							<div class="rTable">
+							<div class="rTable" style="width:800px">
 								<div class="rTableRow">
-									<div class="rTableHead"><strong>Description</strong></div>
-									<div class="rTableHead"><strong>Weight(lbs)</strong></div>
-									<div class="rTableHead"><strong>Price</strong></div>
-									<div class="rTableHead"><strong>Unit</strong></div>
-									<div class="rTableHead"><strong>Price</strong></div>
-									<div class="rTableHead"><strong>Total</strong></div>
+									<div class="rTableHead" style="width:500px"><strong>Description</strong></div>
+									<div class="rTableHead" style="width:60px"><strong>Weight(lbs)</strong></div>
+									<div class="rTableHead" style="width:60px"><strong>Price</strong></div>
+									<div class="rTableHead" style="width:60px"><strong>Unit</strong></div>
+									<div class="rTableHead" style="width:60px"><strong>Price</strong></div>
+									<div class="rTableHead" style="width:60px"><strong>Total</strong></div>
 								</div>
 						<?php
 							function isEmptyValue($value) {
