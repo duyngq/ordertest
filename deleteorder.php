@@ -19,7 +19,7 @@ function deleteOrder() {
 		echo "NO";
 	}
 
-    mysql_close($connection);
+    mysql_close();
     ob_end_flush();
 }
 

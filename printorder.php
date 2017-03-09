@@ -34,6 +34,14 @@ tr {
 p.hidden {
 	border-style: hidden;
 }
+
+.rTable { display: table; width: 60%; border:0;}
+.rTableRow {display: table-row;}
+.rTableHeading { display: table-header-group; background-color: #ddd;}
+.rTableCell, .rTableHead { display: table-cell; padding: 3px 10px; border: 0px solid #999999; }
+.rTableHeading { display: table-header-group; background-color: #ddd; font-weight: bold; }
+.rTableFoot { display: table-footer-group; font-weight: bold; background-color: #ddd; }
+.rTableBody { display: table-row-group; }
 </style>
 <script type="text/javascript" src="js/validate.js"></script>
 <script type="text/javascript" src="js/util.js"></script>
@@ -56,9 +64,9 @@ p.hidden {
 		<textarea id="header">SAO PHI CARGO</textarea>
 		<div id="identity">
 		  <div style="width:800px;">
-		      <div style="width:300px; float:left;">
+		      <div style="width:400px; float:left;">
 			<p align="center" style="font-size:20px">
-				1229 Jacklin Rd, Milpitas, Ca, 95036</br>
+				1229 Jacklin Rd Milpitas CA 95036</br>
 			</p>
 			<p align="center" style="font-size:20px">
 				<strong>Mr. Pháp: </strong>408-781-8812
@@ -66,9 +74,8 @@ p.hidden {
 			</br>
 			</br>
             </div>
-            <div style="width:300px; float:right;">
+            <div style="width:200px; float:right;">
 			<p align="center" style="font-size:20px">
-				<br/>
 			</p>
 			<p align="center" style="font-size:20px">
 				<strong>Mr.Khoa: </strong>0934-934-952
@@ -90,13 +97,13 @@ p.hidden {
 					$recvId = $order['recv_cust_id'];
 					$_SESSION['orderType'] = $order['new_type'];
 					$orderArray = array("id" => $order['id'], "send_cust_id" => $order['send_cust_id'],
-			                  "user_id" => $order['user_id'], "status" => $order['status'], "date" => $order['date'], "total_weight" => $order['total_weight'],
-			                  "price_per_weight" => $order['price_per_weight'], "total_weight_1" => $order['total_weight_1'],
-			                  "price_per_weight_1" => $order['price_per_weight_1'], "total_weight_2" => $order['total_weight_2'],
-                              "price_per_weight_2" => $order['price_per_weight_2'], "total_weight_3" => $order['total_weight_3'],
-                              "price_per_weight_3" => $order['price_per_weight_3'], "total_weight_4" => $order['total_weight_4'],
-                              "price_per_weight_4" => $order['price_per_weight_4'], "total_weight_5" => $order['total_weight_5'],
-                              "price_per_weight_5" => $order['price_per_weight_5'], "fee" => $order['fee'], "total" => $order['total'], "recv_cust_id" => $order['recv_cust_id'],
+			                  "user_id" => $order['user_id'], "status" => $order['status'], "date" => $order['date'], "total_weight_0" => $order['total_weight'],
+			                  "desc_0" => $order['desc_0'], "price_per_weight_0" => $order['price_per_weight'], "total_weight_1" => $order['total_weight_1'],
+			                  "desc_1" => $order['desc_1'], "price_per_weight_1" => $order['price_per_weight_1'], "total_weight_2" => $order['total_weight_2'],
+                              "desc_2" => $order['desc_2'], "price_per_weight_2" => $order['price_per_weight_2'], "total_weight_3" => $order['total_weight_3'],
+                              "desc_3" => $order['desc_3'], "price_per_weight_3" => $order['price_per_weight_3'], "total_weight_4" => $order['total_weight_4'],
+                              "desc_4" => $order['desc_4'], "price_per_weight_4" => $order['price_per_weight_4'], "total_weight_5" => $order['total_weight_5'],
+                              "desc_5" => $order['desc_5'], "price_per_weight_5" => $order['price_per_weight_5'], "fee" => $order['fee'], "total" => $order['total'], "recv_cust_id" => $order['recv_cust_id'],
 			                  "product_desc" => $order['product_desc'], "additional_fee" => $order['additional_fee'], "code" => $order['code']);
 				}
 
@@ -147,7 +154,7 @@ p.hidden {
 				<tr>
 					<td contenteditable='true'>
 						<p id="underline"><strong>DESCRIPTION OF CONTENTS: (TÊN HÀNG HÓA):</strong></p>
-						<p><?php
+						<?php
     						// For loop here over product list to show:
     						// + <quantity> <unit> <productName>
 
@@ -164,61 +171,129 @@ p.hidden {
                             }
 							echo "<br/>";
 
-							$orderFormat = "%-30s %-10s %-10s %-10s %s";
-							echo str_replace(" ", "&nbsp;",sprintf($orderFormat,"Description","weight","price","unit","price"));
+// 							$orderFormat = "%-30s %-10s %-10s %-10s %s";
+// 							echo str_replace(" ", "&nbsp;",sprintf($orderFormat,"Description","weight","price","unit","price"));
 //							echo str_pad("Description",20,"&nbsp;").str_pad("weight",5,"&nbsp;").str_pad("price",5,"&nbsp;").str_pad("unit",5,"&nbsp;").str_pad("price",5,"&nbsp;")."total";
 							echo "<br/>";
+						?>
+							<div class="rTable">
+								<div class="rTableRow">
+									<div class="rTableHead"><strong>Description</strong></div>
+									<div class="rTableHead"><strong>Weight(lbs)</strong></div>
+									<div class="rTableHead"><strong>Price</strong></div>
+									<div class="rTableHead"><strong>Unit</strong></div>
+									<div class="rTableHead"><strong>Price</strong></div>
+									<div class="rTableHead"><strong>Total</strong></div>
+								</div>
+						<?php
+							function isEmptyValue($value) {
+								return is_null($value) || $value == null || $value == '' || $value == 0;
+							}
 							if ($_SESSION['orderType'] == 1) {
 							     $getOrderDetailsQuery = "select * from orderdetails where order_id=".$orderId;
 							     $orderDetailsResult = mysql_query($getOrderDetailsQuery) or die(mysql_error() . "Can not retrieve information from database");
 							     $noOfProducts = 0;
 							     $oldProducts = array ();
 							     while ($orderDetails = mysql_fetch_array($orderDetailsResult)) {
-                                    echo str_replace(" ", "&nbsp;",sprintf($orderFormat, $orderDetails['p_desc'],$orderDetails['weight'],$orderDetails['price_weight'],$orderDetails['unit'],$orderDetails['price_unit'], ($orderDetails['weight']*$orderDetails['price_weight'])+($orderDetails['unit']*$orderDetails['price_unit'])));
-                                    echo "<br/>";
+							     	$product = array ();
+							     	$product [0] = $orderDetails['id'];
+							     	$product [1] = $orderDetails['order_id'];
+							     	$product [2] = $orderDetails['p_desc'];
+							     	$product [3] = $orderDetails['weight'];
+							     	$product [4] = $orderDetails['price_weight'];
+							     	$product [5] = $orderDetails['unit'];
+							     	$product [6] = $orderDetails['price_unit'];
+							     	$oldProducts [$noOfProducts] = $product;
+							     	$noOfProducts++;
+							     	if ( isEmptyValue($product [2]) && isEmptyValue($product [3]) && isEmptyValue($product [4]) && isEmptyValue($product [5]) && isEmptyValue($product [6])) {
+							     		continue;
+							     	}
+						?>
+								<div class="rTableRow">
+									<div class="rTableCell"><?php echo $orderDetails['p_desc'];?></div>
+									<div class="rTableCell"><?php echo $orderDetails['weight'];?></div>
+									<div class="rTableCell"><?php echo $orderDetails['price_weight'];?></div>
+									<div class="rTableCell"><?php echo $orderDetails['unit'];?></div>
+									<div class="rTableCell"><?php echo $orderDetails['price_unit'];?></div>
+									<div class="rTableCell"><?php echo ($orderDetails['weight'] * $orderDetails['price_weight']) + ($orderDetails['unit'] * $orderDetails['price_unit']);?></div>
+								</div>
+                                    <?php
 							     }
+						?>
+						<br/><br/>
+									<!-- Additional fee and total -->
+		                            <div class="rTableRow">
+		                              Payment in VietNam
+		                              <div class="rTableCell" style="border:0"></div>
+		                              <div class="rTableCell" style="border:0"></div>
+		                              <div class="rTableCell" style="border:0"></div>
+		                              <div class="rTableCell" style="border:0"></div>
+		                              <div class="rTableCell"><?php echo $orderArray['fee'];?></div>
+		                            </div>
+		                            <div class="rTableRow">
+		                                 <div class="rTableCell" style="border:0">Total (*)</div>
+		                                 <div class="rTableCell" style="border:0"><input name="weight_sum" type="text" id="weight_sum" class="weight_sum" value="<?php
+		                                    $weightSum = 0;
+                                            foreach ($oldProducts as $orderDetails) {
+                                                $weightSum += $orderDetails[3];
+                                            }
+                                            echo $weightSum;
+		                                 ?>" size="10" style="border:0" readonly="readonly"/></div>
+		                                 <div class="rTableCell" style="border:0"></div>
+		                                 <div class="rTableCell" style="border:0"><input name="unit_sum" type="text" id="unit_sum" class="unit_sum" value="<?php
+                                            $unitSum = 0;
+                                            foreach ($oldProducts as $orderDetails) {
+                                                $unitSum += $orderDetails[5];
+                                            }
+                                            echo $unitSum;
+                                         ?>" size="5" style="border:0" readonly="readonly"/></div>
+		                                 <div class="rTableCell" style="border:0"></div>
+		                                 <div class="rTableCell" style="border:0"><?php echo $orderArray['total'];?></div>
+		                            </div>
+							</div>
+							<?php
+							} else { //old format
+								$weightSum = 0;
+								for ($i = 0; $i <= 5; $i++) {
+									$weightSum += $orderArray['total_weight_'.$i];
+									if ( isEmptyValue($orderArray['desc_'.$i]) && isEmptyValue($orderArray['total_weight_'.$i]) && isEmptyValue($orderArray['price_per_weight_'.$i])) {
+										continue;
+									}
+								?>
+								<div class="rTableRow">
+									<div class="rTableCell"><?php echo $orderArray['desc_'.$i];?></div>
+										<div class="rTableCell"><?php echo $orderArray['total_weight_'.$i];?></div>
+										<div class="rTableCell"><?php echo $orderArray['price_per_weight_'.$i];?></div>
+										<div class="rTableCell">0</div>
+										<div class="rTableCell">0</div>
+										<div class="rTableCell"><?php echo ($orderArray['total_weight_'.$i] * $orderArray['price_per_weight_'.$i]);?></div>
+									</div>
+									<?php
+								}?>
+									<br/><br/>
+										<!-- Additional fee and total -->
+			                            <div class="rTableRow">
+			                              Payment in VietNam
+			                              <div class="rTableCell" style="border:0"></div>
+			                              <div class="rTableCell" style="border:0"></div>
+			                              <div class="rTableCell" style="border:0"></div>
+			                              <div class="rTableCell" style="border:0"></div>
+			                              <div class="rTableCell"><?php echo $orderArray['fee'];?></div>
+			                            </div>
+			                            <div class="rTableRow">
+			                                 <div class="rTableCell" style="border:0">Total (*)</div>
+			                                 <div class="rTableCell" style="border:0"><input name="weight_sum" type="text" id="weight_sum" class="weight_sum" value="<?php
+	                                            echo $weightSum;
+			                                 ?>" size="10" style="border:0" readonly="readonly"/></div>
+			                                 <div class="rTableCell" style="border:0"></div>
+			                                 <div class="rTableCell" style="border:0"><input name="unit_sum" type="text" id="unit_sum" class="unit_sum" value="0" size="5" style="border:0" readonly="readonly"/></div>
+			                                 <div class="rTableCell" style="border:0"></div>
+			                                 <div class="rTableCell" style="border:0"><?php echo $orderArray['total'];?></div>
+			                            </div>
+								</div>
+								<?php
 							}
-//							echo "<br>PHU THU:<br>";
-//							echo str_replace($order, $replace, $orderArray['additional_fee']);
-//							echo "<br><br>";
-//							$totalWeight = $orderArray["total_weight"];
-//							$details1="";
-//							$total1="";
-//							if ((!is_null($orderArray["total_weight_1"]) && !empty($orderArray["total_weight_1"])) && (!is_null($orderArray["price_per_weight_1"]) && !empty($orderArray["price_per_weight_1"]))) {
-//								$details1 = $details1." + ".$orderArray["total_weight_1"]." X ".$orderArray["price_per_weight_1"];
-//								$total1 = $total1." + ".$orderArray["total_weight_1"]*$orderArray["price_per_weight_1"];
-//								$totalWeight += $orderArray["total_weight_1"];
-//							}
-//							$details2="";
-//                            $total2="";
-//                            if ((!is_null($orderArray["total_weight_2"]) && !empty($orderArray["total_weight_2"])) && (!is_null($orderArray["price_per_weight_2"]) && !empty($orderArray["price_per_weight_2"]))) {
-//                                $details2 = $details2." + ".$orderArray["total_weight_2"]." X ".$orderArray["price_per_weight_2"];
-//                                $total2 = $total2." + ".$orderArray["total_weight_2"]*$orderArray["price_per_weight_2"];
-//                                $totalWeight += $orderArray["total_weight_2"];
-//                            }
-//                            $details3="";
-//                            $total3="";
-//                            if ((!is_null($orderArray["total_weight_3"]) && !empty($orderArray["total_weight_3"])) && (!is_null($orderArray["price_per_weight_3"]) && !empty($orderArray["price_per_weight_3"]))) {
-//                            	$details3 = $details3." + ".$orderArray["total_weight_3"]." X ".$orderArray["price_per_weight_3"];
-//                            	$total3 = $total3." + ".$orderArray["total_weight_3"]*$orderArray["price_per_weight_3"];
-//                            	$totalWeight += $orderArray["total_weight_3"];
-//                            }
-//                            $details4="";
-//                            $total4="";
-//                            if ((!is_null($orderArray["total_weight_4"]) && !empty($orderArray["total_weight_4"])) && (!is_null($orderArray["price_per_weight_4"]) && !empty($orderArray["price_per_weight_4"]))) {
-//                            	$details4 = $details4." + ".$orderArray["total_weight_4"]." X ".$orderArray["price_per_weight_4"];
-//                            	$total4 = $total4." + ".$orderArray["total_weight_4"]*$orderArray["price_per_weight_4"];
-//                            	$totalWeight += $orderArray["total_weight_4"];
-//                            }
-//                            $details5="";
-//                            $total5="";
-//                            if ((!is_null($orderArray["total_weight_5"]) && !empty($orderArray["total_weight_5"])) && (!is_null($orderArray["price_per_weight_5"]) && !empty($orderArray["price_per_weight_5"]))) {
-//                            	$details5 = $details5." + ".$orderArray["total_weight_5"]." X ".$orderArray["price_per_weight_5"];
-//                            	$total5 = $total5." + ".$orderArray["total_weight_5"]*$orderArray["price_per_weight_5"];
-//                            	$totalWeight += $orderArray["total_weight_5"];
-//                            }
-//	                        echo "<strong>TOTAL : ".$orderArray["total_weight"]." X ".$orderArray["price_per_weight"].$details1.$details2.$details3.$details4.$details5." = ".($orderArray["total_weight"]*$orderArray["price_per_weight"]).$total1.$total2.$total3.$total4.$total5." + ".$orderArray['fee']." = ".$orderArray["total"]."</strong>";
-						?></p>
+							?>
                     </td>
 				</tr>
 
@@ -226,7 +301,7 @@ p.hidden {
 			<table id="tablenoborder" class="nothing">
 				<tr>
 					<td contenteditable='true'><strong>Weight:(lbs)</strong></td>
-					<td><?php echo $totalWeight;?></td>
+					<td><?php echo $weightSum;?></td>
 					<td><strong>Date:</strong></td>
 					<td><?php echo $orderArray["date"];?></td>
 					<td><strong>No.oBox:</strong></td>

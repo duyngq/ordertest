@@ -372,9 +372,9 @@ echo date('d/m/Y'); ?> - Time: <?php echo date('H:i'); ?> </p>
                                     <td><?php echo $shippingList[$shippingIndex + 7] ?></td>
                                     <td><?php echo $shippingList[$shippingIndex + 8] ?></td>
                                     <td><?php echo $shippingList[$shippingIndex + 9] ?>
-                                        <span class="link"><a href="#" class="href-right table-action-hide">
+                                        <span class="link"><!-- a href="#" class="href-right table-action-hide">
                                                 <i class="fa fa-pencil"></i>
-                                            </a>
+                                            </a-->
                                             <a class="href-right delete-row table-action-hide">
                                                 <i class="fa fa-trash-o href-right"></i>
                                             </a></span>
@@ -427,9 +427,9 @@ echo date('d/m/Y'); ?> - Time: <?php echo date('H:i'); ?> </p>
                                     <td><?php echo $shippedList[$shippedIndex + 7] ?></td>
                                     <td><?php echo $shippedList[$shippedIndex + 8] ?></td>
                                     <td><?php echo $shippedList[$shippedIndex + 9] ?>
-                                        <span class="link"><a href="#" class="href-right table-action-hide">
+                                        <span class="link"><!-- a href="#" class="href-right table-action-hide">
                                                 <i class="fa fa-pencil"></i>
-                                            </a>
+                                            </a-->
                                             <a class="href-right delete-row table-action-hide">
                                                 <i class="fa fa-trash-o href-right"></i>
                                             </a></span>
