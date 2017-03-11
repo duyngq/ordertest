@@ -35,7 +35,7 @@ p.hidden {
 	border-style: hidden;
 }
 
-.rTable { display: table; width: 60%; border:0;}
+.rTable { display: table; width: 100%; border:0;}
 .rTableRow {display: table-row;}
 .rTableHeading { display: table-header-group; background-color: #ddd;}
 .rTableCell, .rTableHead { display: table-cell; padding: 3px 10px; border: 0px solid #999999; }
@@ -66,7 +66,7 @@ p.hidden {
 		  <div style="width:800px;">
 		      <div style="width:400px; float:left;">
 			<p align="center" style="font-size:20px">1229 Jacklin Rd, Milpitas, CA 95036</br></p>
-			<p align="center" style="font-size:20px"><strong>Mr. Pháp: </strong>408-781-8812</p>
+			<p align="center" style="font-size:20px"><strong>Mr. Phap: </strong>408-781-8812</p>
 			</br>
 			</br>
             </div>
@@ -169,7 +169,11 @@ p.hidden {
 //							echo str_pad("Description",20,"&nbsp;").str_pad("weight",5,"&nbsp;").str_pad("price",5,"&nbsp;").str_pad("unit",5,"&nbsp;").str_pad("price",5,"&nbsp;")."total";
 							echo "<br/>";
 						?>
+<<<<<<< HEAD
                             <div class="rTable">
+=======
+							<div class="rTable">
+>>>>>>> 5dfbf51c6ed70fa2f1b0f17c6e7dcdd29ccfc5d1
 								<div class="rTableRow">
 									<div class="rTableHead" style="width:70%"><strong>Description</strong></div>
 									<div class="rTableHead" style="width:5%"><strong>Weight(lbs)</strong></div>
@@ -202,7 +206,7 @@ p.hidden {
 							     		continue;
 							     	}
 						?>
-                            <div class="rTableRow">
+								<div class="rTableRow">
 									<div class="rTableCell" style="width:70%"><?php echo $orderDetails['p_desc'];?></div>
 									<div class="rTableCell" style="width:5%"><?php echo $orderDetails['weight'];?></div>
 									<div class="rTableCell" style="width:5%"><?php echo $orderDetails['price_weight'];?></div>
@@ -253,7 +257,7 @@ p.hidden {
 										continue;
 									}
 								?>
-                                <div class="rTableRow">
+								<div class="rTableRow">
 									<div class="rTableCell" style="width:70%"><?php echo $orderArray['desc_'.$i];?></div>
 									<div class="rTableCell" style="width:5%"><?php echo $orderArray['total_weight_'.$i];?></div>
 									<div class="rTableCell" style="width:5%"><?php echo $orderArray['price_per_weight_'.$i];?></div>
