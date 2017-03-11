@@ -169,14 +169,14 @@ p.hidden {
 //							echo str_pad("Description",20,"&nbsp;").str_pad("weight",5,"&nbsp;").str_pad("price",5,"&nbsp;").str_pad("unit",5,"&nbsp;").str_pad("price",5,"&nbsp;")."total";
 							echo "<br/>";
 						?>
-							<div class="rTable" style="width:800px">
+                            <div class="rTable">
 								<div class="rTableRow">
-									<div class="rTableHead" style="width:500px"><strong>Description</strong></div>
-									<div class="rTableHead" style="width:60px"><strong>Weight(lbs)</strong></div>
-									<div class="rTableHead" style="width:60px"><strong>Price</strong></div>
-									<div class="rTableHead" style="width:60px"><strong>Unit</strong></div>
-									<div class="rTableHead" style="width:60px"><strong>Price</strong></div>
-									<div class="rTableHead" style="width:60px"><strong>Total</strong></div>
+									<div class="rTableHead" style="width:70%"><strong>Description</strong></div>
+									<div class="rTableHead" style="width:5%"><strong>Weight(lbs)</strong></div>
+									<div class="rTableHead" style="width:5%"><strong>Price</strong></div>
+									<div class="rTableHead" style="width:5%"><strong>Unit</strong></div>
+									<div class="rTableHead" style="width:5%"><strong>Price</strong></div>
+									<div class="rTableHead" style="width:10%"><strong>Total</strong></div>
 								</div>
 						<?php
 							function isEmptyValue($value) {
@@ -202,13 +202,13 @@ p.hidden {
 							     		continue;
 							     	}
 						?>
-								<div class="rTableRow">
-									<div class="rTableCell"><?php echo $orderDetails['p_desc'];?></div>
-									<div class="rTableCell"><?php echo $orderDetails['weight'];?></div>
-									<div class="rTableCell"><?php echo $orderDetails['price_weight'];?></div>
-									<div class="rTableCell"><?php echo $orderDetails['unit'];?></div>
-									<div class="rTableCell"><?php echo $orderDetails['price_unit'];?></div>
-									<div class="rTableCell"><?php echo ($orderDetails['weight'] * $orderDetails['price_weight']) + ($orderDetails['unit'] * $orderDetails['price_unit']);?></div>
+                            <div class="rTableRow">
+									<div class="rTableCell" style="width:70%"><?php echo $orderDetails['p_desc'];?></div>
+									<div class="rTableCell" style="width:5%"><?php echo $orderDetails['weight'];?></div>
+									<div class="rTableCell" style="width:5%"><?php echo $orderDetails['price_weight'];?></div>
+									<div class="rTableCell" style="width:5%"><?php echo $orderDetails['unit'];?></div>
+									<div class="rTableCell" style="width:5%"><?php echo $orderDetails['price_unit'];?></div>
+									<div class="rTableCell" style="width:10%"><?php echo ($orderDetails['weight'] * $orderDetails['price_weight']) + ($orderDetails['unit'] * $orderDetails['price_unit']);?></div>
 								</div>
                                     <?php
 							     }
@@ -253,13 +253,13 @@ p.hidden {
 										continue;
 									}
 								?>
-								<div class="rTableRow">
-									<div class="rTableCell"><?php echo $orderArray['desc_'.$i];?></div>
-										<div class="rTableCell"><?php echo $orderArray['total_weight_'.$i];?></div>
-										<div class="rTableCell"><?php echo $orderArray['price_per_weight_'.$i];?></div>
-										<div class="rTableCell">0</div>
-										<div class="rTableCell">0</div>
-										<div class="rTableCell"><?php echo ($orderArray['total_weight_'.$i] * $orderArray['price_per_weight_'.$i]);?></div>
+                                <div class="rTableRow">
+									<div class="rTableCell" style="width:70%"><?php echo $orderArray['desc_'.$i];?></div>
+									<div class="rTableCell" style="width:5%"><?php echo $orderArray['total_weight_'.$i];?></div>
+									<div class="rTableCell" style="width:5%"><?php echo $orderArray['price_per_weight_'.$i];?></div>
+									<div class="rTableCell" style="width:5%">0</div>
+									<div class="rTableCell" style="width:5%">0</div>
+									<div class="rTableCell" style="width:10%"><?php echo ($orderArray['total_weight_'.$i] * $orderArray['price_per_weight_'.$i]);?></div>
 									</div>
 									<?php
 								}?>
