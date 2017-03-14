@@ -145,8 +145,7 @@ $(document).ready(function() {
             <table width="1024px" border="1" id="searchOrder">
                 <tr>
                     <td><div align="right">
-                            <p>Welcome, <?php echo $_SESSION['username']; ?>!  <a
-                                    href="index.php">Home</a> <a href="logout.php">Log out</a>
+                            <p>Welcome, Saigonair Cargo! <a href="index.php">Home</a> <a href="logout.php">Log out</a>
                             </p>
                             <p align="left">
                                 <strong>SEARCH ORDER </strong>
