@@ -209,7 +209,7 @@ p.hidden {
 //							echo str_pad("Description",20,"&nbsp;").str_pad("weight",5,"&nbsp;").str_pad("price",5,"&nbsp;").str_pad("unit",5,"&nbsp;").str_pad("price",5,"&nbsp;")."total";
 							echo "<br/>";
 						?>
-							<div class="rTable">
+                            <div class="rTable">
 								<div class="rTableRow">
 									<div class="rTableHead" style="width:70%"><strong>Description</strong></div>
 									<div class="rTableHead" style="width:5%"><strong>Weight(lbs)</strong></div>
