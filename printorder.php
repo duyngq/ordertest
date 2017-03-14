@@ -61,27 +61,67 @@ p.hidden {
 
 <body>
 	<div id="page-wrap">
-		<textarea id="header">SAO PHI CARGO</textarea>
+		<textarea id="header"><?php
+		  if ( isset($_SESSION['user_id']) && ($_SESSION['user_id'] == 7 || $_SESSION['username'] == 'trietle')) { // apply full role with user khoa - id = 5
+		  	echo "SF Express";
+		  } else {
+		  	echo "SAO PHI CARGO";
+		  }
+		?></textarea>
 		<div id="identity">
+		<?php
+		if ( isset($_SESSION['user_id']) && ($_SESSION['user_id'] == 7 || $_SESSION['username'] == 'trietle')) { // apply full role with user khoa - id = 5
+		?>
+		<div style="width:800px;">
+            <p align="center" style="font-size:20px"><?php
+                echo "2955 Senter Rd, Ste 60, San Jose, CA 95111";
+            ?></br></p>
+            <p align="center" style="font-size:20px"><?php
+                echo "<strong>Mr. Triet: </strong>408-898 9898";
+            ?></p>
+            <?php } else {
+
+            ?>
 		  <div style="width:800px;">
 		      <div style="width:400px; float:left;">
-			<p align="center" style="font-size:20px">1229 Jacklin Rd, Milpitas, CA 95036</br></p>
-			<p align="center" style="font-size:20px"><strong>Mr. Phap: </strong>408-781-8812</p>
+			<p align="center" style="font-size:20px"><?php
+			if ( isset($_SESSION['user_id']) && ($_SESSION['user_id'] == 6 || $_SESSION['username'] == 'vinhle')) { // apply full role with user khoa - id = 5
+				echo "<strong>Mr. Vinh: </strong>408-797-7777";
+            } else {
+            	echo "1229 Jacklin Rd, Milpitas, CA 95036";
+            }
+			?></br></p>
+			<p align="center" style="font-size:20px"><?php
+			 if ( isset($_SESSION['user_id']) && ($_SESSION['user_id'] == 6 || $_SESSION['username'] == 'vinhle')) { // apply full role with user khoa - id = 5
+                echo "";
+            } else {
+                echo "<strong>Mr. Phap: </strong>408-781-8812";
+            }
+
+			?></p>
 			</br>
 			</br>
             </div>
             <div style="width:400px; float:right;">
                <p align="center" style="font-size:20px"></p>
-      			<p align="center" style="font-size:20px"><strong>Mr.Khoa: </strong>0934-934-952</p>
+      			<p align="center" style="font-size:20px"><?php
+      				echo "<strong>Mr.Khoa: </strong>0934-934-952";
+
+      			?></p>
 			</div>
 			</div>
 			</br></br></br></br></br>
 			<?php
+            }
 				$orderId = $_GET ['tr'];
 				$orderId1 = substr ( $orderId, 0, 1 );
 				$orderId2 = substr ( $orderId, 3 );
 				$orderId = base64_decode ( $orderId1 . $orderId2 );
-				$getOrdersQuery = "SELECT * FROM orders where id = $orderId ";
+				if ( isset($_SESSION['user_id']) && ($_SESSION['user_id'] == 5 || $_SESSION['username'] == 'khoa')) { // apply full role with user khoa - id = 5
+					$getOrdersQuery = "SELECT * FROM orders where id = $orderId ";
+				} else {
+					$getOrdersQuery = "SELECT * FROM orders where id = $orderId AND user_id = ".$_SESSION['user_id'];
+				}
 				$ordersResult = mysql_query($getOrdersQuery) or die(mysql_error() . "Can not retrieve information from database");
 				$custId;
 				$recvId;

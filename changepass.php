@@ -18,7 +18,7 @@ if (! isset ( $_SESSION ['loggedIn'] ) || (isset ( $_SESSION ['loggedIn'] ) && !
 
 include_once 'dbconn.php';
 
-function changePass() {    
+function changePass() {
     ob_start();
     // Define $myusername and $mypassword
     $username = $_SESSION["username"];
@@ -28,7 +28,7 @@ function changePass() {
     if($password != $cpassword) {
         header("location:edituser.php?st=0");
     }
-    
+
     // To protect MySQL injection (more detail about MySQL injection)
     $username = stripslashes($username);
     $password = stripslashes($password);
@@ -52,7 +52,7 @@ function changePass() {
         //get current date
         date_default_timezone_set('Asia/Bangkok');
         $currentDate = date('d/m/Y H:i');
-        
+
         while ($user=mysql_fetch_array($result)) {
             $dbpassword = $user['password'];
             echo $dbpassword;
@@ -63,10 +63,10 @@ function changePass() {
 echo "test";
             }
         }
-        
+
 		//regenerate password, Extended DES
 		$hashed_password=password_hash($password, PASSWORD_BCRYPT);
-		
+
         //update to DB
         $updatePassword = "UPDATE users SET date_last_entered='$currentDate', password='$hashed_password' WHERE username='$username'";
         $updateResult = mysql_query($updatePassword);
@@ -78,7 +78,7 @@ echo "test";
     } else {
         header("location:edituser.php?st=0");
     }
-    mysql_close($connection);
+    mysql_close();
     ob_end_flush();
 }
 

@@ -90,6 +90,12 @@ $(document).ready(function() {
 	        dataType: 'json',                //data format
 	        success: function(data) {        //on recieve of reply
 	        	// Loop through Object
+	        	if (data.length <= 0) {
+	        		$(".searchResult-error").html("");
+                    $("#searchResult").append('<tbody class="employee-grid-error"><tr><th colspan="12">No data found in the server</th></tr></tbody>');
+                    $("#searchResult_processing").css("display","none");
+                    return;
+	        	}
 		            for (var key in data) {
 			            if (data.hasOwnProperty(key)) {
 // 			                var order = data['order'];              //get id
