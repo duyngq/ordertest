@@ -47,6 +47,7 @@ function isValueSet($value) {
 
 // Add user_id to make sure order can show with correct user
 function searchOrder($orderQueryString) {
+	$orderQueryString.=" ORDER BY id";
 	if ( isset($_SESSION['user_id']) && ($_SESSION['user_id'] == 1 || $_SESSION['user_id'] == 5 || $_SESSION['username'] == 'khoa')) { // apply full role with user khoa - id = 5
 		$orderQueryResult = mysql_query($orderQueryString) or die ( mysql_error () . "Can not retrieve database" );
 	} else {

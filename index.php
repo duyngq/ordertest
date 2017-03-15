@@ -305,6 +305,8 @@ echo date('d/m/Y'); ?> - Time: <?php echo date('H:i'); ?> </p>
                             } else {
                             	$getAllOrdersQuery = "SELECT * FROM orders WHERE user_id=".$_SESSION['user_id'];// ORDER BY date DESC";
                             }
+
+                            $getAllOrdersQuery.=" ORDER BY id";
                             $allOrdersResult = mysql_query($getAllOrdersQuery) or die(mysql_error() . "Can not retrieve Orders data");
                             $shippedList = array();
                             $shippingList = array();
