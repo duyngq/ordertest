@@ -14,7 +14,7 @@ function calTotal(parentId) {
 		totalId = 'total' + i;
 		total += parseFloat(document.getElementById(parentId).getElementsByClassName(totalId)[0].value);
 	}
-	document.getElementById(parentId).getElementsByClassName("prm_sum")[0].value = total + parseFloat(document.getElementById(parentId).getElementsByClassName("add_fee")[0].value);
+	document.getElementById(parentId).getElementsByClassName("prm_sum")[0].value = (total + parseFloat(document.getElementById(parentId).getElementsByClassName("add_fee")[0].value)).toFixed(4);
 }
 
 function calTotalWeight(parentId) {

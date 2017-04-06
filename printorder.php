@@ -117,7 +117,7 @@ p.hidden {
 				$orderId1 = substr ( $orderId, 0, 1 );
 				$orderId2 = substr ( $orderId, 3 );
 				$orderId = base64_decode ( $orderId1 . $orderId2 );
-				if ( isset($_SESSION['user_id']) && ($_SESSION['user_id'] == 5 || $_SESSION['username'] == 'khoa')) { // apply full role with user khoa - id = 5
+				if ( isset($_SESSION['user_id']) && ($_SESSION['user_id'] == 1 || $_SESSION['user_id'] == 5 || $_SESSION['username'] == 'khoa')) { // apply full role with user khoa - id = 5
 					$getOrdersQuery = "SELECT * FROM orders where id = $orderId ";
 				} else {
 					$getOrdersQuery = "SELECT * FROM orders where id = $orderId AND user_id = ".$_SESSION['user_id'];
