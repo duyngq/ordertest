@@ -167,7 +167,7 @@ if (isset($sbmUpdateInfo) ) {
 	//Generate update query for order
 	$orderId = $_SESSION['orderId'];
     $newOrderArray = array("id" => $orderId, "send_cust_id" => $custId,
-                  "user_id" => $userId, "status" => $status, "date" => $orderDate,
+                  "status" => $status, "date" => $orderDate,
                   "desc_0" => '', "total_weight" => 0, "price_per_weight" => 0,
                   "desc_1" => '', "total_weight_1" => 0, "price_per_weight_1" => 0,
                   "desc_2" => '', "total_weight_2" => 0, "price_per_weight_2" => 0,
@@ -183,7 +183,7 @@ if (isset($sbmUpdateInfo) ) {
     $setClauseForUpdateOrderQuery="";
 
     //define friendly name to show on message
-    $orderInfoArray = array("id" => "Order id", "send_cust_id" => "Sender Id", "user_id" => "User Id", "status" => "Ship status", "date" => "Order date",
+    $orderInfoArray = array("id" => "Order id", "send_cust_id" => "Sender Id", "status" => "Ship status", "date" => "Order date",
                   "desc_0" => "Product description", "total_weight" => "Total weight", "price_per_weight" => "Price per weight",
                   "desc_1" => "Product description 1", "total_weight_1" => "Total weight 1", "price_per_weight_1" => "Price per weight 1",
                   "desc_2" => "Product description 2", "total_weight_2" => "Total weight 2", "price_per_weight_2" => "Price per weight 2",
@@ -411,7 +411,11 @@ p.hidden {
 		$orderId2 = substr($orderId, 3);
 		$orderId = base64_decode($orderId1.$orderId2);
 		//get all order info
-		$getOrdersQuery = "SELECT * FROM orders where id = $orderId ";
+		if ( isset($_SESSION['user_id']) && ($_SESSION['user_id'] == 1 || $_SESSION['user_id'] == 5 || $_SESSION['username'] == 'khoa')) { // apply full role with user khoa - id = 5
+			$getOrdersQuery = "SELECT * FROM orders WHERE id = $orderId";
+		} else {
+			$getOrdersQuery = "SELECT * FROM orders WHERE id = $orderId AND user_id = ".$_SESSION['user_id'];
+		}
 		$ordersResult = mysql_query($getOrdersQuery) or die(mysql_error() . "Can not retrieve information from database");
 		if (mysql_num_rows($ordersResult) < 1) {
 			header("location:index.php");
@@ -420,6 +424,10 @@ p.hidden {
 		$custId;
 		$recvId;
 		while ($order = mysql_fetch_array($ordersResult)) {
+			if ( $order['user_id'] != $_SESSION['user_id'] && $_SESSION['user_id'] != 5 && $_SESSION['username'] != 'khoa' && $_SESSION['user_id'] != 1 ) {
+				 echo '<font color="red">Please check logged in account!!!</font>';
+			     return;
+			}
 			$userId = $_SESSION['user_id'];
 			$custId = $order['send_cust_id'];
 			$recvId = $order['recv_cust_id'];
@@ -429,7 +437,7 @@ p.hidden {
 			$_SESSION['orderId'] = $order['id'];
 			$_SESSION['newType'] = $order['new_type'];
 			$orderArray = array("id" => $order['id'], "send_cust_id" => $order['send_cust_id'],
-                  "user_id" => $order['user_id'], "status" => $order['status'], "date" => $order['date'],
+                  "status" => $order['status'], "date" => $order['date'],
                   "desc_0" => $order['desc_0'], "total_weight" => $order['total_weight'], "price_per_weight" => $order['price_per_weight'],
                   "desc_1" => $order['desc_1'], "total_weight_1" => $order['total_weight_1'], "price_per_weight_1" => $order['price_per_weight_1'],
                   "desc_2" => $order['desc_2'], "total_weight_2" => $order['total_weight_2'], "price_per_weight_2" => $order['price_per_weight_2'],

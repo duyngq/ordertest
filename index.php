@@ -300,7 +300,13 @@ echo date('d/m/Y'); ?> - Time: <?php echo date('H:i'); ?> </p>
                             include_once 'dbconn.php';
                             ob_start();
                             //show all customers and their info
-                            $getAllOrdersQuery = "SELECT * FROM orders";// ORDER BY date DESC";
+                            if ( isset($_SESSION['user_id']) && ($_SESSION['user_id'] == 1 ||$_SESSION['user_id'] == 5 || $_SESSION['username'] == 'khoa')) { // apply full role with user khoa - id = 5
+                                $getAllOrdersQuery = "SELECT * FROM orders";// ORDER BY date DESC";
+                            } else {
+                            	$getAllOrdersQuery = "SELECT * FROM orders WHERE user_id=".$_SESSION['user_id'];// ORDER BY date DESC";
+                            }
+
+                            $getAllOrdersQuery.=" ORDER BY id";
                             $allOrdersResult = mysql_query($getAllOrdersQuery) or die(mysql_error() . "Can not retrieve Orders data");
                             $shippedList = array();
                             $shippingList = array();

@@ -90,6 +90,12 @@ $(document).ready(function() {
 	        dataType: 'json',                //data format
 	        success: function(data) {        //on recieve of reply
 	        	// Loop through Object
+	        	if (data.length <= 0) {
+	        		$(".searchResult-error").html("");
+                    $("#searchResult").append('<tbody class="employee-grid-error"><tr><th colspan="12">No data found in the server</th></tr></tbody>');
+                    $("#searchResult_processing").css("display","none");
+                    return;
+	        	}
 		            for (var key in data) {
 			            if (data.hasOwnProperty(key)) {
 // 			                var order = data['order'];              //get id
@@ -139,8 +145,7 @@ $(document).ready(function() {
             <table width="1024px" border="1" id="searchOrder">
                 <tr>
                     <td><div align="right">
-                            <p>Welcome, <?php echo $_SESSION['username']; ?>!  <a
-                                    href="index.php">Home</a> <a href="logout.php">Log out</a>
+                            <p>Welcome, Saigonair Cargo! <a href="index.php">Home</a> <a href="logout.php">Log out</a>
                             </p>
                             <p align="left">
                                 <strong>SEARCH ORDER </strong>

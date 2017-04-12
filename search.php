@@ -45,8 +45,14 @@ function isValueSet($value) {
     return false;
 }
 
+// Add user_id to make sure order can show with correct user
 function searchOrder($orderQueryString) {
-	$orderQueryResult = mysql_query($orderQueryString) or die ( mysql_error () . "Can not retrieve database" );
+	$orderQueryString.=" ORDER BY id";
+	if ( isset($_SESSION['user_id']) && ($_SESSION['user_id'] == 1 || $_SESSION['user_id'] == 5 || $_SESSION['username'] == 'khoa')) { // apply full role with user khoa - id = 5
+		$orderQueryResult = mysql_query($orderQueryString) or die ( mysql_error () . "Can not retrieve database" );
+	} else {
+		$orderQueryResult = mysql_query($orderQueryString." AND user_id = ".$_SESSION['user_id']) or die ( mysql_error () . "Can not retrieve database" );
+	}
 	$result = array();
 	$i = 1;
 	while ($order = mysql_fetch_array($orderQueryResult)) {

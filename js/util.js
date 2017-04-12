@@ -1,10 +1,11 @@
 //There are element ids duplication between real shipment fee and fee details dialog --> using parent element id goes with class name to identify correct one 
+// multiply to 100 to fix dynamic dot with float number, assumption that, there is not more than 2 number after dot char.
 function calFeeAmount(parentId, weight, price, unit, unitPrice, total) {
-	var weight = document.getElementById(parentId).getElementsByClassName(weight)[0].value;// addClient.lender_loanAmount.value;
-	var pricePerWeight = document.getElementById(parentId).getElementsByClassName(price)[0].value;// addClient.builder_packageAmount.value;
-	var unit = document.getElementById(parentId).getElementsByClassName(unit)[0].value;// addClient.lender_loanAmount.value;
-	var unitPrice = document.getElementById(parentId).getElementsByClassName(unitPrice)[0].value;// addClient.lender_loanAmount.value;
-	var totalPricePackage = (parseFloat(weight)* parseFloat(pricePerWeight)) + (parseFloat(unit)* parseFloat(unitPrice));
+	var weight = parseFloat(document.getElementById(parentId).getElementsByClassName(weight)[0].value);// addClient.lender_loanAmount.value;
+	var pricePerWeight = parseFloat(document.getElementById(parentId).getElementsByClassName(price)[0].value);// addClient.builder_packageAmount.value;
+	var unit = parseFloat(document.getElementById(parentId).getElementsByClassName(unit)[0].value);// addClient.lender_loanAmount.value;
+	var unitPrice = parseFloat(document.getElementById(parentId).getElementsByClassName(unitPrice)[0].value);// addClient.lender_loanAmount.value;
+	var totalPricePackage = ((weight * pricePerWeight) + (unit* unitPrice)).toFixed(4);
 	document.getElementById(parentId).getElementsByClassName(total)[0].value = totalPricePackage;
 }
 function calTotal(parentId) {
@@ -13,7 +14,7 @@ function calTotal(parentId) {
 		totalId = 'total' + i;
 		total += parseFloat(document.getElementById(parentId).getElementsByClassName(totalId)[0].value);
 	}
-	document.getElementById(parentId).getElementsByClassName("prm_sum")[0].value = total + parseFloat(document.getElementById(parentId).getElementsByClassName("add_fee")[0].value);
+	document.getElementById(parentId).getElementsByClassName("prm_sum")[0].value = (total + parseFloat(document.getElementById(parentId).getElementsByClassName("add_fee")[0].value)).toFixed(4);
 }
 
 function calTotalWeight(parentId) {
