@@ -294,6 +294,7 @@ echo date('d/m/Y'); ?> - Time: <?php echo date('H:i'); ?> </p>
                                 <td><strong>Receiver Name </strong></td>
                                 <td><strong>Receiver Phone</strong></td>
                                 <td><strong>Receiver Address</strong></td>
+                                <td><strong>Total Weight</strong></td>
                                 <td><strong>Total Amount</strong></td>
                             </tr>
                             <?php
@@ -316,9 +317,13 @@ echo date('d/m/Y'); ?> - Time: <?php echo date('H:i'); ?> </p>
 
                             	$getReceiverCustomerQuery = "SELECT * FROM recvcustomers WHERE id=" . $order["recv_cust_id"];
                             	$receiverCustomerResult = mysql_query($getReceiverCustomerQuery) or die(mysql_error() . "Can not retrieve Receiver Customers data");
-
+                                $orderDate = $order['date'];
+					            $dates = explode ("-",$order['date']);
+					            if (count($dates) > 1) {
+					               $orderDate= $dates[2]."/".$dates[1]."/".$dates[0];
+					            }
                                 if ($order['status'] == 1) {
-                                    array_push($shippedList, $order['date']);
+                                    array_push($shippedList, $orderDate);
                                     array_push($shippedList, $order['user_id']); // temp move to user id.it should be user name
                                     array_push($shippedList, $order['id']);
                                     while ($sender = mysql_fetch_array($sendCustomerResult)) {
@@ -331,9 +336,10 @@ echo date('d/m/Y'); ?> - Time: <?php echo date('H:i'); ?> </p>
                                     	array_push($shippedList, $receiver['phone']);
                                     	array_push($shippedList, $receiver['address']);
                                     }
+                                    array_push($shippedList, $order['weight']);
                                     array_push($shippedList, $order['total']);
                                 } else {
-                                    array_push($shippingList, $order['date']);
+                                    array_push($shippingList, $orderDate);
                                     array_push($shippingList, $order['user_id']);
                                     array_push($shippingList, $order['id']);
                                 	while ($sender = mysql_fetch_array($sendCustomerResult)) {
@@ -346,11 +352,12 @@ echo date('d/m/Y'); ?> - Time: <?php echo date('H:i'); ?> </p>
                                     	array_push($shippingList, $receiver['phone']);
                                     	array_push($shippingList, $receiver['address']);
                                     }
+                                    array_push($shippingList, $order['weight']);
                                     array_push($shippingList, $order['total']);
                                 }
                             }
-                            for ($index = 0; $index < (count($shippingList) / 10); $index++) {
-                                $shippingIndex = $index * 10;
+                            for ($index = 0; $index < (count($shippingList) / 11); $index++) {
+                                $shippingIndex = $index * 11;
                                 ?>
                                 <tr onMouseOver="ChangeColor(this, true);" onMouseOut="ChangeColor(this, false);" onClick="DoNav('orderdetails.php?tr=<?php
                             $custId = base64_encode($shippingList[$shippingIndex + 2]);
@@ -378,6 +385,7 @@ echo date('d/m/Y'); ?> - Time: <?php echo date('H:i'); ?> </p>
                                     <td><?php echo $shippingList[$shippingIndex + 7] ?></td>
                                     <td><?php echo $shippingList[$shippingIndex + 8] ?></td>
                                     <td><?php echo $shippingList[$shippingIndex + 9] ?>
+                                    <td><?php echo $shippingList[$shippingIndex + 10] ?>
                                         <span class="link"><!-- a href="#" class="href-right table-action-hide">
                                                 <i class="fa fa-pencil"></i>
                                             </a-->
@@ -402,11 +410,12 @@ echo date('d/m/Y'); ?> - Time: <?php echo date('H:i'); ?> </p>
                                 <td><strong>Receiver Name </strong></td>
                                 <td><strong>Receiver Phone</strong></td>
                                 <td><strong>Receiver Address</strong></td>
+                                <td><strong>Total Weight</strong></td>
                                 <td><strong>Total Amount</strong></td>
                             </tr>
                             <?php
-                            for ($index = 0; $index < (count($shippedList) / 10); $index++) {
-                                $shippedIndex = $index * 10;
+                            for ($index = 0; $index < (count($shippedList) / 11); $index++) {
+                                $shippedIndex = $index * 11;
                                 ?>
                                 <tr onMouseOver="ChangeColor(this, true);" onMouseOut="ChangeColor(this, false);" onClick="DoNav('orderdetails.php?tr=<?php
                             $orderId = base64_encode($shippedList[$shippedIndex + 2]);
@@ -433,6 +442,7 @@ echo date('d/m/Y'); ?> - Time: <?php echo date('H:i'); ?> </p>
                                     <td><?php echo $shippedList[$shippedIndex + 7] ?></td>
                                     <td><?php echo $shippedList[$shippedIndex + 8] ?></td>
                                     <td><?php echo $shippedList[$shippedIndex + 9] ?>
+                                    <td><?php echo $shippedList[$shippedIndex + 10] ?>
                                         <span class="link"><!-- a href="#" class="href-right table-action-hide">
                                                 <i class="fa fa-pencil"></i>
                                             </a-->

@@ -81,7 +81,7 @@ p.hidden {
 $(document).ready(function() {
 	$("#submit").click(function(){
 		$("#searchResult tbody").remove();
-		var dataString = 'orderNo='+ $("#orderNo").val() + '&senderPhone=' + $('#senderPhone').val() + '&receiverPhone=' + $('#receiverPhone').val();// + '&email1='+ email + '&password1='+ password + '&contact1='+ contact;
+		var dataString = 'orderNo='+ $("#orderNo").val() + '&senderPhone=' + $('#senderPhone').val() + '&receiverPhone=' + $('#receiverPhone').val()+ '&fromDate=' + $('#fromDate').val()+ '&toDate=' + $('#toDate').val();// + '&email1='+ email + '&password1='+ password + '&contact1='+ contact;
 		$.ajax({
 	        url: 'search.php',                  //the script to call to get data
 	        type: "POST",
@@ -115,6 +115,7 @@ $(document).ready(function() {
 		                    	+"<td>"+data[key]['recv_name']+"</td>"
 		                        +"<td>"+data[key]['recv_phone']+"</td>"
 		                        +"<td>"+data[key]['recv_address']+"</td>"
+		                        +"<td>"+data[key]['weight']+"</td>"
 		                        +"<td>"+data[key]['total']+"</td>"
 		                    	+"</tr></tbody>" ;
 		                    $("#searchResult").append($(newRow));
@@ -136,6 +137,12 @@ $(document).ready(function() {
 	    });
 	});
 });
+
+$( function() {
+    $( ".datepicker" ).datepicker({
+        dateFormat: "dd/mm/yy"
+    });
+  } );
 </script>
 </head>
 
@@ -182,6 +189,15 @@ $(document).ready(function() {
                                     ?>
                                     </datalist>
                                 </tr>
+                                <tr>
+                                    <td>Date</td>
+                                </tr>
+                                <tr>
+                                    <td><blockquote>From</blockquote></td>
+                                    <td><input name="fromDate" type="date" id="fromDate" class="datePicker" size="30" /></td>
+                                    <td>To</td>
+                                    <td><input name="toDate" type="date" id="toDate" class="datepicker" size="30" /></td>
+                                </tr>
                             </table>
                             <p align="center"><input type="button" name="submit" id="submit" value="Search" /></p>
                         </div></td>
@@ -198,6 +214,7 @@ $(document).ready(function() {
                             <th>Receiver Name </th>
                             <th>Receiver Phone</th>
                             <th>Receiver Address</th>
+                            <th>Total weight</th>
                             <th>Total Amount</th>
                         </tr>
                     </thead>

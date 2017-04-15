@@ -71,6 +71,9 @@ if (isset ( $submit )) {
     $addFee = $_POST ["add_fee"];
     validateNumber ( $addFee, "Additional fee" );
 
+    $weightSum = $_POST ["weight_sum"];
+    validateNumber ( $addFee, "Weight" );
+
 	$total = $_POST ["prm_sum"];
 	validateNumber ( $total, "Total amount of all products" );
 
@@ -125,14 +128,14 @@ if (isset ( $submit )) {
         		$recvCustId = $customer ["id"];
         	}
         }
-        $orderId = addNewOrder ( $custId, $recvCustId, $userId, $orderDate, 
-            "", 0, 0,//$proDesc0, $totalWeight0, $pricePerWeight0, 
-            "", 0, 0,//$proDesc1, $totalWeight1, $pricePerWeight1, 
-            "", 0, 0,//$proDesc2, $totalWeight2, $pricePerWeight2, 
-            "", 0, 0,//$proDesc3, $totalWeight3, $pricePerWeight3, 
-            "", 0, 0,//$proDesc4, $totalWeight4, $pricePerWeight4, 
-            "", 0, 0,//$proDesc5, $totalWeight5, $pricePerWeight5, 
-            $addFee, $productDesc, $additionalFee, $total, $connection, $submit ); // with new design, move all shipment fee to order details table
+        $orderId = addNewOrder ( $custId, $recvCustId, $userId, $orderDate,
+            "", 0, 0,//$proDesc0, $totalWeight0, $pricePerWeight0,
+            "", 0, 0,//$proDesc1, $totalWeight1, $pricePerWeight1,
+            "", 0, 0,//$proDesc2, $totalWeight2, $pricePerWeight2,
+            "", 0, 0,//$proDesc3, $totalWeight3, $pricePerWeight3,
+            "", 0, 0,//$proDesc4, $totalWeight4, $pricePerWeight4,
+            "", 0, 0,//$proDesc5, $totalWeight5, $pricePerWeight5,
+            $addFee, $productDesc, $additionalFee, $weightSum, $total, $connection, $submit ); // with new design, move all shipment fee to order details table
         addOrderDetails($orderId, $products, $connection, $submit);
 	} else {
 		rollback();
@@ -145,20 +148,21 @@ if (isset ( $submit )) {
 	unset ( $submit );
 }
 
-function addNewOrder($custId, $recvCustId, $userId, $orderDate, $proDesc0, $totalWeight, $pricePerWeight, $proDesc1, $totalWeight1, $pricePerWeight1, $proDesc2, $totalWeight2, $pricePerWeight2, $proDesc3, $totalWeight3, $pricePerWeight3, $proDesc4, $totalWeight4, $pricePerWeight4, $proDesc5, $totalWeight5, $pricePerWeight5, $addFee, $productDesc, $additionalFee, $total, $connection, $submit) {
+function addNewOrder($custId, $recvCustId, $userId, $orderDate, $proDesc0, $totalWeight, $pricePerWeight, $proDesc1, $totalWeight1, $pricePerWeight1, $proDesc2, $totalWeight2, $pricePerWeight2, $proDesc3, $totalWeight3, $pricePerWeight3, $proDesc4, $totalWeight4, $pricePerWeight4, $proDesc5, $totalWeight5, $pricePerWeight5, $addFee, $productDesc, $additionalFee, $weightSum, $total, $connection, $submit) {
 	//convert input date to format d/m/Y to parse to timestamp for cal current week number of month
 	$dates = explode ("/",$orderDate);
     $ordDate = strtotime($dates[1]."/".$dates[0]."/".$dates[2]);
 	$code = date("n", $ordDate).weekOfMonth($ordDate);
-	
-	$addNewOrder = "insert into orders(send_cust_id, recv_cust_id, user_id, status, date, 
-	   desc_0, total_weight, price_per_weight, 
-	   desc_1, total_weight_1, price_per_weight_1, 
-	   desc_2, total_weight_2, price_per_weight_2, 
-	   desc_3, total_weight_3, price_per_weight_3, 
-	   desc_4, total_weight_4, price_per_weight_4, 
-	   desc_5, total_weight_5, price_per_weight_5, code, fee, product_desc, additional_fee, total, new_type)
-	   values ($custId, $recvCustId, $userId, 0, '$orderDate', '$proDesc0', $totalWeight, $pricePerWeight, '$proDesc1', $totalWeight1, $pricePerWeight1, '$proDesc2', $totalWeight2, $pricePerWeight2, '$proDesc3', $totalWeight3, $pricePerWeight3, '$proDesc4', $totalWeight4, $pricePerWeight4, '$proDesc5', $totalWeight5, $pricePerWeight5, '$code', $addFee, '$productDesc', '$additionalFee', $total, 1)";
+	$orderDate = $dates[2]."-".$dates[1]."-".$dates[0];
+
+	$addNewOrder = "insert into orders(send_cust_id, recv_cust_id, user_id, status, date,
+	   desc_0, total_weight, price_per_weight,
+	   desc_1, total_weight_1, price_per_weight_1,
+	   desc_2, total_weight_2, price_per_weight_2,
+	   desc_3, total_weight_3, price_per_weight_3,
+	   desc_4, total_weight_4, price_per_weight_4,
+	   desc_5, total_weight_5, price_per_weight_5, code, fee, product_desc, additional_fee, weight, total, new_type)
+	   values ($custId, $recvCustId, $userId, 0, '$orderDate', '$proDesc0', $totalWeight, $pricePerWeight, '$proDesc1', $totalWeight1, $pricePerWeight1, '$proDesc2', $totalWeight2, $pricePerWeight2, '$proDesc3', $totalWeight3, $pricePerWeight3, '$proDesc4', $totalWeight4, $pricePerWeight4, '$proDesc5', $totalWeight5, $pricePerWeight5, '$code', $addFee, '$productDesc', '$additionalFee', $weightSum, $total, 1)";
 	$addNewOrderResult = mysql_query ( $addNewOrder, $connection ) or die ( mysql_error () . "Can not retrieve to database" );
 	$orderId = mysql_insert_id ();
 	if (!$addNewOrderResult) {
@@ -542,7 +546,7 @@ p.hidden {
                                                 $( "#product_desc" ).val($( "#product_desc_dlg" ).val());
                                             }
                                           });
-                                       
+
                                           $( "#product_desc" ).on( "click", function() {
                                         	productDescDlg.dialog( "open" );
                                             $( "#product_desc_dlg" ).val($( "#product_desc" ).val());
@@ -565,7 +569,7 @@ p.hidden {
                                             	  copyDataToParentPage();
                                               }
                                             });
-                                         
+
                                             $( "#feeTableRow" ).on( "click", function() {
                                             	shipmentFeeDlg.dialog( "open" );
                                             	copyDataToShipmentFeeDialog(); //when open dialog, copy data from parent to child

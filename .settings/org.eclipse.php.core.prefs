@@ -1,3 +1,5 @@
-#Wed Feb 08 19:56:29 ICT 2017
+#Sun Apr 16 01:29:31 ICT 2017
 eclipse.preferences.version=1
 include_path=0;/order_mgmt_git
+org.eclipse.php.core.phpForamtterIndentationSize=4
+org.eclipse.php.core.phpForamtterUseTabs=false

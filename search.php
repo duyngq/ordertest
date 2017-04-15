@@ -76,9 +76,12 @@ function searchOrder($orderQueryString) {
 		$randomLetter2 = $a_z[$pos2];
 		$row['orderId'] = substr_replace($orderId, $randomLetter1 . $randomLetter2, 1, 0);
 
+		$dates = explode ("-",$order['date']);
+        $orderDate= $dates[2]."/".$dates[1]."/".$dates[0];
+
 		array_push($result, array(
 			'id' => $order['id'],
-			'date' => $order['date'],
+			'date' => $orderDate,
 			'sender_name' => $row['sender'][1],
 			'sender_phone' => $row['sender'][2],
 			'sender_address' => $row['sender'][3],
@@ -86,6 +89,7 @@ function searchOrder($orderQueryString) {
 			'recv_phone' => $row['receiver'][2],
 			'recv_address' => $row['receiver'][3],
 			'order_id' => $row['orderId'],
+            'weight' => $order['weight'],
 			'total' => $order['total']
 		));
 	}
@@ -97,18 +101,31 @@ function searchOrder($orderQueryString) {
 //    $receiver = $_POST ["receiver"];
 //    $receiverPhone = $_POST ["receiverPhone"];
 
-    $orderId = $_POST ["orderNo"];
-    $senderPhone = $_POST ["senderPhone"];
-    $receiverPhone = $_POST ["receiverPhone"];
+$orderId = $_POST ["orderNo"];
+$senderPhone = $_POST ["senderPhone"];
+$receiverPhone = $_POST ["receiverPhone"];
+$fromDate = $_POST ["fromDate"];
+$toDate = $_POST ["toDate"];
 
-//    begin();
-    if (isValueSet($orderId)) {
-        searchOrder("select * from orders where id=".$orderId);
-    } else if (isValueSet($senderPhone)) {
-		searchOrder("SELECT * FROM orders where send_cust_id = (select id from sendcustomers where phone like '%".$senderPhone."%')");
-    } else if (isValueSet($receiverPhone)) {
-    	searchOrder("SELECT * FROM orders where recv_cust_id = (select id from recvcustomers where phone like '%".$receiverPhone."%')");
-    } else {
-        throw new Exception('Unable to find order');
-    }
+//begin();
+if (isValueSet($orderId)) {
+    searchOrder("select * from orders where id=".$orderId);
+} else if (isValueSet($senderPhone)) {
+	searchOrder("SELECT * FROM orders where send_cust_id = (select id from sendcustomers where phone like '%".$senderPhone."%')");
+} else if (isValueSet($receiverPhone)) {
+	searchOrder("SELECT * FROM orders where recv_cust_id = (select id from recvcustomers where phone like '%".$receiverPhone."%')");
+} else if (isValueSet($fromDate) && isValueSet($toDate)) {
+	$dates = explode ("/",$fromDate);
+	if (count($dates) > 1) {
+	   $fromDate= $dates[2]."-".$dates[1]."-".$dates[0];
+	}
+	$toDate = $_POST ["toDate"];
+	$dates = explode ("/",$toDate);
+	if (count($dates) > 1) {
+	   $toDate= $dates[2]."-".$dates[1]."-".$dates[0];
+	}
+	searchOrder("select * from orders where date >= '".$fromDate."' and date <= '".$toDate."'");
+} else {
+    throw new Exception('Unable to find order');
+}
 ?>

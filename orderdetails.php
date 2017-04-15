@@ -96,6 +96,9 @@ if (isset($sbmUpdateInfo) ) {
     $addFee = $_POST ["add_fee"];
     validateNumber ( $addFee, "Additional fee" );
 
+    $weightSum = $_POST ["weight_sum"];
+    validateNumber ( $addFee, "Weight" );
+
     $total = $_POST ["prm_sum"];
     validateNumber ( $total, "Total amount of all products" );
 
@@ -174,7 +177,7 @@ if (isset($sbmUpdateInfo) ) {
                   "desc_3" => '', "total_weight_3" => 0, "price_per_weight_3" => 0,
                   "desc_4" => '', "total_weight_4" => 0, "price_per_weight_4" => 0,
                   "desc_5" => '', "total_weight_5" => 0, "price_per_weight_5" => 0,
-                  "code" => $code, "fee" => $addFee, "total" => $total, "recv_cust_id" => $recvId,
+                  "code" => $code, "fee" => $addFee, "weight" => $weightSum, "total" => $total, "recv_cust_id" => $recvId,
                   "product_desc" => $productDesc, "additional_fee" => $additionalFee);
     $orderArray = $_SESSION['oldOrderArray'];
     $compareNewOrderAndOldOrder= array_diff_assoc($newOrderArray, $orderArray);
@@ -190,7 +193,7 @@ if (isset($sbmUpdateInfo) ) {
                   "desc_3" => "Product description 3", "total_weight_3" => "Total weight 3", "price_per_weight_3" => "Price per weight 3",
                   "desc_4" => "Product description 4", "total_weight_4" => "Total weight 4", "price_per_weight_4" => "Price per weight 4",
                   "desc_5" => "Product description 5", "total_weight_5" => "Total weight 5", "price_per_weight_5" => "Price per weight 5",
-                  "code" => "Code", "fee" => "Fee", "total" =>"Total", "recv_cust_id" => "Receiver Id",
+                  "code" => "Code", "fee" => "Fee", "weight" => "Total weight", "total" =>"Total", "recv_cust_id" => "Receiver Id",
                   "product_desc" => "Product description", "additional_fee" => "Additional fee");
     foreach ($compareNewOrderAndOldOrder as $key => $value) {
         $newValue = $newOrderArray[$key];
@@ -436,15 +439,20 @@ p.hidden {
 			$_SESSION['orderStatus'] = $order['status'];
 			$_SESSION['orderId'] = $order['id'];
 			$_SESSION['newType'] = $order['new_type'];
+			$orderDate = $order['date'];
+			$dates = explode ("-",$order['date']);
+			if (count($dates) > 1) {
+                $orderDate= $dates[2]."/".$dates[1]."/".$dates[0];
+			}
 			$orderArray = array("id" => $order['id'], "send_cust_id" => $order['send_cust_id'],
-                  "status" => $order['status'], "date" => $order['date'],
+                  "status" => $order['status'], "date" => $orderDate,
                   "desc_0" => $order['desc_0'], "total_weight" => $order['total_weight'], "price_per_weight" => $order['price_per_weight'],
                   "desc_1" => $order['desc_1'], "total_weight_1" => $order['total_weight_1'], "price_per_weight_1" => $order['price_per_weight_1'],
                   "desc_2" => $order['desc_2'], "total_weight_2" => $order['total_weight_2'], "price_per_weight_2" => $order['price_per_weight_2'],
                   "desc_3" => $order['desc_3'], "total_weight_3" => $order['total_weight_3'], "price_per_weight_3" => $order['price_per_weight_3'],
                   "desc_4" => $order['desc_4'], "total_weight_4" => $order['total_weight_4'], "price_per_weight_4" => $order['price_per_weight_4'],
                   "desc_5" => $order['desc_5'], "total_weight_5" => $order['total_weight_5'], "price_per_weight_5" => $order['price_per_weight_5'],
-                  "code" => $order['code'], "fee" => $order['fee'], "total" => $order['total'], "recv_cust_id" => $order['recv_cust_id'],
+                  "code" => $order['code'], "fee" => $order['fee'], "weight" => $order['weight'], "total" => $order['total'], "recv_cust_id" => $order['recv_cust_id'],
 			      "product_desc" => $order['product_desc'], "additional_fee" => $order['additional_fee']);
 			$_SESSION['oldOrderArray'] = $orderArray;
 		}
