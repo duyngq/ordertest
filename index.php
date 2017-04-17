@@ -356,8 +356,12 @@ echo date('d/m/Y'); ?> - Time: <?php echo date('H:i'); ?> </p>
                                     array_push($shippingList, $order['total']);
                                 }
                             }
+                            $totalWeight = 0;
+                            $totalAmount = 0;
                             for ($index = 0; $index < (count($shippingList) / 11); $index++) {
                                 $shippingIndex = $index * 11;
+                                $totalWeight += $shippingList[$shippingIndex + 9];
+                                $totalAmount += $shippingList[$shippingIndex + 10];
                                 ?>
                                 <tr onMouseOver="ChangeColor(this, true);" onMouseOut="ChangeColor(this, false);" onClick="DoNav('orderdetails.php?tr=<?php
                             $custId = base64_encode($shippingList[$shippingIndex + 2]);
@@ -384,7 +388,7 @@ echo date('d/m/Y'); ?> - Time: <?php echo date('H:i'); ?> </p>
                                       echo $shippingList[$shippingIndex + 6]?></td>
                                     <td><?php echo $shippingList[$shippingIndex + 7] ?></td>
                                     <td><?php echo $shippingList[$shippingIndex + 8] ?></td>
-                                    <td><?php echo $shippingList[$shippingIndex + 9] ?>
+                                    <td><?php echo $shippingList[$shippingIndex + 9] ?></td>
                                     <td><?php echo $shippingList[$shippingIndex + 10] ?>
                                         <span class="link"><!-- a href="#" class="href-right table-action-hide">
                                                 <i class="fa fa-pencil"></i>
@@ -397,6 +401,11 @@ echo date('d/m/Y'); ?> - Time: <?php echo date('H:i'); ?> </p>
                                 <?php
                             }
                             ?>
+                            <tr border="0">
+                            	<td colspan=8>Total (*): </td>
+                            	<td><?php echo $totalWeight; ?></td>
+                            	<td><?php echo $totalAmount; ?></td>
+                            </tr>
                         </table>
                     </div>
                     <div id="content2" class="tabcontent" style="display:none;">
@@ -413,9 +422,14 @@ echo date('d/m/Y'); ?> - Time: <?php echo date('H:i'); ?> </p>
                                 <td><strong>Total Weight</strong></td>
                                 <td><strong>Total Amount</strong></td>
                             </tr>
+
                             <?php
+                            $totalShippedWeight = 0;
+                            $totalShippedAmount = 0;
                             for ($index = 0; $index < (count($shippedList) / 11); $index++) {
                                 $shippedIndex = $index * 11;
+                                $totalShippedWeight += $shippedList[$shippedIndex + 9];
+                                $totalShippedAmount += $shippedList[$shippedIndex + 10];
                                 ?>
                                 <tr onMouseOver="ChangeColor(this, true);" onMouseOut="ChangeColor(this, false);" onClick="DoNav('orderdetails.php?tr=<?php
                             $orderId = base64_encode($shippedList[$shippedIndex + 2]);
@@ -456,6 +470,11 @@ echo date('d/m/Y'); ?> - Time: <?php echo date('H:i'); ?> </p>
                             mysql_close($connection);
                             ob_end_flush();
                             ?>
+                            <tr border="0">
+                            	<td colspan=8>Total (*): </td>
+                                    <td><?php echo $totalShippedWeight; ?></td>
+                                    <td><?php echo $totalShippedAmount;?></td>
+                              </tr>
                         </table>
                     </div>
                 </td></tr>

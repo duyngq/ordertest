@@ -96,8 +96,22 @@ $(document).ready(function() {
                     $("#searchResult_processing").css("display","none");
                     return;
 	        	}
+	        	var totalWeight = 0, totalAmount = 0;
 		            for (var key in data) {
 			            if (data.hasOwnProperty(key)) {
+				            var weight = data[key]['weight'];
+				            var total = data[key]['total'];
+				            if (data[key]['weight'] != null) {
+				            	totalWeight+=parseFloat(data[key]['weight']);
+				            } else {
+					            weight = 0;
+				            }
+
+				            if (data[key]['total'] != null) {
+				            	totalAmount+=parseFloat(data[key]['total']);
+				            } else {
+					            total = 0;
+				            }
 // 			                var order = data['order'];              //get id
 // 			                var sender = data['sender'];           //get name
 // 			                var receiver = data['receiver'];           //get name
@@ -115,14 +129,16 @@ $(document).ready(function() {
 		                    	+"<td>"+data[key]['recv_name']+"</td>"
 		                        +"<td>"+data[key]['recv_phone']+"</td>"
 		                        +"<td>"+data[key]['recv_address']+"</td>"
-		                        +"<td>"+data[key]['weight']+"</td>"
-		                        +"<td>"+data[key]['total']+"</td>"
+		                        +"<td>"+weight+"</td>"
+		                        +"<td>"+total+"</td>"
 		                    	+"</tr></tbody>" ;
 		                    $("#searchResult").append($(newRow));
 			                //recommend reading up on jquery selectors they are awesome
 			                // http://api.jquery.com/category/selectors/
 				        }
 		            }
+		            var totalRow="<tbody><tr><td colspan=8>Total (*): </td><td>"+totalWeight+"</td><td>"+totalAmount+"</td></tr></tbody>";
+		            $("#searchResult").append($(totalRow));
 	            },
 	       error: function() {        //on recieve of reply
 	                //--------------------------------------------------------------------
