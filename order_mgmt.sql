@@ -128,6 +128,7 @@ CREATE TABLE IF NOT EXISTS `orders` (
   `desc_0` text CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `total_weight` double NOT NULL,
   `price_per_weight` double NOT NULL,
+  `weight` double DEFULT NULL,
   `total` double DEFAULT NULL,
   `recv_cust_id` int(10) unsigned NOT NULL,
   `desc_1` text CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
