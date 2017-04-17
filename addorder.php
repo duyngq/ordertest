@@ -499,7 +499,7 @@ p.hidden {
 			                                            <br/><br/>
 			                                            <!-- Additional fee and total -->
 			                                            <div class="rTableRow">
-			                                                Payment in VietNam
+			                                                Payment in VN's fee
 			                                                 <div class="rTableCell" style="border:0"></div>
 			                                                <div class="rTableCell" style="border:0"></div>
 			                                                <div class="rTableCell" style="border:0"></div>
