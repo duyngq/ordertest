@@ -285,10 +285,18 @@ p.hidden {
 .rTableHeading { display: table-header-group; background-color: #ddd; font-weight: bold; }
 .rTableFoot { display: table-footer-group; font-weight: bold; background-color: #ddd; }
 .rTableBody { display: table-row-group; }
+
+.href-right{
+    text-align: right;
+}
+.link {
+    display:inline;
+}
 </style>
 <script type="text/javascript" src="js/validate.js"></script>
 <script type="text/javascript" src="js/util.js"></script>
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script>
@@ -381,8 +389,8 @@ p.hidden {
                                 </tr>
 								<tr>
 									<td>- Date:</td>
-									<td><input name="orderDate" type="date" id="datepicker"
-										size="60" required /></td>
+									<td><input name="orderDate" type="text"
+										size="60" value="<?php echo date("d/m/Y"); ?>" readonly="true" /></td>
 								</tr>
 								<tr>
 									<td>- Products:</td>
@@ -395,8 +403,137 @@ p.hidden {
 												<th>Shipment Fee</th>
 											</tr>
 											<tr>
-												<td width=40%><p><textarea name="product_desc" id="product_desc" cols="65" rows="30"
-										style="border: 1px solid black" placeholder="Click and write product description"></textarea></p></td>
+												<td width=40%><p id="product_desc_para"><textarea name="product_desc" id="product_desc" cols="65" rows="20"
+										style="border: 1px solid black" placeholder="Click and write product description"></textarea></p>
+										<form name="fileUpload" id="fileUpload" method="post" enctype="multipart/form-data">
+		                                    <input name="file[]" type="file" multiple="multiple" id="uploadFile"/>
+		                                    <!--<br />
+										    <iframe id="upload_frame" name="upload_frame" frameborder="0" border="0" src="" scrolling="no" scrollbar="no" > </iframe>
+										    <br />
+		                                    -->
+		                                    <div id="uploadedFiles"></div>
+		                                    <input name="uploaded" id="uploaded" type="hidden"/>
+		                                </form>
+		                                <!-- progress></progress-->
+                                <script>
+                                    // Variable to store your files
+                                    var files;
+
+                                    // Add events
+                                    $(':file').on('change', prepareUpload);
+//                                    $("#upload").on( 'click', uploadFiles);
+                                    $("#uploadedFiles").on('click', 'a', removeUploadedFile); // To do ajax call for dynamic component. Refer http://api.jquery.com/on/ delegated events part
+
+                                    // Grab the files and set them to our variable
+                                    function prepareUpload(event) {
+                                        $.each(event.target.files, function(i, file){
+                                            if (file.size > 2097152) {
+                                                alert('max upload size is 2MB');
+                                                return;
+                                            }
+                                        });
+                                        files = event.target.files;
+                                        uploadFiles();
+                                    }
+
+                                    // Catch the form submit and upload the files
+                                    function uploadFiles() {
+//                                        event.stopPropagation(); // Stop stuff happening
+//                                        event.preventDefault(); // Totally stop stuff happening
+
+                                            // START A LOADING SPINNER HERE
+                                        // Create a formdata object and add the files
+                                        var data = new FormData();
+                                        $.each(files, function(key, value) {
+                                            data.append(key, value);
+                                        });
+
+                                        $.ajax({
+                                            url: 'upload.php?files',
+                                            type: 'POST',
+                                            data: data,
+                                            cache: false,
+                                            dataType: 'json',
+                                            processData: false, // Don't process the files
+                                            contentType: false, // Set content type to false as jQuery will tell the server its a query string request
+                                            success: function(output, textStatus, jqXHR) {
+                                                if(typeof data.error === 'undefined') {
+                                                    // Success so call function to process the form
+                                                    $(".uploadedFiles-error").html("");
+                                                    if (output.length <= 0) {
+                                                        alert("Unable to upload file");
+                                                        $('#uploadFile').val('');
+                                                        return;
+                                                    }
+                                                    $fileLink="";
+                                                    for (var key in output) {
+                                                        if (output.hasOwnProperty(key)) {
+                                                            $.each(output[key], function (index, value) {
+                                                                $fileLink+= '<span class="link">'+value.split("/")[3] +'<a href="#" class="delete-file"><i class="fa fa-times"></i></a></span></br>';
+                                                            });
+                                                        }
+                                                    }
+
+                                                    $("#uploadedFiles").append($fileLink);
+                                                    $('#uploadFile').val('');
+                                                    updateUploadedFiles();
+                                                } else {
+                                                    // Handle errors here
+                                                    $(".uploadedFiles-error").html("");
+                                                    alert("Unable to upload file");
+                                                }
+                                            },
+                                            error: function(jqXHR, textStatus, errorThrown) {
+                                                // Handle errors here
+                                                $(".uploadedFiles-error").html("");
+//                                                $("#unuploadFiles").append('Unable to upload file');
+                                                alert("Unable to upload file");
+                                                $('#uploadFile').val('');
+                                                // STOP LOADING SPINNER
+                                                }
+                                            });
+                                        }
+
+                                    function removeUploadedFile() {
+                                    	$currentSpan=$(this).parent('span');
+                                    	$fileName=$currentSpan.text();
+                                    	var dataString = 'file=' + $fileName + '&remove=true';
+                                    	$.ajax({
+                                            url: 'upload.php',
+                                            type: 'POST',
+                                            data: dataString,
+//                                            cache: false,
+                                            dataType: 'json',
+//                                            processData: false, // Don't process the files
+//                                            contentType: false, // Set content type to false as jQuery will tell the server its a query string request
+                                            success: function(output, textStatus, jqXHR) {
+                                                if(textStatus === 'success' && output['deleted'] === $fileName) {
+                                                	$currentSpan.remove();
+                                                	updateUploadedFiles();
+                                                } else {
+                                                    // Handle errors here
+                                                    $(".uploadedFiles-error").html("");
+                                                    alert("Unable to remove uploaded file");
+                                                }
+                                            },
+                                            error: function(jqXHR, textStatus, errorThrown) {
+                                                // Handle errors here
+                                                $(".uploadedFiles-error").html("");
+//                                                $("#unuploadFiles").append('Unable to upload file');
+                                                alert("Unable to upload file");
+                                                // STOP LOADING SPINNER
+                                                }
+                                            });
+                                        }
+                                    function updateUploadedFiles() {
+                                        $uploadedFiles="";
+                                    	$('.link').each(function(key, val) {
+                                    		$uploadedFiles+=val.innerText+",";
+                                    	});
+                                    	$( "#uploaded" ).val($uploadedFiles);
+                                    }
+                                </script>
+										</td>
 												<td width=60% style="vertical-align: top;" id="feeTableRow">
 									           <div class="rTable" id="feeTable">
 			                                       <div class="rTable">
@@ -522,12 +659,9 @@ p.hidden {
 									</td>
 								</tr>
 								<div id="dialog-form" title="Product description">
-                                       <textarea name="product_desc_dlg" id="product_desc_dlg" style="border: 1px solid black; width: 100%; height: 100%" placeholder="Click and write product description"></textarea>
+                                       <textarea name="product_desc_dlg" id="product_desc_dlg" style="border: 1px solid black; width: 100%; height: 95%" placeholder="Click and write product description"></textarea>
                                 </div>
-                                <!--<div id="shipmentFee-form" title="Shipment Fee">
-                                    </form>
-                                </div>
-                                --><script>
+                                <script>
                                   $( function() {
                                       //$('.rTable').clone().appendTo('#feeTable');
                                       //$('#feeTable').find('input').attr('readonly', 'readonly');

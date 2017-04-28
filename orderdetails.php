@@ -520,8 +520,8 @@ p.hidden {
 			<?php } ?>
 			<tr>
 				<td>- Date:</td>
-				<td><input name="orderDate" type="date" id="datepicker"
-					value="<?php echo $orderArray['date'];?>" size="60" required /></td>
+				<td><input name="orderDate" type="date"
+					value="<?php echo $orderArray['date'];?>" size="60" readonly="readonly" /></td>
 			</tr>
 			<tr style="border-bottom: 1px solid">
 				<td colspan="6" style="border-bottom: 1px solid">- <strong>Status</strong>:
