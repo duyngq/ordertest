@@ -77,6 +77,9 @@ if (isset ( $submit )) {
 	$total = $_POST ["prm_sum"];
 	validateNumber ( $total, "Total amount of all products" );
 
+	// remove new line and comma got from list uploaded files
+	$fileName = $output = str_replace(array("\r\n", "\n\r", "\r", "\n"), "", substr($_POST['uploaded'], 0, -1));
+
 	// add customer
 	$userId = $_SESSION ['user_id'];
 	$username = $_SESSION ['username'];
@@ -135,7 +138,7 @@ if (isset ( $submit )) {
             "", 0, 0,//$proDesc3, $totalWeight3, $pricePerWeight3,
             "", 0, 0,//$proDesc4, $totalWeight4, $pricePerWeight4,
             "", 0, 0,//$proDesc5, $totalWeight5, $pricePerWeight5,
-            $addFee, $productDesc, $additionalFee, $weightSum, $total, $connection, $submit ); // with new design, move all shipment fee to order details table
+            $addFee, $productDesc, $additionalFee, $weightSum, $total, $fileName, $connection, $submit ); // with new design, move all shipment fee to order details table
         addOrderDetails($orderId, $products, $connection, $submit);
 	} else {
 		rollback();
@@ -148,7 +151,7 @@ if (isset ( $submit )) {
 	unset ( $submit );
 }
 
-function addNewOrder($custId, $recvCustId, $userId, $orderDate, $proDesc0, $totalWeight, $pricePerWeight, $proDesc1, $totalWeight1, $pricePerWeight1, $proDesc2, $totalWeight2, $pricePerWeight2, $proDesc3, $totalWeight3, $pricePerWeight3, $proDesc4, $totalWeight4, $pricePerWeight4, $proDesc5, $totalWeight5, $pricePerWeight5, $addFee, $productDesc, $additionalFee, $weightSum, $total, $connection, $submit) {
+function addNewOrder($custId, $recvCustId, $userId, $orderDate, $proDesc0, $totalWeight, $pricePerWeight, $proDesc1, $totalWeight1, $pricePerWeight1, $proDesc2, $totalWeight2, $pricePerWeight2, $proDesc3, $totalWeight3, $pricePerWeight3, $proDesc4, $totalWeight4, $pricePerWeight4, $proDesc5, $totalWeight5, $pricePerWeight5, $addFee, $productDesc, $additionalFee, $weightSum, $total, $fileName, $connection, $submit) {
 	//convert input date to format d/m/Y to parse to timestamp for cal current week number of month
 	$dates = explode ("/",$orderDate);
     $ordDate = strtotime($dates[1]."/".$dates[0]."/".$dates[2]);
@@ -161,8 +164,8 @@ function addNewOrder($custId, $recvCustId, $userId, $orderDate, $proDesc0, $tota
 	   desc_2, total_weight_2, price_per_weight_2,
 	   desc_3, total_weight_3, price_per_weight_3,
 	   desc_4, total_weight_4, price_per_weight_4,
-	   desc_5, total_weight_5, price_per_weight_5, code, fee, product_desc, additional_fee, weight, total, new_type)
-	   values ($custId, $recvCustId, $userId, 0, '$orderDate', '$proDesc0', $totalWeight, $pricePerWeight, '$proDesc1', $totalWeight1, $pricePerWeight1, '$proDesc2', $totalWeight2, $pricePerWeight2, '$proDesc3', $totalWeight3, $pricePerWeight3, '$proDesc4', $totalWeight4, $pricePerWeight4, '$proDesc5', $totalWeight5, $pricePerWeight5, '$code', $addFee, '$productDesc', '$additionalFee', $weightSum, $total, 1)";
+	   desc_5, total_weight_5, price_per_weight_5, code, fee, product_desc, additional_fee, weight, total, file_name, new_type)
+	   values ($custId, $recvCustId, $userId, 0, '$orderDate', '$proDesc0', $totalWeight, $pricePerWeight, '$proDesc1', $totalWeight1, $pricePerWeight1, '$proDesc2', $totalWeight2, $pricePerWeight2, '$proDesc3', $totalWeight3, $pricePerWeight3, '$proDesc4', $totalWeight4, $pricePerWeight4, '$proDesc5', $totalWeight5, $pricePerWeight5, '$code', $addFee, '$productDesc', '$additionalFee', $weightSum, $total, '$fileName', 1)";
 	$addNewOrderResult = mysql_query ( $addNewOrder, $connection ) or die ( mysql_error () . "Can not retrieve to database" );
 	$orderId = mysql_insert_id ();
 	if (!$addNewOrderResult) {
@@ -293,12 +296,13 @@ p.hidden {
     display:inline;
 }
 </style>
-<script type="text/javascript" src="js/validate.js"></script>
-<script type="text/javascript" src="js/util.js"></script>
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script type="text/javascript" src="js/validate.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/upload.js"></script>
 <script>
   $( function() {
     $( "#datepicker" ).datepicker({
@@ -416,122 +420,10 @@ p.hidden {
 		                                </form>
 		                                <!-- progress></progress-->
                                 <script>
-                                    // Variable to store your files
-                                    var files;
-
                                     // Add events
                                     $(':file').on('change', prepareUpload);
 //                                    $("#upload").on( 'click', uploadFiles);
                                     $("#uploadedFiles").on('click', 'a', removeUploadedFile); // To do ajax call for dynamic component. Refer http://api.jquery.com/on/ delegated events part
-
-                                    // Grab the files and set them to our variable
-                                    function prepareUpload(event) {
-                                        $.each(event.target.files, function(i, file){
-                                            if (file.size > 2097152) {
-                                                alert('max upload size is 2MB');
-                                                return;
-                                            }
-                                        });
-                                        files = event.target.files;
-                                        uploadFiles();
-                                    }
-
-                                    // Catch the form submit and upload the files
-                                    function uploadFiles() {
-//                                        event.stopPropagation(); // Stop stuff happening
-//                                        event.preventDefault(); // Totally stop stuff happening
-
-                                            // START A LOADING SPINNER HERE
-                                        // Create a formdata object and add the files
-                                        var data = new FormData();
-                                        $.each(files, function(key, value) {
-                                            data.append(key, value);
-                                        });
-
-                                        $.ajax({
-                                            url: 'upload.php?files',
-                                            type: 'POST',
-                                            data: data,
-                                            cache: false,
-                                            dataType: 'json',
-                                            processData: false, // Don't process the files
-                                            contentType: false, // Set content type to false as jQuery will tell the server its a query string request
-                                            success: function(output, textStatus, jqXHR) {
-                                                if(typeof data.error === 'undefined') {
-                                                    // Success so call function to process the form
-                                                    $(".uploadedFiles-error").html("");
-                                                    if (output.length <= 0) {
-                                                        alert("Unable to upload file");
-                                                        $('#uploadFile').val('');
-                                                        return;
-                                                    }
-                                                    $fileLink="";
-                                                    for (var key in output) {
-                                                        if (output.hasOwnProperty(key)) {
-                                                            $.each(output[key], function (index, value) {
-                                                                $fileLink+= '<span class="link">'+value.split("/")[3] +'<a href="#" class="delete-file"><i class="fa fa-times"></i></a></span></br>';
-                                                            });
-                                                        }
-                                                    }
-
-                                                    $("#uploadedFiles").append($fileLink);
-                                                    $('#uploadFile').val('');
-                                                    updateUploadedFiles();
-                                                } else {
-                                                    // Handle errors here
-                                                    $(".uploadedFiles-error").html("");
-                                                    alert("Unable to upload file");
-                                                }
-                                            },
-                                            error: function(jqXHR, textStatus, errorThrown) {
-                                                // Handle errors here
-                                                $(".uploadedFiles-error").html("");
-//                                                $("#unuploadFiles").append('Unable to upload file');
-                                                alert("Unable to upload file");
-                                                $('#uploadFile').val('');
-                                                // STOP LOADING SPINNER
-                                                }
-                                            });
-                                        }
-
-                                    function removeUploadedFile() {
-                                    	$currentSpan=$(this).parent('span');
-                                    	$fileName=$currentSpan.text();
-                                    	var dataString = 'file=' + $fileName + '&remove=true';
-                                    	$.ajax({
-                                            url: 'upload.php',
-                                            type: 'POST',
-                                            data: dataString,
-//                                            cache: false,
-                                            dataType: 'json',
-//                                            processData: false, // Don't process the files
-//                                            contentType: false, // Set content type to false as jQuery will tell the server its a query string request
-                                            success: function(output, textStatus, jqXHR) {
-                                                if(textStatus === 'success' && output['deleted'] === $fileName) {
-                                                	$currentSpan.remove();
-                                                	updateUploadedFiles();
-                                                } else {
-                                                    // Handle errors here
-                                                    $(".uploadedFiles-error").html("");
-                                                    alert("Unable to remove uploaded file");
-                                                }
-                                            },
-                                            error: function(jqXHR, textStatus, errorThrown) {
-                                                // Handle errors here
-                                                $(".uploadedFiles-error").html("");
-//                                                $("#unuploadFiles").append('Unable to upload file');
-                                                alert("Unable to upload file");
-                                                // STOP LOADING SPINNER
-                                                }
-                                            });
-                                        }
-                                    function updateUploadedFiles() {
-                                        $uploadedFiles="";
-                                    	$('.link').each(function(key, val) {
-                                    		$uploadedFiles+=val.innerText+",";
-                                    	});
-                                    	$( "#uploaded" ).val($uploadedFiles);
-                                    }
                                 </script>
 										</td>
 												<td width=60% style="vertical-align: top;" id="feeTableRow">
@@ -686,53 +578,6 @@ p.hidden {
                                             $( "#product_desc_dlg" ).val($( "#product_desc" ).val());
                                           });
                                   } );
-                                  $(function() {
-                                       // dialog handling for Shipment Fee
-                                          /*var shipmentFeeDlg = $( "#shipmentFee-form" ).dialog({
-                                              autoOpen: false,
-                                              height: 500,
-                                              width: 800,
-                                              modal: true,
-                                              buttons: {
-                                                Close: function() {
-                                        	       shipmentFeeDlg.dialog( "close" );
-                                        	       copyDataToParentPage();
-                                                }
-                                              },
-                                              close: function() {
-                                            	  copyDataToParentPage();
-                                              }
-                                            });
-
-                                            $( "#feeTableRow" ).on( "click", function() {
-                                            	shipmentFeeDlg.dialog( "open" );
-                                            	copyDataToShipmentFeeDialog(); //when open dialog, copy data from parent to child
-                                            });
-
-                                            function copyDataToParentPage() {
-                                                for ( i = 0; i <= 5; i++) {
-                                                	$('#feeTable').find('#proDesc' + i).val($('#shipmentFee-form').find('#proDesc' + i).val());
-                                                	$('#feeTable').find('#weight' + i).val($('#shipmentFee-form').find('#weight' + i).val());
-                                                	$('#feeTable').find('#price' + i).val($('#shipmentFee-form').find('#price' + i).val());
-                                                	$('#feeTable').find('#total' + i).val($('#shipmentFee-form').find('#total' + i).val());
-                                                }
-                                                $('#feeTable').find('#add_fee').val($('#shipmentFee-form').find('#add_fee').val());
-                                                $('#feeTable').find('#weight_sum').val($('#shipmentFee-form').find('#weight_sum').val());
-                                                $('#feeTable').find('#prm_sum').val($('#shipmentFee-form').find('#prm_sum').val());
-                                            }
-
-                                            function copyDataToShipmentFeeDialog() {
-                                                for ( i = 0; i <= 5; i++) {
-                                                    $('#shipmentFee-form').find('#proDesc' + i).val($('#feeTable').find('#proDesc' + i).val());
-                                                    $('#shipmentFee-form').find('#weight' + i).val($('#feeTable').find('#weight' + i).val());
-                                                    $('#shipmentFee-form').find('#price' + i).val($('#feeTable').find('#price' + i).val());
-                                                    $('#shipmentFee-form').find('#total' + i).val($('#feeTable').find('#total' + i).val());
-                                                }
-                                                $('#shipmentFee-form').find('#add_fee').val($('#feeTable').find('#add_fee').val());
-                                                $('#shipmentFee-form').find('#weight_sum').val($('#feeTable').find('#weight_sum').val());
-                                                $('#shipmentFee-form').find('#prm_sum').val($('#feeTable').find('#prm_sum').val());
-                                            }*/
-                                        } );
                                 </script>
 							</table>
 							<p>&nbsp;</p>

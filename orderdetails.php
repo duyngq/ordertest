@@ -102,6 +102,8 @@ if (isset($sbmUpdateInfo) ) {
     $total = $_POST ["prm_sum"];
     validateNumber ( $total, "Total amount of all products" );
 
+    $fileName = substr($_POST['uploaded'], 0, -1);
+
     // add customer
     $userId = $_SESSION ['user_id'];
     $username = $_SESSION ['username'];
@@ -178,7 +180,7 @@ if (isset($sbmUpdateInfo) ) {
                   "desc_4" => '', "total_weight_4" => 0, "price_per_weight_4" => 0,
                   "desc_5" => '', "total_weight_5" => 0, "price_per_weight_5" => 0,
                   "code" => $code, "fee" => $addFee, "weight" => $weightSum, "total" => $total, "recv_cust_id" => $recvId,
-                  "product_desc" => $productDesc, "additional_fee" => $additionalFee);
+                  "product_desc" => $productDesc, "additional_fee" => $additionalFee, 'file_name' => $fileName);
     $orderArray = $_SESSION['oldOrderArray'];
     $compareNewOrderAndOldOrder= array_diff_assoc($newOrderArray, $orderArray);
     $updateOrderQuery = "UPDATE orders SET new_type = 1,";
@@ -194,7 +196,7 @@ if (isset($sbmUpdateInfo) ) {
                   "desc_4" => "Product description 4", "total_weight_4" => "Total weight 4", "price_per_weight_4" => "Price per weight 4",
                   "desc_5" => "Product description 5", "total_weight_5" => "Total weight 5", "price_per_weight_5" => "Price per weight 5",
                   "code" => "Code", "fee" => "Fee", "weight" => "Total weight", "total" =>"Total", "recv_cust_id" => "Receiver Id",
-                  "product_desc" => "Product description", "additional_fee" => "Additional fee");
+                  "product_desc" => "Product description", "additional_fee" => "Additional fee", "file_name" => "File name");
     foreach ($compareNewOrderAndOldOrder as $key => $value) {
         $newValue = $newOrderArray[$key];
         if (!is_null($newValue) || !empty($newValue) || isset($newValue)) {
@@ -379,11 +381,13 @@ p.hidden {
 .rTableFoot { display: table-footer-group; font-weight: bold; background-color: #ddd; }
 .rTableBody { display: table-row-group; }
 </style>
-<script type="text/javascript" src="js/validate.js"></script>
-<script type="text/javascript" src="js/util.js"></script>
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet" />
 <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script type="text/javascript" src="js/validate.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/upload.js"></script>
 <script>
   $( function() {
     $( "#datepicker" ).datepicker({
@@ -453,7 +457,7 @@ p.hidden {
                   "desc_4" => $order['desc_4'], "total_weight_4" => $order['total_weight_4'], "price_per_weight_4" => $order['price_per_weight_4'],
                   "desc_5" => $order['desc_5'], "total_weight_5" => $order['total_weight_5'], "price_per_weight_5" => $order['price_per_weight_5'],
                   "code" => $order['code'], "fee" => $order['fee'], "weight" => $order['weight'], "total" => $order['total'], "recv_cust_id" => $order['recv_cust_id'],
-			      "product_desc" => $order['product_desc'], "additional_fee" => $order['additional_fee']);
+			      "product_desc" => $order['product_desc'], "additional_fee" => $order['additional_fee'], "file_name" => $order['file_name']);
 			$_SESSION['oldOrderArray'] = $orderArray;
 		}
 
@@ -542,6 +546,31 @@ p.hidden {
 				    <tr>
 				        <td width=40%><textarea name="product_desc" id="product_desc" cols="65" rows="30"
                                         style="border: 1px solid black" placeholder="Click and write product description"><?php echo $orderArray['product_desc'];?></textarea>
+                                        <form name="fileUpload" id="fileUpload" method="post" enctype="multipart/form-data">
+                                            <input name="file[]" type="file" multiple="multiple" id="uploadFile"/>
+                                            <div id="uploadedFiles">
+                                            <?php
+
+				                            function isEmptyValue($value) {
+				                                return is_null($value) || $value == null || $value == '';
+				                            }
+                                            $fileNames = explode(",", $orderArray['file_name'] );
+                                            foreach ($fileNames as $fileName) {
+                                                if (!isEmptyValue($fileName)){
+                                                    echo "<span class=\"link\"><a href=\"download.php/?file=".$fileName."\" target=\"_blank\">".$fileName."</a><a href=\"#\" class=\"delete-file\"><i class=\"fa fa-times\"></i></a></br></span>";
+                                                }
+                                            }
+                                            ?>
+                                            </div>
+                                            <input name="uploaded" id="uploaded" type="hidden" value="<?php echo $orderArray['file_name'].",";?>"/>
+                                        </form>
+                                        <script>
+                                        // register on each component to be able to work with external jQuery
+                                        // Add events
+                                        $(':file').on('change', prepareUpload);
+                                        //$("#upload").on( 'click', uploadFiles);
+                                        $("#uploadedFiles").on('click', 'a', removeUploadedFile); // To do ajax call for dynamic component. Refer http://api.jquery.com/on/ delegated events part
+                                        </script>
                         </td>
                         <td width=60% style="vertical-align: top;" id="feeTableRow">
                             <div class="rTable" id="feeTable">

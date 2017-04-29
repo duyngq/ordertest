@@ -15,8 +15,19 @@ if(isset($_GET['files'])) {
     }
     if (is_dir($uploaddir) && is_writable($uploaddir)) {
         foreach($_FILES as $file) {
-            if(move_uploaded_file($file['tmp_name'], $uploaddir.basename($file['name']))) {
-                $files[] = $uploaddir .$file['name'];
+            $fileName = $file['name'];
+            $uploadPath = $uploaddir.basename($fileName);
+            $name = pathinfo($fileName, PATHINFO_FILENAME);
+			$extension =pathinfo($fileName, PATHINFO_EXTENSION);
+			$counter = 1;
+			// add suffix to avoid duplicate name
+			while (file_exists( $uploadPath )) {
+			    $fileName= $name . '_' . $counter++ . '.' . $extension;
+			    $uploadPath = $uploaddir.basename($fileName);
+			}
+            if(move_uploaded_file($file['tmp_name'], $uploadPath)) {
+//                chmod($uploadPath, 0755);
+                $files[] = $fileName;
             } else {
                 array_push($errorFiles, $file);
                 $error = true;
@@ -30,8 +41,10 @@ if(isset($_GET['files'])) {
     }
     $data = ($error) ? array('error' => $errorFiles) : array('files' => $files);
 } else if(isset($_POST['file']) && isset($_POST['remove']) && $_POST['remove'] == 'true' ){
-    $deletingFile = $_POST['file'];
-    if (unlink('./uploads/'.$_SESSION['user_id'].'/'.$deletingFile)) {
+    $deletingFile = dirname(__FILE__).DIRECTORY_SEPARATOR .'uploads'.DIRECTORY_SEPARATOR .$_SESSION['user_id'].DIRECTORY_SEPARATOR .$_POST['file'];
+    if (!is_file($deletingFile) || !file_exists($deletingFile)) {
+        $data = array('deleted' => "File already deleted");
+    } else if (unlink($deletingFile)) {
         $data = array('deleted' => $deletingFile);
     } else {
         throw new Exception('Unable to delete file');
