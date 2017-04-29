@@ -102,7 +102,8 @@ if (isset($sbmUpdateInfo) ) {
     $total = $_POST ["prm_sum"];
     validateNumber ( $total, "Total amount of all products" );
 
-    $fileName = substr($_POST['uploaded'], 0, -1);
+    // remove new line and comma got from list uploaded files
+    $fileName = str_replace(array("\r\n", "\n\r", "\r", "\n"), "", substr($_POST['uploaded'], 0, -1));
 
     // add customer
     $userId = $_SESSION ['user_id'];

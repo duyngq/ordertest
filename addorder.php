@@ -78,7 +78,7 @@ if (isset ( $submit )) {
 	validateNumber ( $total, "Total amount of all products" );
 
 	// remove new line and comma got from list uploaded files
-	$fileName = $output = str_replace(array("\r\n", "\n\r", "\r", "\n"), "", substr($_POST['uploaded'], 0, -1));
+	$fileName = str_replace(array("\r\n", "\n\r", "\r", "\n"), "", substr($_POST['uploaded'], 0, -1));
 
 	// add customer
 	$userId = $_SESSION ['user_id'];
