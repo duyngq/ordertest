@@ -157,7 +157,7 @@ p.hidden {
 			<div style="width:800px; float:center;">
 			<p align="center" style="font-size:20px">
 			</br>
-				RECEIPT</br>SP: <?php echo $orderArray['code']."  ".$orderArray['id'];?></p>
+				RECEIPT</br>SP: <?php echo $orderArray['id'];//echo $orderArray['code']."  ".$orderArray['id'];?></p>
 				</div>
 			<div style="clear: both"></div>
 			<div id="customer" align="center">

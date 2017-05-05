@@ -76,8 +76,11 @@ function searchOrder($orderQueryString) {
 		$randomLetter2 = $a_z[$pos2];
 		$row['orderId'] = substr_replace($orderId, $randomLetter1 . $randomLetter2, 1, 0);
 
-		$dates = explode ("-",$order['date']);
-        $orderDate= $dates[2]."/".$dates[1]."/".$dates[0];
+		$orderDate = $order['date'];
+		if (isValueSet($orderDate)) {
+			$dates = explode ("-",$orderDate);
+	        $orderDate= $dates[2]."/".$dates[1]."/".$dates[0];
+		}
 
 		array_push($result, array(
 			'id' => $order['id'],
