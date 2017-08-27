@@ -36,7 +36,8 @@ if (isset ( $submit )) {
 	// TODO: need to validate phone format here.
 	$recvPhone = $_POST ["recvPhone"];
 
-	$orderDate = $_POST ["orderDate"];
+//	$orderDate = $_POST ["orderDate"];
+    $orderDate = $_POST["year"]."-".$_POST["month"]."-".$_POST["day"];
 
 	$productDesc = $_POST ["product_desc"];
 	$additionalFee = "";
@@ -153,10 +154,10 @@ if (isset ( $submit )) {
 
 function addNewOrder($custId, $recvCustId, $userId, $orderDate, $proDesc0, $totalWeight, $pricePerWeight, $proDesc1, $totalWeight1, $pricePerWeight1, $proDesc2, $totalWeight2, $pricePerWeight2, $proDesc3, $totalWeight3, $pricePerWeight3, $proDesc4, $totalWeight4, $pricePerWeight4, $proDesc5, $totalWeight5, $pricePerWeight5, $addFee, $productDesc, $additionalFee, $weightSum, $total, $fileName, $connection, $submit) {
 	//convert input date to format d/m/Y to parse to timestamp for cal current week number of month
-	$dates = explode ("/",$orderDate);
-    $ordDate = strtotime($dates[1]."/".$dates[0]."/".$dates[2]);
+	$dates = explode ("-",$orderDate);
+    $ordDate = strtotime($dates[0]."/".$dates[1]."/".$dates[2]);
 	$code = date("n", $ordDate).weekOfMonth($ordDate);
-	$orderDate = $dates[2]."-".$dates[1]."-".$dates[0];
+//	$orderDate = $dates[2]."-".$dates[1]."-".$dates[0];
 
 	$addNewOrder = "insert into orders(send_cust_id, recv_cust_id, user_id, status, date,
 	   desc_0, total_weight, price_per_weight,
@@ -393,8 +394,54 @@ p.hidden {
                                 </tr>
 								<tr>
 									<td>- Date:</td>
-									<td><input name="orderDate" type="text"
-										size="60" value="<?php echo date("d/m/Y"); ?>" readonly="true" /></td>
+                                    <td>
+									<select name="day" id="day">
+                                    </select>
+                                    <select name="month" id="month">
+                                        <option value="01">01</option>
+                                        <option value="02">02</option>
+                                        <option value="03">03</option>
+                                        <option value="04">04</option>
+                                        <option value="05">05</option>
+                                        <option value="06">06</option>
+                                        <option value="07">07</option>
+                                        <option value="08">08</option>
+                                        <option value="09">09</option>
+                                        <option value="10">10</option>
+                                        <option value="11">11</option>
+                                        <option value="12">12</option>
+                                    </select>
+									<select name="year" id="year">
+									    <!--option value="2016">2016</option>
+                                        <option value="2017">2017</option>
+                                        <option value="2018">2018</option>
+                                        <option value="2019">2019</option>
+                                        <option value="2020">2020</option>
+                                        <option value="2021">2021</option>
+                                        <option value="2022">2022</option>
+                                        <option value="2023">2023</option>
+                                        <option value="2024">2024</option>
+                                        <option value="2025">2025</option>
+                                        <option value="2026">2026</option>
+                                        <option value="2027">2027</option>
+                                        <option value="2028">2028</option>
+                                        <option value="2029">2029</option>
+                                        <option value="2030">2030</option-->
+									</select>
+										<!-- input name="orderDate" type="text"
+                                        size="20" value="<?php echo date_create_from_format("d/m/Y", date("Y/m/d")); ?>" readonly="true" />
+                                        <input name="orderDate" type="text"
+                                        size="20" value="<?php echo date_create_from_format("d/m/Y", date("Y/m/d")); ?>" readonly="true" /-->
+                                        <script type="text/javascript">
+                                        validateDate();
+                                        validate_date();
+                                        selectDate();
+                                        </script>
+                                        </td>
+									<td><input name="orderTest" type="text"
+                                        size="60" value="<?php echo date("d M/d/Y")." ".date_default_timezone_get()." ";
+                                        $dt = new DateTime();
+echo $dt->format('Y-m-d H:i:s'); ?>" readonly="true" /></td>
 								</tr>
 								<tr>
 									<td>- Products:</td>

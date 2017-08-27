@@ -159,3 +159,67 @@ function validateNumber(value, string, element) {
 	}
 	return true;
 }
+
+/**
+ * Validate and set date for order
+ */
+function validateDate() {
+	var ysel = document.getElementsByName("year")[0],
+    msel = document.getElementsByName("month")[0],
+    dsel = document.getElementsByName("day")[0];
+	for (var i = 2016; i <= 2030; i++) {
+	    var opt = new Option();
+	    opt.value = opt.text = i;
+	    ysel.add(opt);
+	}
+	ysel.addEventListener("change", validate_date);
+	msel.addEventListener("change", validate_date);
+}
+
+function validate_date() {
+	var ysel = document.getElementsByName("year")[0],
+    msel = document.getElementsByName("month")[0],
+    dsel = document.getElementsByName("day")[0];
+    var y = +ysel.value, m = msel.value, d = dsel.value;
+    if (m === "2")
+        var mlength = 28 + (!(y & 3) && ((y % 100) !== 0 || !(y & 15)));
+    else var mlength = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1];
+    dsel.length = 0;
+    for (var i = 1; i <= mlength; i++) {
+        var opt = new Option();
+        if (i < 10)
+        	i = '0' + i;
+        opt.value = opt.text = i;
+        if (i == d) opt.selected = true;
+        dsel.add(opt);
+    }
+}
+
+function selectDate() {
+	var today = new Date();
+	var dd = today.getDate();
+	var mm = today.getMonth()+1; //January is 0!
+	var yyyy = today.getFullYear();
+
+	if(dd<10) {
+	    dd = '0'+dd;
+	} 
+
+	if(mm<10) {
+	    mm = '0'+mm;
+	}
+	var ysel = document.getElementsByName("year")[0],
+    msel = document.getElementsByName("month")[0],
+    dsel = document.getElementsByName("day")[0];
+	ysel.value = yyyy;
+	dsel.value = dd;
+	msel.value = mm;
+}
+function selectDateForData(date) {
+	var ysel = document.getElementsByName("year")[0],
+    msel = document.getElementsByName("month")[0],
+    dsel = document.getElementsByName("day")[0];
+	dsel.value = date[0];
+	msel.value = date[1];
+	ysel.value = date[2];
+}

@@ -37,7 +37,9 @@ if (isset($sbmUpdateInfo) ) {
     // TODO: need to validate phone format here.
     $recvPhone = $_POST ["recvPhone"];
 
-    $orderDate = $_POST ["orderDate"];
+//    $orderDate = $_POST ["orderDate"];
+    $orderDate = $_POST["year"]."-".$_POST["month"]."-".$_POST["day"];
+
     //get current date
     $currentDate = date('d/m/Y H:i');
     $productDesc = $_POST ["product_desc"];
@@ -163,9 +165,9 @@ if (isset($sbmUpdateInfo) ) {
 	//convert input date to format d/m/Y to parse to timestamp for cal current week number of month
 	$code = "";
 	try{
-	    $dates = explode ("/",$orderDate);
-	    $ordDate = strtotime($dates[1]."/".$dates[0]."/".$dates[2]);
-	    $code = date("n", $ordDate).weekOfMonth($ordDate);
+	    $dates = explode ("-",$orderDate);
+        $ordDate = strtotime($dates[0]."/".$dates[1]."/".$dates[2]);
+        $code = date("n", $ordDate).weekOfMonth($ordDate);
 	} catch (Exception $e) {
 		// seems like we can't parse date, so mark code as empty
 	}
@@ -525,8 +527,32 @@ p.hidden {
 			<?php } ?>
 			<tr>
 				<td>- Date:</td>
-				<td><input name="orderDate" type="date"
-					value="<?php echo $orderArray['date'];?>" size="60" readonly="readonly" /></td>
+				<td>
+				    <select name="day" id="day">
+				    </select>
+				    <select name="month" id="month">
+				        <option value="01">01</option>
+				        <option value="02">02</option>
+				        <option value="03">03</option>
+				        <option value="04">04</option>
+				        <option value="05">05</option>
+				        <option value="06">06</option>
+				        <option value="07">07</option>
+				        <option value="08">08</option>
+				        <option value="09">09</option>
+				        <option value="10">10</option>
+				        <option value="11">11</option>
+				        <option value="12">12</option>
+				    </select>
+				    <select name="year" id="year">
+				    </select>
+				    <script type="text/javascript">
+				    validateDate();
+				    validate_date();
+				    selectDateForData(<?php echo json_encode(explode ("/", $orderArray['date']));?>);
+				    </script>
+				<!-- input name="orderDate" type="date"
+					value="<?php echo $orderArray['date'];?>" size="60" readonly="readonly" /--></td>
 			</tr>
 			<tr style="border-bottom: 1px solid">
 				<td colspan="6" style="border-bottom: 1px solid">- <strong>Status</strong>:
