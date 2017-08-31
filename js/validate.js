@@ -172,8 +172,19 @@ function validateDate() {
 	    opt.value = opt.text = i;
 	    ysel.add(opt);
 	}
-	ysel.addEventListener("change", validate_date);
-	msel.addEventListener("change", validate_date);
+//	if (document.addEventListener){
+//		ysel.addEventListener('change', validate_date, false); 
+//	} else if (ysel.attachEvent){
+//		ysel.attachEvent('onchange', validate_date);
+//	}
+//	
+//	if (document.addEventListener){
+//		msel.addEventListener('change', validate_date, false); 
+//	} else if (msel.attachEvent){
+//		msel.attachEvent('onchange', validate_date);
+//	}
+//	ysel.addEventListener("change", validate_date);
+//	msel.addEventListener("change", validate_date);
 }
 
 function validate_date() {
