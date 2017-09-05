@@ -34,6 +34,9 @@ tr {
 p.hidden {
 	border-style: hidden;
 }
+.print-order {
+                opacity: 0;
+            }
 
 .rTable { display: table; width: 100%; border:0;}
 .rTableRow {display: table-row;}
@@ -50,21 +53,40 @@ p.hidden {
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <link rel='stylesheet' type='text/css' href='css/style.css' />
 <link rel='stylesheet' type='text/css' href='css/print.css' media="print" />
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet" />
 <script>
   $( function() {
     $( "#datepicker" ).datepicker({
         dateFormat: "dd/mm/yy"
     });
   } );
+  $(function() {
+      // Delete row in a table
+      jQuery('.print-order').click(function(){
+    	  window.print();
+      });
+      jQuery('#page-wrap').hover(function(){
+          jQuery(this).find('.print-order').animate({opacity: 1});
+        },function(){
+          jQuery(this).find('.print-order').animate({opacity: 0});
+        });
+  });
+
+
 </script>
 </head>
 
 <body>
 	<div id="page-wrap">
+	    <div align="right">
+            <a class="fa fa-print print-order" aria-hidden="true" href="#"></a>
+        </div>
 		<textarea id="header"><?php
 		  if ( isset($_SESSION['user_id']) && ($_SESSION['user_id'] == 7 || $_SESSION['username'] == 'trietle')) { // apply full role with user khoa - id = 5
 		  	echo "SF Express";
-		  } else {
+		  } else if ( isset($_SESSION['user_id']) && ($_SESSION['user_id'] == 5 || $_SESSION['username'] == 'khoa')) { // apply full role with user khoa - id = 5
+            echo "SAIGONAIR CARGO";
+          } else{
 		  	echo "SAO PHI CARGO";
 		  }
 		?></textarea>
@@ -88,7 +110,8 @@ p.hidden {
 			if ( isset($_SESSION['user_id']) && ($_SESSION['user_id'] == 6 || $_SESSION['username'] == 'vinhle')) { // apply full role with user khoa - id = 5
 				echo "<strong>Mr. Vinh: </strong>408-797-7777";
             } else {
-            	echo "1229 Jacklin Rd, Milpitas, CA 95036";
+//            	echo "1229 Jacklin Rd, Milpitas, CA 95036";
+                echo "1759 S Main St #116, Milpitas CA 95035";
             }
 			?></br></p>
 			<p align="center" style="font-size:20px"><?php
